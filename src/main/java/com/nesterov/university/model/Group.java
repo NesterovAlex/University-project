@@ -4,15 +4,15 @@ import java.util.List;
 
 public class Group {
 
-	private String nameString;
+	private String name;
 	private List<Student> students;
 	
-	public String getNameString() {
-		return nameString;
+	public String getName() {
+		return name;
 	}
 	
-	public void setNameString(String nameString) {
-		this.nameString = nameString;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public List<Student> getStudents() {

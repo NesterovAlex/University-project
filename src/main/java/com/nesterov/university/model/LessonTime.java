@@ -1,12 +1,12 @@
 package com.nesterov.university.model;
 
-import java.time.Duration;
+import java.time.LocalTime;
 
 public class LessonTime {
 
 	private int orderNumber;
-	private Duration start;
-	private Duration end;
+	private LocalTime start;
+	private LocalTime end;
 	
 	public int getOrderNumber() {
 		return orderNumber;
@@ -16,19 +16,19 @@ public class LessonTime {
 		this.orderNumber = orderNumber;
 	}
 	
-	public Duration getStart() {
+	public LocalTime getStart() {
 		return start;
 	}
 	
-	public void setStart(Duration start) {
+	public void setStart(LocalTime start) {
 		this.start = start;
 	}
 	
-	public Duration getEnd() {
+	public LocalTime getEnd() {
 		return end;
 	}
 	
-	public void setEnd(Duration end) {
+	public void setEnd(LocalTime end) {
 		this.end = end;
 	}
 	

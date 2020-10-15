@@ -6,11 +6,11 @@ public abstract class Person {
 
 	private String  firstName;
 	private String  lastName;
-	private LocalDate  bithDay;
+	private LocalDate  bithDate;
 	private String  address;
 	private String  email;
 	private String  phone;
-	private String  gender;
+	private Gender  gender;
 	
 	public String getFirstName() {
 		return firstName;
@@ -23,16 +23,17 @@ public abstract class Person {
 	public String getLastName() {
 		return lastName;
 	}
+	
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 	
-	public LocalDate getBithDay() {
-		return bithDay;
+	public LocalDate getBithDate() {
+		return bithDate;
 	}
 	
-	public void setBithDay(LocalDate bithDay) {
-		this.bithDay = bithDay;
+	public void setBithDay(LocalDate bithDate) {
+		this.bithDate = bithDate;
 	}
 	
 	public String getAddress() {
@@ -58,12 +59,12 @@ public abstract class Person {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	public String getGender() {
+
+	public Gender getGender() {
 		return gender;
 	}
-	
-	public void setGender(String gender) {
+
+	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 	

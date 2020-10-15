@@ -1,13 +1,13 @@
 package com.nesterov.university.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Lesson {
 	
 	private Subject subject;
 	private Audience audience;
-	private Date date;
+	private LocalDate date;
 	private LessonTime time;
 	private Teacher teacher;
 	private List<Group> groups;
@@ -28,11 +28,11 @@ public class Lesson {
 		this.audience = audience;
 	}
 	
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 	
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 	
