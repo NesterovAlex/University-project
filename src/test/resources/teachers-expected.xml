@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<TEACHERS ID="1" FIRST_NAME="Alex"
+		LAST_NAME="Nesterov" BITH_DATE="[now]" ADDRESS="Kiev" EMAIL="malibu8770@gmail.com" PHONE="+380930890658" GENDER="MALE" />
+</dataset>
