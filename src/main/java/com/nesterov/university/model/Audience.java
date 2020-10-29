@@ -13,6 +13,12 @@ public class Audience {
 		this.capacity = capacity;
 	}
 
+	public Audience(long id, int roomNumber, int capacity) {
+		this.id = id;
+		this.roomNumber = roomNumber;
+		this.capacity = capacity;
+	}
+
 	public int getRoomNumber() {
 		return roomNumber;
 	}

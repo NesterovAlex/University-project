@@ -1,45 +1,53 @@
 package com.nesterov.university.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.model.Audience;
 
 @Component
 public class AudienceDao {
 
-	private static final String SELECT_AUDIENCE = "SELECT *  FROM audiences WHERE id = ?";
+	private static final String INSERT = "INSERT INTO audiences (room_number, capacity) values (?, ?)";
+	private static final String SELECT = "SELECT *  FROM audiences WHERE id = ?";
+	private static final String UPDATE = "UPDATE audiences SET room_number = ?, capacity = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM audiences WHERE id = ?";
-	
-	@Autowired
+
 	private JdbcTemplate template;
 
-	@Autowired
-	private SimpleJdbcInsert insertAudience;
-
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		this.insertAudience = insertAudience.withTableName("audiences").usingGeneratedKeyColumns("id");
+	public AudienceDao(DataSource source) {
+		this.template = new JdbcTemplate(source);
 	}
 
-	public void create(Audience audience) {
-		SqlParameterSource parameters = new BeanPropertySqlParameterSource(audience);
-		Number newId = insertAudience.executeAndReturnKey(parameters);
-		audience.setId(newId.longValue());
+	public long create(Audience audience) {
+		final KeyHolder holder = new GeneratedKeyHolder();
+		template.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setInt(1, audience.getRoomNumber());
+			statement.setInt(2, audience.getCapacity());
+			return statement;
+		}, holder);
+		audience.setId(holder.getKey().longValue());
+		return audience.getId();
 	}
 
-	public Audience read(long id) {
-		return template.queryForObject(SELECT_AUDIENCE, new Object[] { id },
-				new BeanPropertyRowMapper<Audience>(Audience.class));
+	public Audience get(long id) {
+		return template.queryForObject(SELECT, new Object[] { id },
+				(resultSet, rowNum) -> new Audience(resultSet.getLong("id"), resultSet.getInt("room_number"),
+						resultSet.getInt("capacity")));
 	}
-	
-	public boolean delete(long id){
-	    Object[] args = new Object[] {id};
-	    return template.update(DELETE, args) == 1;
+
+	public boolean delete(long id) {
+		return template.update(DELETE, id) == 1;
+	}
+
+	public long update(Audience audience) {
+		return template.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
 	}
 }

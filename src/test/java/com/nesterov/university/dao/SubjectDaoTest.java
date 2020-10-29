@@ -2,98 +2,54 @@ package com.nesterov.university.dao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Properties;
-import org.dbunit.Assertion;
-import org.dbunit.DBTestCase;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.JdbcDatabaseTester;
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import com.nesterov.university.model.Subject;
 
-class SubjectDaoTest extends DBTestCase{
+class SubjectDaoTest {
 
-	private static final String PROPERTY = "config.properties";
-	private final String CREATE_TABLE = "DROP TABLE IF EXISTS subjects; CREATE TABLE subjects(id SERIAL NOT NULL, name VARCHAR(20) NOT NULL);";
-
-	private ApplicationContext context;
-	private JdbcTemplate template;
 	private SubjectDao dao;
-	private Properties properties;
-	protected IDatabaseTester tester;
-	
-	public SubjectDaoTest() {
-		context = new ClassPathXmlApplicationContext("persistence.xml");
-		template = (JdbcTemplate) context.getBean("jdbcTemplate");
-		template.execute(CREATE_TABLE);
-		dao = context.getBean(SubjectDao.class);
-		properties = com.nesterov.university.Utils.readPropertiesFile(PROPERTY);
-		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, properties.getProperty("driver"));
-		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, properties.getProperty("url"));
-		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, properties.getProperty("username"));
-		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, properties.getProperty("password"));
-	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		tester = new JdbcDatabaseTester(properties.getProperty("driver"), properties.getProperty("url"),
-				properties.getProperty("username"), properties.getProperty("password"));
-		tester.setDataSet(getDataSet());
-		tester.onSetup();
+	@BeforeEach
+	void setUp() {
+		DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/subjects_data.sql").build();
+		dao = new SubjectDao(dataSource);
 	}
 
 	@Test
-	void givenDataSet_whenCreate_thenTableHasNewSubject() throws Exception {
-	
-		dao.create(new Subject("Mathematic"));
-	
-		IDatabaseConnection connection = getConnection();
-		IDataSet databaseDataSet = connection.createDataSet();
-		ITable actualTable = databaseDataSet.getTable("subjects");
-		IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
-				.build(Thread.currentThread().getContextClassLoader().getResourceAsStream("subjects_expected.xml"));
-		ITable expectedTable = expectedDataSet.getTable("SUBJECTS");
-		
-		Assertion.assertEquals(expectedTable, actualTable);
+	public void givenExpectedData_whenCreate_thenReturnExpectedId() {
+
+		assertEquals(5, dao.create(new Subject("Biology")));
 	}
 
 	@Test
-	void givenDataSet_whenDeleteSubject_thenTableHasEqualsDataSet() throws Exception {
-		dao.create(new Subject("Mathematic"));
-		dao.create(new Subject("Geography"));
-		
-		dao.delete(2);	
-		
-		IDatabaseConnection connection = getConnection();
-		IDataSet databaseDataSet = connection.createDataSet();
-		ITable actualTable = databaseDataSet.getTable("SUBJECTS");
-		IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(
-                Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("subjects_expected.xml"));
-		ITable expectedTable = expectedDataSet.getTable("SUBJECTS");
+	void givenDataSetAndIdOfSubject_whenRead_thenExpectedIdOfSubjectReturned() {
 
-		Assertion.assertEquals(expectedTable, actualTable);
+		assertEquals(1, dao.getSubject(1).getId());
 	}
-	
+
 	@Test
-	void givenExpectedResult_whenRead_ThenActualResultEqualExpectedReturned() {
-		dao.create(new Subject("Mathematic"));
-		
-		String actual = dao.read(1).getName();
-		
-		assertEquals("Mathematic", actual);
+	void givenDataSetAndIdOfSubject_whenRead_thenExpectedNameOfSubjectReturned() {
+
+		assertEquals("Mathematic", dao.getSubject(1).getName());
 	}
 
-	@Override
-	protected IDataSet getDataSet() throws Exception {
-		return null;
+	@Test
+	void givenDataSet_whenDelete_thenTrueOfDeleteReturned() {
+
+		assertTrue(dao.delete(3));
 	}
+
+	@Test
+	void givenDataSetExpectedSubject_whenUpdate_thenRelevantParametersOfSubjectUpdated() {
+		
+		assertEquals(1, dao.update(new Subject(3, "Geometry")));
+		
+		assertEquals("Geometry", dao.getSubject(3).getName());
+	}
+
 }

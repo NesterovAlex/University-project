@@ -14,31 +14,11 @@
 		<jacoco.version>0.8.2</jacoco.version>
 		<springframework.version>5.2.9.RELEASE</springframework.version>
 		<postgresql.version>42.2.14</postgresql.version>
-		<log4j.version>1.2.17</log4j.version>
-		<slf4j.version>2.0.0-alpha1</slf4j.version>
-		<apache.logging.log4j.version>2.13.3</apache.logging.log4j.version>
 		<h2.version>1.4.200</h2.version>
-		<dbunit.version>2.7.0</dbunit.version>
 		<assertj.version>3.16.1</assertj.version>
-		<apache.commons.version>3.10</apache.commons.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${apache.commons.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -76,18 +56,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.dbunit</groupId>
-			<artifactId>dbunit</artifactId>
-			<version>${dbunit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

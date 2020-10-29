@@ -4,13 +4,15 @@ import java.time.LocalDate;
 
 public class Student extends Person{
 	
+	private String faculty;
+	private String course;
+	
+	public Student() {}
+	
 	public Student(String firstName, String lastName, LocalDate bithDate, String address, String email, String phone,
 			Gender gender) {
 		super(firstName, lastName, bithDate, address, email, phone, gender);
 	}
-
-	private String faculty;
-	private String course;
 	
 	public String getFaculty() {
 		return faculty;

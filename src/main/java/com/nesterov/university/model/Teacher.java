@@ -5,10 +5,9 @@ import java.util.List;
 
 public class Teacher extends Person{
 	
-	public Teacher() {
-		super();
-	}
 	private List<Subject> subjects;
+	
+	public Teacher() {}
 	
 	public Teacher(String firstName, String lastName, LocalDate date, String address, String email, String phone,
 			Gender gender) {
