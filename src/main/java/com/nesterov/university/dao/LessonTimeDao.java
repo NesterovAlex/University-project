@@ -3,16 +3,13 @@ package com.nesterov.university.dao;
 import static java.sql.Time.valueOf;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Time;
-import java.time.LocalTime;
-import javax.sql.DataSource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import com.nesterov.university.model.LessonTime;
 
+@Component
 public class LessonTimeDao {
 
 	private static final String INSERT = "INSERT INTO lessonTimes (order_Number, start_lesson, end_lesson) values (?, ?, ?)";
@@ -22,11 +19,11 @@ public class LessonTimeDao {
 
 	private JdbcTemplate template;
 
-	public LessonTimeDao(DataSource source) {
-		this.template = new JdbcTemplate(source);
+	public LessonTimeDao(JdbcTemplate template) {
+		this.template = template;
 	}
 
-	public long create(LessonTime lessonTime) {
+	public void create(LessonTime lessonTime) {
 		final KeyHolder holder = new GeneratedKeyHolder();
 		template.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
@@ -36,7 +33,6 @@ public class LessonTimeDao {
 			return statement;
 		}, holder);
 		lessonTime.setId(holder.getKey().longValue());
-		return lessonTime.getId();
 	}
 
 	public LessonTime get(long id) {
@@ -46,12 +42,12 @@ public class LessonTimeDao {
 						resultSet.getTime("end_lesson").toLocalTime()));
 	}
 
-	public boolean delete(long id) {
-		return template.update(DELETE, id) == 1;
+	public void delete(long id) {
+		template.update(DELETE, id);
 	}
 
-	public long update(LessonTime lessonTime) {
-		return template.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(), lessonTime.getEnd(),
+	public void update(LessonTime lessonTime) {
+		template.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(), lessonTime.getEnd(),
 				lessonTime.getId());
 	}
 }

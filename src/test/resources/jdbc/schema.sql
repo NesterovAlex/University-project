@@ -61,10 +61,11 @@ CREATE TABLE lessonTimes
 CREATE TABLE lessons 
 (
     id SERIAL  NOT NULL,
-    subject INTEGER NOT NULL,
-    audience INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    audience_id INTEGER NOT NULL,
     lesson_date DATE NOT NULL,
-    lesson_time INTEGER NOT NULL,
-    teacher INTEGER NOT NULL,
+    lesson_time_id INTEGER NOT NULL,
+    teacher_id INTEGER NOT NULL,
+    group_id INTEGER,
     PRIMARY KEY (id)
 );

@@ -1,10 +1,6 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import javax.sql.DataSource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -21,11 +17,11 @@ public class AudienceDao {
 
 	private JdbcTemplate template;
 
-	public AudienceDao(DataSource source) {
-		this.template = new JdbcTemplate(source);
+	public AudienceDao(JdbcTemplate template) {
+		this.template = template;
 	}
 
-	public long create(Audience audience) {
+	public void create(Audience audience) {
 		final KeyHolder holder = new GeneratedKeyHolder();
 		template.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
@@ -34,7 +30,6 @@ public class AudienceDao {
 			return statement;
 		}, holder);
 		audience.setId(holder.getKey().longValue());
-		return audience.getId();
 	}
 
 	public Audience get(long id) {
@@ -43,11 +38,11 @@ public class AudienceDao {
 						resultSet.getInt("capacity")));
 	}
 
-	public boolean delete(long id) {
-		return template.update(DELETE, id) == 1;
+	public void delete(long id) {
+		template.update(DELETE, id);
 	}
 
-	public long update(Audience audience) {
-		return template.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
+	public void update(Audience audience) {
+		template.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
 	}
 }
