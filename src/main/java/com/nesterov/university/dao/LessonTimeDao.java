@@ -1,8 +1,7 @@
 package com.nesterov.university.dao;
 
-import static java.sql.Time.valueOf;
-
 import java.sql.PreparedStatement;
+import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,8 +11,9 @@ import com.nesterov.university.model.LessonTime;
 @Component
 public class LessonTimeDao {
 
+	private static final String SELECT_BY_ID = "SELECT *  FROM lessonTimes WHERE id = ?";
+	private static final String SELECT = "SELECT * FROM lessonTime";
 	private static final String INSERT = "INSERT INTO lessonTimes (order_Number, start_lesson, end_lesson) values (?, ?, ?)";
-	private static final String SELECT = "SELECT *  FROM lessonTimes WHERE id = ?";
 	private static final String UPDATE = "UPDATE lessonTimes SET order_number = ?, start_lesson = ?, end_lesson = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM lessonTimes WHERE id = ?";
 
@@ -28,18 +28,18 @@ public class LessonTimeDao {
 		template.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
 			statement.setInt(1, lessonTime.getOrderNumber());
-			statement.setTime(2, valueOf(lessonTime.getStart()));
-			statement.setTime(3, valueOf(lessonTime.getEnd()));
+			statement.setTime(2, lessonTime.getStart());
+			statement.setTime(3, lessonTime.getEnd());
 			return statement;
 		}, holder);
 		lessonTime.setId(holder.getKey().longValue());
 	}
 
 	public LessonTime get(long id) {
-		return template.queryForObject(SELECT, new Object[] { id },
+		return template.queryForObject(SELECT_BY_ID, new Object[] { id },
 				(resultSet, rowNum) -> new LessonTime(resultSet.getLong("id"), resultSet.getInt("order_number"),
-						resultSet.getTime("start_lesson").toLocalTime(),
-						resultSet.getTime("end_lesson").toLocalTime()));
+						resultSet.getTime("start_lesson"),
+						resultSet.getTime("end_lesson")));
 	}
 
 	public void delete(long id) {
@@ -49,5 +49,10 @@ public class LessonTimeDao {
 	public void update(LessonTime lessonTime) {
 		template.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(), lessonTime.getEnd(),
 				lessonTime.getId());
+	}
+
+	public List<LessonTime> getAll() {
+		return template.query(SELECT, (rs, rowNum) -> new LessonTime(rs.getLong("id"), rs.getInt("order_number"),
+				rs.getTime("start_lesson"), rs.getTime("end_lesson")));
 	}
 }

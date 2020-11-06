@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS audiences;
-DROP TABLE IF EXISTS subjects;
-DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS subjects CASCADE;
+DROP TABLE IF EXISTS teachers CASCADE;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS lessonTimes;
 DROP TABLE IF EXISTS lessons;
+DROP TABLE IF EXISTS teachers_subjects;
 CREATE TABLE audiences
 (
     id SERIAL NOT NULL,
@@ -68,4 +69,9 @@ CREATE TABLE lessons
     teacher_id INTEGER NOT NULL,
     group_id INTEGER,
     PRIMARY KEY (id)
+);
+CREATE TABLE teachers_subjects
+(
+    teacher_id INT  NOT NULL,
+    subject_id INT  NOT NULL
 );

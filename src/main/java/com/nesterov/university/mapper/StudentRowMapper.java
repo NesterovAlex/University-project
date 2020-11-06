@@ -16,7 +16,7 @@ public class StudentRowMapper implements RowMapper<Student> {
 		student.setId(resultSet.getLong("id"));
 		student.setFirstName(resultSet.getString("first_name"));
 		student.setLastName(resultSet.getString("last_name"));
-		student.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+		student.setBirthDate(resultSet.getDate("birth_date"));
 		student.setAddress(resultSet.getString("address"));
 		student.setEmail(resultSet.getString("email"));
 		student.setPhone(resultSet.getString("phone"));

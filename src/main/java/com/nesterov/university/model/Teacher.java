@@ -1,6 +1,6 @@
 package com.nesterov.university.model;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 public class Teacher extends Person{
@@ -9,7 +9,7 @@ public class Teacher extends Person{
 	
 	public Teacher() {}
 	
-	public Teacher(String firstName, String lastName, LocalDate date, String address, String email, String phone,
+	public Teacher(String firstName, String lastName, Date date, String address, String email, String phone,
 			Gender gender) {
 		super(firstName, lastName, date, address, email, phone, gender);
 	}

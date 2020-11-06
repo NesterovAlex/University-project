@@ -1,19 +1,22 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import com.nesterov.university.mapper.AudienceRowMapper;
 import com.nesterov.university.model.Audience;
 
 @Component
 public class AudienceDao {
 
+	private static final String SELECT_BY_ID = "SELECT *  FROM audiences WHERE id = ?";
 	private static final String INSERT = "INSERT INTO audiences (room_number, capacity) values (?, ?)";
-	private static final String SELECT = "SELECT *  FROM audiences WHERE id = ?";
 	private static final String UPDATE = "UPDATE audiences SET room_number = ?, capacity = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM audiences WHERE id = ?";
+	private static final String SELECT = "SELECT * FROM audiences";
 
 	private JdbcTemplate template;
 
@@ -33,7 +36,7 @@ public class AudienceDao {
 	}
 
 	public Audience get(long id) {
-		return template.queryForObject(SELECT, new Object[] { id },
+		return template.queryForObject(SELECT_BY_ID, new Object[] { id },
 				(resultSet, rowNum) -> new Audience(resultSet.getLong("id"), resultSet.getInt("room_number"),
 						resultSet.getInt("capacity")));
 	}
@@ -44,5 +47,9 @@ public class AudienceDao {
 
 	public void update(Audience audience) {
 		template.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
+	}
+
+	public List<Audience> getAll() {
+		return template.query(SELECT, new AudienceRowMapper());
 	}
 }

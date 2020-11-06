@@ -1,5 +1,6 @@
 package com.nesterov.university.model;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public abstract class Person {
@@ -7,7 +8,7 @@ public abstract class Person {
 	private long id;
 	private String  firstName;
 	private String  lastName;
-	private LocalDate birthDate;
+	private Date birthDate;
 	private String  address;
 	private String  email;
 	private String  phone;
@@ -15,7 +16,7 @@ public abstract class Person {
 	
 	public Person() {}
 	
-	public Person(String firstName, String lastName, LocalDate  birthDate, String address, String email, String phone,
+	public Person(String firstName, String lastName, Date  birthDate, String address, String email, String phone,
 			Gender gender) {
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -50,12 +51,12 @@ public abstract class Person {
 		this.lastName = lastName;
 	}
 	
-	public LocalDate getBithDate() {
+	public Date getBithDate() {
 		return birthDate;
 	}
 	
-	public void setBirthDate(LocalDate localDate) {
-		this.birthDate = localDate;
+	public void setBirthDate(Date birthdate) {
+		this.birthDate = birthdate;
 	}
 	
 	public String getAddress() {
@@ -82,8 +83,8 @@ public abstract class Person {
 		this.phone = phone;
 	}
 
-	public String getGender() {
-		return gender.getTitle();
+	public Gender getGender() {
+		return gender;
 	}
 
 	public void setGender(Gender gender) {

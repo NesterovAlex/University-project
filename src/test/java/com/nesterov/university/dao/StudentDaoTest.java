@@ -2,6 +2,7 @@ package com.nesterov.university.dao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ class StudentDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenReturnExpectedId() {
-		dao.create(new Student("Alice", "Nesterova", LocalDate.now(), "Kiev", "alice@nesterova.com", "123456789",
+		dao.create(new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE")));
 
 		long actual = template.queryForObject("SELECT COUNT(*) FROM students", Long.class);
@@ -36,7 +37,7 @@ class StudentDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenReturnExpectedI() {
-		dao.create(new Student("Alice", "Nesterova", LocalDate.now(), "Kiev", "alice@nesterova.com", "123456789",
+		dao.create(new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE")));
 
 		String actual = template.queryForObject("SELECT first_name FROM students where id=5", String.class);
@@ -68,7 +69,7 @@ class StudentDaoTest {
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedEmailOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", LocalDate.now(), "Kiev", "alice@nesterova.com", "123456789",
+		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE"));
 		student.setId(3);
 
@@ -80,7 +81,7 @@ class StudentDaoTest {
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedNameOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", LocalDate.now(), "Kiev", "alice@nesterova.com", "123456789",
+		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE"));
 		student.setId(3);
 
@@ -92,7 +93,7 @@ class StudentDaoTest {
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedLastOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", LocalDate.now(), "Kiev", "alice@nesterova.com", "123456789",
+		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE"));
 		student.setId(3);
 

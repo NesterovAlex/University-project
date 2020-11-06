@@ -2,17 +2,13 @@ package com.nesterov.university.dao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
-import com.nesterov.university.configuration.ApplicationConfig;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Lesson;
 import com.nesterov.university.model.LessonTime;
@@ -43,7 +39,7 @@ class LessonDaoTest {
 		LessonTime lessonTime = new LessonTime();
 		lessonTime.setId(100);
 		
-		dao.create(new Lesson(subject, audience, LocalDate.now(), lessonTime, teacher));	
+		dao.create(new Lesson(subject, audience, new Date(0), lessonTime, teacher));	
 
 		long actual = template.queryForObject("SELECT COUNT(*) FROM lessons", Long.class);
 		assertEquals(5, actual);
@@ -60,7 +56,7 @@ class LessonDaoTest {
 		LessonTime lessonTime = new LessonTime();
 		lessonTime.setId(100);
 		
-		dao.create(new Lesson(subject, audience, LocalDate.now(), lessonTime, teacher));	
+		dao.create(new Lesson(subject, audience, new Date(0), lessonTime, teacher));	
 
 		long actual = template.queryForObject("SELECT audience_id FROM lessons WHERE id=5", Long.class);
 		assertEquals(34, actual);
@@ -86,7 +82,7 @@ class LessonDaoTest {
 		LessonTime lessonTime = new LessonTime();
 		lessonTime.setId(100);
 
-		dao.update(new Lesson(2,subject, audience, LocalDate.now(), lessonTime, teacher));
+		dao.update(new Lesson(2,subject, audience, new Date(0), lessonTime, teacher));
 
 		long actual = template.queryForObject("SELECT subject_id FROM lessons WHERE id=2", Long.class);
 		assertEquals(23, actual);
@@ -103,7 +99,7 @@ class LessonDaoTest {
 		LessonTime lessonTime = new LessonTime();
 		lessonTime.setId(100);
 
-		dao.update(new Lesson(2,subject, audience, LocalDate.now(), lessonTime, teacher));
+		dao.update(new Lesson(2,subject, audience, new Date(0), lessonTime, teacher));
 
 		long actual = template.queryForObject("SELECT teacher_id FROM lessons WHERE id=2", Long.class);
 		assertEquals(78, actual);

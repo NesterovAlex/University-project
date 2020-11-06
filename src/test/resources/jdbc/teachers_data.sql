@@ -2,3 +2,9 @@ INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, pho
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Vasya', 'Vasin', '2014-07-19', 'Vasino', 'Vasya@vasyin', '2354657657', 'MALE');
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Petr', 'Petrov', '2011-05-14', 'Petrovka', 'petr@petrov', '55r2346254', 'MALE');
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Ivanka', 'Ivanova', '2019-02-15', 'Ivanovo', 'ivanka@ivanova', '358769341', 'FEMALE');
+INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Mathematic');
+INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Geography');
+INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Geometry');
+INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Physic');
+INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 1);
+INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 2);

@@ -10,7 +10,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 @Configuration
-@Profile("unit-test")
 @ComponentScan
 public class TestConfig {
 
@@ -21,7 +20,6 @@ public class TestConfig {
 	}
 	
 	@Bean
-	@Profile("test")
 	JdbcTemplate jdbcTemplate(DataSource dataSource) {
 		return new JdbcTemplate(dataSource);
 	}

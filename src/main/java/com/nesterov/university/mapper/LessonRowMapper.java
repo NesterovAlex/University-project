@@ -25,9 +25,9 @@ public class LessonRowMapper implements RowMapper<Lesson>{
 		Lesson lesson = new Lesson();
 		lesson.setAudience(audienceDao.get(rs.getLong("audience_id")));
 		lesson.setSubject(subjectDao.getSubject(rs.getLong("subject_id")));
-		lesson.setTeacher(teacherDao.getTeacher(rs.getLong("teacher_id")));
+		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));
 		lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")));
-		lesson.setDate(rs.getDate("lesson_date").toLocalDate());
+		lesson.setDate(rs.getDate("lesson_date"));
 		ArrayList<Group> groups = new ArrayList<>();
 		groups.add(groupDao.get(rs.getLong("group_id")));
 		lesson.setGroups(groups);

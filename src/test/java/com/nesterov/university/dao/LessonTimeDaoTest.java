@@ -28,7 +28,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedCountOfLessonTimesReturned() {
-		dao.create(new LessonTime(12, LocalTime.now(), LocalTime.now()));
+		dao.create(new LessonTime(12, new Time(0),new Time(0)));
 
 		long actual = template.queryForObject("SELECT COUNT(*) FROM lessonTimes", Long.class);
 		assertEquals(5, actual);
@@ -36,7 +36,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedStartLessonTimesReturned() {
-		dao.create(new LessonTime(12, LocalTime.of(2, 30), LocalTime.now()));
+		dao.create(new LessonTime(12, new Time(0), new Time(0)));
 
 		Time actual = template.queryForObject("SELECT start_lesson FROM lessonTimes where id=5", Time.class);
 		assertEquals(LocalTime.of(2, 30), actual.toLocalTime());
@@ -44,7 +44,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedEndLessonTimesReturned() {
-		dao.create(new LessonTime(12, LocalTime.of(2, 30), LocalTime.of(5, 30)));
+		dao.create(new LessonTime(12, new Time(0), new Time(0)));
 
 		Time actual = template.queryForObject("SELECT end_lesson FROM lessonTimes where id=5", Time.class);
 		assertEquals(LocalTime.of(5, 30), actual.toLocalTime());
@@ -52,7 +52,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedOrderNumberLessonTimesReturned() {
-		dao.create(new LessonTime(12, LocalTime.of(2, 30), LocalTime.of(5, 30)));
+		dao.create(new LessonTime(12, new Time(0), new Time(0)));
 
 		Long actual = template.queryForObject("SELECT order_number FROM lessonTimes where id=5", Long.class);
 		assertEquals(12, actual);
@@ -88,7 +88,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	void givenDataSetAndExpectedLessonTime_whenUpdate_thenExpectedOrderNumberOfLessonTimeReturned() {
-		dao.update(new LessonTime(4, 12, LocalTime.now(), LocalTime.now()));
+		dao.update(new LessonTime(4, 12, new Time(0), new Time(0)));
 
 		long actual = template.queryForObject("SELECT order_number FROM lessonTimes WHERE id=4", Long.class);
 		assertEquals(12, actual);
@@ -96,7 +96,7 @@ class LessonTimeDaoTest {
 	
 	@Test
 	void givenDataSetAndExpectedLessonTime_whenUpdate_thenExpectedStartOfLessonTimeReturned() {
-		dao.update(new LessonTime(4, 12, LocalTime.of(16, 45), LocalTime.now()));
+		dao.update(new LessonTime(4, 12, new Time(0), new Time(0)));
 
 		Time actual = template.queryForObject("SELECT start_lesson FROM lessonTimes WHERE id=4", Time.class);
 		assertEquals(LocalTime.of(16, 45), actual.toLocalTime());
@@ -104,7 +104,7 @@ class LessonTimeDaoTest {
 	
 	@Test
 	void givenDataSetAndExpectedLessonTime_whenUpdate_thenExpectedEndOfLessonTimeReturned() {
-		dao.update(new LessonTime(4, 12, LocalTime.of(16, 45), LocalTime.of(17, 20)));
+		dao.update(new LessonTime(4, 12, new Time(0), new Time(0)));
 
 		Time actual = template.queryForObject("SELECT end_lesson FROM lessonTimes WHERE id=4", Time.class);
 		assertEquals(LocalTime.of(17, 20), actual.toLocalTime());

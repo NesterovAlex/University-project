@@ -11,33 +11,33 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Configuration
 @ComponentScan(basePackages = "com.nesterov.university")
-@PropertySource(value = "classpath:database.properties", encoding="UTF-8")
+@PropertySource(value = "classpath:config.properties", encoding="UTF-8")
 public class ApplicationConfig {
 
 	@Value("${driver}")
-	public String driver;
+	private String driver;
 	
 	@Value("${url}")
-	public String url;
+	private String url;
 
 	@Value("${username}")
-	public String username;
+	private String username;
 	
 	@Value("${password}")
-	public String password;
+	private String password;
 	
 	@Bean
-	public DataSource testDataSource() {
+	public DataSource dataSource() {
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(driver);
 		dataSource.setUrl(url);
-		dataSource.setUsername("postgres");
+		dataSource.setUsername(username);
 		dataSource.setPassword(password);
 		return dataSource;
 	}
 
 	@Bean
-	public JdbcTemplate testJdbcTemplate(DataSource dataSource) {
+	public JdbcTemplate jdbcTemplate(DataSource dataSource) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.setResultsMapCaseInsensitive(true);
 		return jdbcTemplate;
