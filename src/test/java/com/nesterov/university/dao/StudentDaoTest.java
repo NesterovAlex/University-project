@@ -7,9 +7,14 @@ import java.time.LocalDate;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -17,22 +22,29 @@ class StudentDaoTest {
 
 	private StudentDao dao;
 	private JdbcTemplate template;
+	private ApplicationContext context;
+	private Student student;
 
 	@BeforeEach
 	void setUp() {
-		DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/students_data.sql").build();
-		template = new JdbcTemplate(dataSource);
+		context = new AnnotationConfigApplicationContext(TestConfig.class);
+		template = (JdbcTemplate) context.getBean("jdbcTemplate");
 		dao = new StudentDao(template);
+	}
+
+	@BeforeEach
+	void initStudent() {
+		student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
+				Gender.valueOf("FEMALE"));
+		student.setGroupId(2);
+		student.setId(3);
 	}
 
 	@Test
 	public void givenExpectedData_whenCreate_thenReturnExpectedId() {
-		dao.create(new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
-				Gender.valueOf("FEMALE")));
-
-		long actual = template.queryForObject("SELECT COUNT(*) FROM students", Long.class);
-		assertEquals(5, actual);
+		dao.create(student);
+		
+		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "students"));
 	}
 
 	@Test
@@ -50,7 +62,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenDataSetAndIdOfStudent_whenRead_thenExpectedFirstNameOfStudentReturned() {
+	void givenDataSetAndIdOfStudent_whenGet_thenExpectedFirstNameOfStudentReturned() {
 		assertEquals("Bob", dao.get(1).getFirstName());
 	}
 
@@ -60,19 +72,14 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenDataSet_whenDeleteAudience_thenTrueOfDeleteReturned() {
+	void givenDataSet_whenDeleteAudience_thenExpectedCountOfStudentInDataBaseReturned() {
 		dao.delete(3);
-		
-		long actual = template.queryForObject("SELECT COUNT(*) FROM students", Long.class);
-		assertEquals(3, actual);
+
+		assertEquals(3, JdbcTestUtils.countRowsInTable(template, "students"));
 	}
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedEmailOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
-				Gender.valueOf("FEMALE"));
-		student.setId(3);
-
 		dao.update(student);
 
 		String actual = template.queryForObject("SELECT email FROM students WHERE id=3", String.class);
@@ -81,10 +88,6 @@ class StudentDaoTest {
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedNameOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
-				Gender.valueOf("FEMALE"));
-		student.setId(3);
-
 		dao.update(student);
 
 		String actual = template.queryForObject("SELECT first_name FROM students WHERE id=3", String.class);
@@ -93,13 +96,19 @@ class StudentDaoTest {
 
 	@Test
 	void givenDataSetExpectedStudent_whenUpdate_thenExpectedLastOfStudentReturned() {
-		Student student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
-				Gender.valueOf("FEMALE"));
-		student.setId(3);
-
 		dao.update(student);
 
 		String actual = template.queryForObject("SELECT last_name FROM students WHERE id=3", String.class);
 		assertEquals("Nesterova", actual);
+	}
+	
+	@Test
+	void givenDataSetExpectedStudent_whenGetAll_thenExpectedCountOfStudentReturned() {
+		assertEquals(4, dao.getAll().size());
+	}
+	
+	@Test
+	void givenDataSetExpectedStudent_whenGetAllByGroup_thenExpectedCountOfStudentReturned() {
+		assertEquals(1, dao.getAllByGroup(4).size());
 	}
 }

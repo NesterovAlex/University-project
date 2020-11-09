@@ -4,16 +4,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+
 import com.nesterov.university.dao.TeacherDao;
 import com.nesterov.university.model.Subject;
 
+@Component
 public class SubjectRowMapper implements RowMapper<Subject> {
 
-	private JdbcTemplate template;
 	private TeacherDao dao;
 
+	public SubjectRowMapper() {}
+	
 	public SubjectRowMapper(JdbcTemplate template) {
-		this.template = template;
 		dao = new TeacherDao(template);
 	}
 

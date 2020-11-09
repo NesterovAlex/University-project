@@ -8,9 +8,13 @@ import java.util.List;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -19,34 +23,31 @@ class SubjectDaoTest {
 
 	private SubjectDao dao;
 	private JdbcTemplate template;
+	private ApplicationContext context;
+	private Subject subject;
 
 	@BeforeEach
 	void setUp() {
-		DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/subjects_data.sql").build();
-		template = new JdbcTemplate(dataSource);
+		context = new AnnotationConfigApplicationContext(TestConfig.class);
+		template = (JdbcTemplate) context.getBean("jdbcTemplate");
 		dao = new SubjectDao(template);
 	}
 
-	@Test
-	public void givenExpectedData_whenCreate_thenExpectedNameOfSubjectReturned() {
+	@BeforeEach
+	void initSubject() {
 		List<Teacher> teachers = new ArrayList<Teacher>();
-		teachers.add(new Teacher("fevaef", "wefqerf", new Date(0), "rwefqer", "wfqewrf", "cdwe", Gender.valueOf("FEMALE")));
-		Subject subject = new Subject("Biology");
+		teachers.add(
+				new Teacher("fevaef", "wefqerf", new Date(0), "rwefqer", "wfqewrf", "cdwe", Gender.valueOf("FEMALE")));
+		subject = new Subject("Biology");
 		subject.setTeachers(teachers);
+	}
+
+	@Test
+	public void givenExpectedData_whenCreate_thenExpectedCountOfSubjectsFromDatabaseReturned() {
 		dao.create(subject);
 
-		String actual = template.queryForObject("SELECT name FROM subjects WHERE id=5", String.class);
-		assertEquals("Biology", actual);
+		assertEquals(9, JdbcTestUtils.countRowsInTable(template, "subjects"));
 	}
-//
-//	@Test
-//	public void givenExpectedData_whenCreate_thenCountOfSubjectsReturned() {
-//		dao.create(new Subject("Biology"));
-//
-//		long actual = template.queryForObject("SELECT COUNT(*) FROM subjects", Long.class);
-//		assertEquals(5, actual);
-//	}
 
 	@Test
 	void givenDataSetAndIdOfSubject_whenGet_thenExpectedNameOfSubjectReturned() {
@@ -66,8 +67,7 @@ class SubjectDaoTest {
 	void givenDataSet_whenDelete_thenExpectedCountOfSubjectsReturned() {
 		dao.delete(3);
 
-		long actual = template.queryForObject("SELECT COUNT(*) FROM subjects", Long.class);
-		assertEquals(3, actual);
+		assertEquals(7, JdbcTestUtils.countRowsInTable(template, "subjects"));
 	}
 
 	@Test
@@ -79,10 +79,13 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedSubject_whenUpdate_thenRelevantParametersOfSubjectUpdate() {
-		System.out.println(dao.getAllByTeacher(3).get(0).getName());
-		System.out.println(dao.getAllByTeacher(3).get(1).getName());
-		System.out.println(dao.getAll().get(0).getName());
+	void givenDataSetExpectedSubject_whenGetAll_thenExpectedCountOfSubjectsReturned() {
+		assertEquals(8, dao.getAll().size());
+	}
+	
+	@Test
+	void givenDataSetExpectedSubject_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured() {
+		assertEquals(4, dao.getAllByTeacher(3).size());
 	}
 
 }

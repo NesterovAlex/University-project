@@ -1,11 +1,12 @@
-DROP TABLE IF EXISTS audiences;
+DROP TABLE IF EXISTS lessons_groups CASCADE;
+DROP TABLE IF EXISTS audiences CASCADE;
 DROP TABLE IF EXISTS subjects CASCADE;
 DROP TABLE IF EXISTS teachers CASCADE;
-DROP TABLE IF EXISTS students;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS lessonTimes;
-DROP TABLE IF EXISTS lessons;
-DROP TABLE IF EXISTS teachers_subjects;
+DROP TABLE IF EXISTS students CASCADE;
+DROP TABLE IF EXISTS groups CASCADE;
+DROP TABLE IF EXISTS lesson_times CASCADE;
+DROP TABLE IF EXISTS lessons CASCADE; 
+DROP TABLE IF EXISTS teachers_subjects CASCADE;
 CREATE TABLE audiences
 (
     id SERIAL NOT NULL,
@@ -13,10 +14,24 @@ CREATE TABLE audiences
     capacity INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
+CREATE TABLE groups
+(
+    id SERIAL NOT NULL,
+    name VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id)
+);
 CREATE TABLE subjects
 (
     id SERIAL NOT NULL,
     name VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE TABLE lesson_times
+(
+    id SERIAL NOT NULL,
+    order_number Integer NOT NULL,
+    start_lesson TIME,
+    end_lesson TIME,
     PRIMARY KEY (id)
 );
 CREATE TABLE teachers 
@@ -36,6 +51,7 @@ CREATE TABLE teachers
 CREATE TABLE students 
 (
     id SERIAL  NOT NULL,
+    group_id INT NOT NULL ,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     birth_date DATE NOT NULL,
@@ -45,33 +61,23 @@ CREATE TABLE students
     gender VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
-CREATE TABLE groups
-(
-    id SERIAL NOT NULL,
-    name VARCHAR(20) NOT NULL,
-    PRIMARY KEY (id)
-);
-CREATE TABLE lessonTimes
-(
-    id SERIAL NOT NULL,
-    order_number Integer NOT NULL,
-    start_lesson TIME,
-    end_lesson TIME,
-    PRIMARY KEY (id)
-);
 CREATE TABLE lessons 
 (
     id SERIAL  NOT NULL,
-    subject_id INTEGER NOT NULL,
-    audience_id INTEGER NOT NULL,
+    subject_id INT NOT NULL,
+    audience_id INT NOT NULL,
     lesson_date DATE NOT NULL,
-    lesson_time_id INTEGER NOT NULL,
-    teacher_id INTEGER NOT NULL,
-    group_id INTEGER,
+    lesson_time_id INT NOT NULL,
+    teacher_id INT NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE teachers_subjects
 (
-    teacher_id INT  NOT NULL,
-    subject_id INT  NOT NULL
+    teacher_id INT NOT NULL,
+    subject_id INT NOT NULL
+);
+CREATE TABLE lessons_groups
+(
+    lesson_id INT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    group_id INT NOT NULL  REFERENCES groups(id) ON DELETE CASCADE
 );

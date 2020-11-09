@@ -7,11 +7,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+
+import com.nesterov.university.mapper.GroupRowMapper;
 import com.nesterov.university.model.Group;
 
 @Component
 public class GroupDao {
 
+	private static final String SELECT_FROM_LESSONS_GROUPS = "SELECT *  FROM groups LEFT JOIN lessons_groups ON lessons_groups.group_id = groups.id WHERE lesson_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM groups WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM groups";
 	private static final String INSERT = "INSERT INTO groups (name) values (?)";
@@ -49,5 +52,9 @@ public class GroupDao {
 
 	public List<Group> getAll() {
 		return template.query(SELECT, (rs, rowNum) -> new Group(rs.getLong("id"), rs.getString("name")));
+	}
+	
+	public List<Group> getAllByLesson(long id){
+		return template.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, new GroupRowMapper(template));
 	}
 }

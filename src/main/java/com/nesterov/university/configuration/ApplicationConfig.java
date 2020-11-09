@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import com.nesterov.university.mapper.AudienceRowMapper;
+import com.nesterov.university.mapper.LessonRowMapper;
+import com.nesterov.university.mapper.StudentRowMapper;
 
 @Configuration
 @ComponentScan(basePackages = "com.nesterov.university")
@@ -43,4 +46,18 @@ public class ApplicationConfig {
 		return jdbcTemplate;
 	}
 
+	@Bean(name="lessonRowMapper")
+	public LessonRowMapper lessonRowMapper(JdbcTemplate template) {
+		return new LessonRowMapper(template);
+	}
+	
+	@Bean
+	public AudienceRowMapper audienceRowMapper() {
+		return new AudienceRowMapper();
+	}
+	
+	@Bean
+	public StudentRowMapper studentRowMapper() {
+		return new StudentRowMapper();
+	}
 }

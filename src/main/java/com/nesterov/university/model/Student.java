@@ -4,6 +4,7 @@ import java.sql.Date;
 
 public class Student extends Person{
 	
+	private long groupId;
 	private String faculty;
 	private String course;
 	
@@ -12,6 +13,14 @@ public class Student extends Person{
 	public Student(String firstName, String lastName, Date bithDate, String address, String email, String phone,
 			Gender gender) {
 		super(firstName, lastName, bithDate, address, email, phone, gender);
+	}
+	
+	public long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(long groupId) {
+		this.groupId = groupId;
 	}
 	
 	public String getFaculty() {
@@ -28,6 +37,5 @@ public class Student extends Person{
 	
 	public void setCourse(String course) {
 		this.course = course;
-	}
-	
+	}	
 }

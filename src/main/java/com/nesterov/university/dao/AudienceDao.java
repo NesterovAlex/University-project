@@ -2,11 +2,14 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.mapper.AudienceRowMapper;
+import com.nesterov.university.mapper.LessonRowMapper;
 import com.nesterov.university.model.Audience;
 
 @Component
@@ -18,6 +21,9 @@ public class AudienceDao {
 	private static final String DELETE = "DELETE FROM audiences WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM audiences";
 
+	@Autowired
+	private AudienceRowMapper audienceRowMapper;
+	
 	private JdbcTemplate template;
 
 	public AudienceDao(JdbcTemplate template) {
@@ -36,9 +42,7 @@ public class AudienceDao {
 	}
 
 	public Audience get(long id) {
-		return template.queryForObject(SELECT_BY_ID, new Object[] { id },
-				(resultSet, rowNum) -> new Audience(resultSet.getLong("id"), resultSet.getInt("room_number"),
-						resultSet.getInt("capacity")));
+		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, new AudienceRowMapper());
 	}
 
 	public void delete(long id) {
@@ -51,5 +55,14 @@ public class AudienceDao {
 
 	public List<Audience> getAll() {
 		return template.query(SELECT, new AudienceRowMapper());
+	}
+
+	public AudienceRowMapper getAudienceRowMapper() {
+		return audienceRowMapper;
+	}
+
+	@Autowired
+	public void setAudienceRowMapper(AudienceRowMapper audienceRowMapper) {
+		this.audienceRowMapper = audienceRowMapper;
 	}
 }

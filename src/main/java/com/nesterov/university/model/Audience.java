@@ -1,5 +1,8 @@
 package com.nesterov.university.model;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Audience {
 
 	private long id;

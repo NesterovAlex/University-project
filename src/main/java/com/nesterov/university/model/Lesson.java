@@ -5,6 +5,9 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Lesson {
 
 	private long id;
