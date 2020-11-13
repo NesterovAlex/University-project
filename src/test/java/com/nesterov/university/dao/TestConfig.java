@@ -22,9 +22,4 @@ public class TestConfig {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
 				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/test_data.sql").build();
 	}
-	
-	@Bean(name="lessonRowMapper")
-	public LessonRowMapper lessonRowMapper(JdbcTemplate template) {
-		return new LessonRowMapper(template);
-	}
 }

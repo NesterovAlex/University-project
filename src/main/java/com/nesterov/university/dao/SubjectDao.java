@@ -2,6 +2,9 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -20,10 +23,14 @@ public class SubjectDao {
 	private static final String UPDATE = "UPDATE subjects SET name = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM subjects WHERE id = ?";
 
+	
+	private SubjectRowMapper subjectRowMapper;
 	private JdbcTemplate template;
 
-	public SubjectDao(JdbcTemplate template) {
+	@Autowired
+	public SubjectDao(JdbcTemplate template, @Lazy SubjectRowMapper subjectRowMapper) {
 		this.template = template;
+		this.subjectRowMapper = subjectRowMapper;
 	}
 
 	public void create(Subject subject) {
@@ -39,7 +46,7 @@ public class SubjectDao {
 	}
 
 	public Subject getSubject(long id) {
-		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, new SubjectRowMapper(template));
+		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, subjectRowMapper);
 	}
 
 	public void delete(long id) {

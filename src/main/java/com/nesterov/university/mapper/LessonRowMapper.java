@@ -2,6 +2,9 @@ package com.nesterov.university.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -16,22 +19,16 @@ import com.nesterov.university.model.Lesson;
 @Component
 public class LessonRowMapper implements RowMapper<Lesson> {
 
+	@Autowired
 	private AudienceDao audienceDao;
+	@Autowired
 	private SubjectDao subjectDao;
+	@Autowired
 	private TeacherDao teacherDao;
+	@Autowired
 	private LessonTimeDao lessonTimeDao;
+	@Autowired
 	private GroupDao groupDao;
-
-	public LessonRowMapper() {
-	}
-
-	public LessonRowMapper(JdbcTemplate template) {
-		this.audienceDao = new AudienceDao(template);
-		this.subjectDao = new SubjectDao(template);
-		this.teacherDao = new TeacherDao(template);
-		this.lessonTimeDao = new LessonTimeDao(template);
-		this.groupDao = new GroupDao(template);
-	}
 
 	@Override
 	public Lesson mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -40,7 +37,7 @@ public class LessonRowMapper implements RowMapper<Lesson> {
 		lesson.setSubject(subjectDao.getSubject(rs.getLong("subject_id")));
 		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));
 		lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")));
-		lesson.setDate(rs.getDate("lesson_date"));
+		lesson.setDate(rs.getObject("lesson_date", LocalDate.class));
 		lesson.setGroups(groupDao.getAllByLesson(rs.getLong("id")));
 		return lesson;
 	}

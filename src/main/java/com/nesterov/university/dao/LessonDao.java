@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nesterov.university.mapper.LessonRowMapper;
 import com.nesterov.university.model.Lesson;
 
@@ -26,14 +28,16 @@ public class LessonDao {
 	private static final String UPDATE = "UPDATE lessons SET audience_id = ?, subject_id = ?, teacher_id = ?, lesson_time_id = ?, lesson_date = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM lessons WHERE id = ?";
 
+	@Autowired
 	private LessonRowMapper lessonRowMapper;
-
 	private JdbcTemplate template;
 
-	public LessonDao(JdbcTemplate template) {
+	public LessonDao(JdbcTemplate template, LessonRowMapper lessonRowMapper) {
 		this.template = template;
+		this.lessonRowMapper = lessonRowMapper;
 	}
 
+	@Transactional
 	public void create(Lesson lesson) {
 		final KeyHolder holder = new GeneratedKeyHolder();
 		template.update(connection -> {
@@ -42,7 +46,7 @@ public class LessonDao {
 			statement.setLong(2, lesson.getSubject().getId());
 			statement.setLong(3, lesson.getTeacher().getId());
 			statement.setLong(4, lesson.getTime().getId());
-			statement.setDate(5, lesson.getDate());
+			statement.setObject(5, lesson.getDate());
 			return statement;
 		}, holder);
 		long id = holder.getKey().longValue();
@@ -51,14 +55,16 @@ public class LessonDao {
 	}
 
 	public Lesson get(long id) {
-		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, new LessonRowMapper());
+		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonRowMapper);
 	}
 
+	@Transactional
 	public void delete(long id) {
 		template.update(DELETE, id);
 		template.update(DELETE_FROM_LESSONS_GROUPS, id);
 	}
 
+	@Transactional
 	public void update(Lesson lesson) {
 		template.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(), lesson.getTeacher().getId(),
 				lesson.getTime().getId(), lesson.getDate(), lesson.getId());
@@ -67,6 +73,6 @@ public class LessonDao {
 	}
 
 	public List<Lesson> getAll() {
-		return template.query(SELECT, new LessonRowMapper(template));
+		return template.query(SELECT, lessonRowMapper);
 	}
 }

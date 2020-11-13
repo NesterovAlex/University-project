@@ -35,7 +35,7 @@ public class StudentDao {
 			statement.setLong(1, student.getGroupId());
 			statement.setString(2, student.getFirstName());
 			statement.setString(3, student.getLastName());
-			statement.setDate(4, student.getBithDate());
+			statement.setObject(4, student.getBithDate());
 			statement.setString(5, student.getAddress());
 			statement.setString(6, student.getEmail());
 			statement.setString(7, student.getPhone());

@@ -2,23 +2,17 @@ package com.nesterov.university.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-
 import com.nesterov.university.dao.TeacherDao;
 import com.nesterov.university.model.Subject;
 
 @Component
 public class SubjectRowMapper implements RowMapper<Subject> {
 
+	@Autowired
 	private TeacherDao dao;
-
-	public SubjectRowMapper() {}
-	
-	public SubjectRowMapper(JdbcTemplate template) {
-		dao = new TeacherDao(template);
-	}
 
 	@Override
 	public Subject mapRow(ResultSet rs, int rowNum) throws SQLException {

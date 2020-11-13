@@ -10,8 +10,6 @@ import com.nesterov.university.model.Audience;
 
 @Component
 public class AudienceRowMapper implements RowMapper<Audience> {
-
-	public AudienceRowMapper() {}
 	
 	@Override
 	public Audience mapRow(ResultSet rs, int rowNum) throws SQLException {

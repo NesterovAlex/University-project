@@ -3,6 +3,7 @@ package com.nesterov.university.dao;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -22,9 +23,11 @@ public class GroupDao {
 	private static final String DELETE = "DELETE FROM groups WHERE id = ?";
 
 	private JdbcTemplate template;
+	private GroupRowMapper groupRowMapper;
 
-	public GroupDao(JdbcTemplate template) {
+	public GroupDao(JdbcTemplate template, GroupRowMapper groupRowMapper) {
 		this.template = template;
+		this.groupRowMapper = groupRowMapper;
 	}
 
 	public void create(Group group) {
@@ -55,6 +58,6 @@ public class GroupDao {
 	}
 	
 	public List<Group> getAllByLesson(long id){
-		return template.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, new GroupRowMapper(template));
+		return template.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, groupRowMapper);
 	}
 }

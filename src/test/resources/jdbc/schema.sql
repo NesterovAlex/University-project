@@ -74,7 +74,8 @@ CREATE TABLE lessons
 CREATE TABLE teachers_subjects
 (
     teacher_id INT NOT NULL,
-    subject_id INT NOT NULL
+    subject_id INT NOT NULL,
+    CONSTRAINT teachers_subjects_constraint UNIQUE (teacher_id, subject_id)
 );
 CREATE TABLE lessons_groups
 (

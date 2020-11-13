@@ -1,6 +1,7 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -28,8 +29,8 @@ public class LessonTimeDao {
 		template.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
 			statement.setInt(1, lessonTime.getOrderNumber());
-			statement.setTime(2, lessonTime.getStart());
-			statement.setTime(3, lessonTime.getEnd());
+			statement.setObject(2, lessonTime.getStart());
+			statement.setObject(3, lessonTime.getEnd());
 			return statement;
 		}, holder);
 		lessonTime.setId(holder.getKey().longValue());
@@ -38,8 +39,8 @@ public class LessonTimeDao {
 	public LessonTime get(long id) {
 		return template.queryForObject(SELECT_BY_ID, new Object[] { id },
 				(resultSet, rowNum) -> new LessonTime(resultSet.getLong("id"), resultSet.getInt("order_number"),
-						resultSet.getTime("start_lesson"),
-						resultSet.getTime("end_lesson")));
+						resultSet.getObject("start_lesson", LocalTime.class),
+						resultSet.getObject("end_lesson", LocalTime.class)));
 	}
 
 	public void delete(long id) {
@@ -53,6 +54,6 @@ public class LessonTimeDao {
 
 	public List<LessonTime> getAll() {
 		return template.query(SELECT, (rs, rowNum) -> new LessonTime(rs.getLong("id"), rs.getInt("order_number"),
-				rs.getTime("start_lesson"), rs.getTime("end_lesson")));
+				rs.getObject("start_lesson", LocalTime.class), rs.getObject("end_lesson", LocalTime.class)));
 	}
 }

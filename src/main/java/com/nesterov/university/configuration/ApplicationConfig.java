@@ -45,19 +45,4 @@ public class ApplicationConfig {
 		jdbcTemplate.setResultsMapCaseInsensitive(true);
 		return jdbcTemplate;
 	}
-
-	@Bean(name="lessonRowMapper")
-	public LessonRowMapper lessonRowMapper(JdbcTemplate template) {
-		return new LessonRowMapper(template);
-	}
-	
-	@Bean
-	public AudienceRowMapper audienceRowMapper() {
-		return new AudienceRowMapper();
-	}
-	
-	@Bean
-	public StudentRowMapper studentRowMapper() {
-		return new StudentRowMapper();
-	}
 }

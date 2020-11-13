@@ -7,34 +7,33 @@ import java.time.LocalDate;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
+@SpringJUnitConfig(TestConfig.class)
+@ExtendWith(SpringExtension.class)
 class StudentDaoTest {
 
+	@Autowired
 	private StudentDao dao;
+	@Autowired
 	private JdbcTemplate template;
-	private ApplicationContext context;
 	private Student student;
 
 	@BeforeEach
-	void setUp() {
-		context = new AnnotationConfigApplicationContext(TestConfig.class);
-		template = (JdbcTemplate) context.getBean("jdbcTemplate");
-		dao = new StudentDao(template);
-	}
-
-	@BeforeEach
 	void initStudent() {
-		student = new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
+		student = new Student("Alice", "Nesterova", LocalDate.of(2020, 11, 14), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE"));
 		student.setGroupId(2);
 		student.setId(3);
@@ -49,7 +48,7 @@ class StudentDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenReturnExpectedI() {
-		dao.create(new Student("Alice", "Nesterova", new Date(0), "Kiev", "alice@nesterova.com", "123456789",
+		dao.create(new Student("Alice", "Nesterova", LocalDate.of(1999, 12, 31), "Kiev", "alice@nesterova.com", "123456789",
 				Gender.valueOf("FEMALE")));
 
 		String actual = template.queryForObject("SELECT first_name FROM students where id=5", String.class);
@@ -75,7 +74,7 @@ class StudentDaoTest {
 	void givenDataSet_whenDeleteAudience_thenExpectedCountOfStudentInDataBaseReturned() {
 		dao.delete(3);
 
-		assertEquals(3, JdbcTestUtils.countRowsInTable(template, "students"));
+		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "students"));
 	}
 
 	@Test

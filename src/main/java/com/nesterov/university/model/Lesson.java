@@ -1,10 +1,7 @@
 package com.nesterov.university.model;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
-
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +10,7 @@ public class Lesson {
 	private long id;
 	private Subject subject;
 	private Audience audience;
-	private Date date;
+	private LocalDate date;
 	private LessonTime time;
 	private Teacher teacher;
 	private List<Group> groups;
@@ -21,7 +18,7 @@ public class Lesson {
 	public Lesson() {
 	}
 
-	public Lesson(Subject subject, Audience audience, Date date, LessonTime time, Teacher teacher) {
+	public Lesson(Subject subject, Audience audience, LocalDate date, LessonTime time, Teacher teacher) {
 		this.subject = subject;
 		this.audience = audience;
 		this.date = date;
@@ -29,7 +26,7 @@ public class Lesson {
 		this.teacher = teacher;
 	}
 
-	public Lesson(long id, Subject subject, Audience audience, Date date, LessonTime time, Teacher teacher) {
+	public Lesson(long id, Subject subject, Audience audience, LocalDate date, LessonTime time, Teacher teacher) {
 		this.id = id;
 		this.subject = subject;
 		this.audience = audience;
@@ -62,11 +59,11 @@ public class Lesson {
 		this.audience = audience;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

@@ -3,12 +3,15 @@ package com.nesterov.university.dao;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Group;
@@ -17,21 +20,16 @@ import com.nesterov.university.model.LessonTime;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
 
-
+@SpringJUnitConfig(TestConfig.class)
+@ExtendWith(SpringExtension.class)
 class LessonDaoTest {
 
+	@Autowired
 	private LessonDao dao;
+	@Autowired
 	private JdbcTemplate template;
-	private ApplicationContext context;
 	private Lesson lesson;
-	
-	@BeforeEach
-	void setUp() {
-		context = new AnnotationConfigApplicationContext(TestConfig.class);
-		template = (JdbcTemplate) context.getBean("jdbcTemplate");
-		dao = new LessonDao(template);
-	}
-	
+
 	@BeforeEach
 	void initLesson() {
 		Subject subject = new Subject();
@@ -49,7 +47,7 @@ class LessonDaoTest {
 		groups.add(new Group(3, "FU-45"));
 		lesson.setId(2);
 		lesson.setAudience(audience);
-		lesson.setDate(Date.valueOf("2015-03-31"));
+		lesson.setDate(LocalDate.of(2020, 11, 29));
 		lesson.setGroups(groups);
 		lesson.setSubject(subject);
 		lesson.setTeacher(teacher);
@@ -58,53 +56,41 @@ class LessonDaoTest {
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedCountOfLessonsReturned() {
-		dao.create(lesson);	
+		dao.create(lesson);
 
 		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons"));
 	}
-	
+
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedGroupsOfLessonInLessons_GroupsDataBaseCreated() {
-		dao.create(lesson);	
+		dao.create(lesson);
 
-		assertEquals(7, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
+		assertEquals(8, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
 	}
-
 
 	@Test
-	void givenDataSet_whenDelete_thenExpectedCountOfLessonsReturned() {		
+	void givenDataSet_whenDelete_thenExpectedCountOfLessonsReturned() {
 		dao.delete(3);
-		
-		assertEquals(3, JdbcTestUtils.countRowsInTable(template, "lessons"));
+
+		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons"));
 	}
-	
 
 	@Test
 	void givenDataSet_whenDelete_thenExpectedCountGroupsOfLessonsDeleted() {
 		dao.delete(3);
-		
-		assertEquals(2, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
+
+		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
 	}
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenUpdate_thenExpectedCountSubjectsOfLessonUpdated() {
 		dao.update(lesson);
 
-		assertEquals(6, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
+		assertEquals(10, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
 	}
-	
-//	@Test
-//	void givenDataSetAndExpectedLesson_whenGet_thenReturnedLessonContainedExpectedTeacher() {
-//		assertEquals("Petrov", dao.get(2).getTeacher().getLastName());
-//	}
-	
+
 	@Test
-	void givenDataSetAndExpectedLesson_whenGet_thenExpectedCountOfLessonsReturned() {
-		assertEquals(4, dao.getAll().size());
+	void givenDataSetAndExpectedLesson_whenGet_thenReturnedLessonContainedExpectedTeacher() {
+		assertEquals("Petrov", dao.get(2).getTeacher().getLastName());
 	}
-//	
-//	@Test
-//	void givenDataetAndExpectedLesson_whenGet_thenExpectedGroupCountOfLessonReturned() {
-//		assertEquals(1, dao.get(2).getGroups().size());
-//	}
 }

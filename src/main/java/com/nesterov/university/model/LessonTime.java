@@ -1,23 +1,24 @@
 package com.nesterov.university.model;
 
 import java.sql.Time;
+import java.time.LocalTime;
 
 public class LessonTime {
 
 	private long id;
 	private int orderNumber;
-	private Time start;
-	private Time end;
+	private LocalTime start;
+	private LocalTime end;
 	
 	public LessonTime() {}
 
-	public LessonTime(int orderNumber, Time start, Time end) {
+	public LessonTime(int orderNumber, LocalTime start, LocalTime end) {
 		this.orderNumber = orderNumber;
 		this.start = start;
 		this.end = end;
 	}
 	
-	public LessonTime(long id, int orderNumber, Time start, Time end) {
+	public LessonTime(long id, int orderNumber, LocalTime start, LocalTime end) {
 		this.id = id;
 		this.orderNumber = orderNumber;
 		this.start = start;
@@ -40,19 +41,19 @@ public class LessonTime {
 		this.orderNumber = orderNumber;
 	}
 	
-	public Time getStart() {
+	public LocalTime getStart() {
 		return start;
 	}
 	
-	public void setStart(Time start) {
+	public void setStart(LocalTime start) {
 		this.start = start;
 	}
 	
-	public Time getEnd() {
+	public LocalTime getEnd() {
 		return end;
 	}
 	
-	public void setEnd(Time end) {
+	public void setEnd(LocalTime end) {
 		this.end = end;
 	}
 	
