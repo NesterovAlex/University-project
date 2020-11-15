@@ -36,7 +36,7 @@ CREATE TABLE lesson_times
 );
 CREATE TABLE teachers 
 (
-    id SERIAL  NOT NULL,
+    id SERIAL NOT NULL,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     birth_date DATE NOT NULL,
@@ -59,6 +59,8 @@ CREATE TABLE students
     email VARCHAR(20) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     gender VARCHAR(20) NOT NULL,
+    faculty VARCHAR(20) NOT NULL,
+    course VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE lessons 
@@ -75,10 +77,13 @@ CREATE TABLE teachers_subjects
 (
     teacher_id INT NOT NULL,
     subject_id INT NOT NULL,
+    FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY(subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
     CONSTRAINT teachers_subjects_constraint UNIQUE (teacher_id, subject_id)
 );
 CREATE TABLE lessons_groups
 (
-    lesson_id INT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
-    group_id INT NOT NULL  REFERENCES groups(id) ON DELETE CASCADE
+    lesson_id INT NOT NULL,
+    group_id INT NOT NULL,
+    CONSTRAINT lessons_groups_constraint UNIQUE (lesson_id, group_id)
 );

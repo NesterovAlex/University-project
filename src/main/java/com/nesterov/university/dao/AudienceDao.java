@@ -2,16 +2,11 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.nesterov.university.mapper.AudienceRowMapper;
-import com.nesterov.university.mapper.LessonRowMapper;
+import com.nesterov.university.dao.mapper.AudienceRowMapper;
 import com.nesterov.university.model.Audience;
 
 @Component
@@ -24,16 +19,16 @@ public class AudienceDao {
 	private static final String SELECT = "SELECT * FROM audiences";
 
 	private AudienceRowMapper audienceRowMapper;	
-	private JdbcTemplate template;
+	private JdbcTemplate jdbcTemplate;
 
 	public AudienceDao(JdbcTemplate template, AudienceRowMapper audienceRowMapper) {
-		this.template = template;
+		this.jdbcTemplate = template;
 		this.audienceRowMapper = audienceRowMapper;
 	}
 
 	public void create(Audience audience) {
 		final KeyHolder holder = new GeneratedKeyHolder();
-		template.update(connection -> {
+		jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
 			statement.setInt(1, audience.getRoomNumber());
 			statement.setInt(2, audience.getCapacity());
@@ -43,19 +38,19 @@ public class AudienceDao {
 	}
 
 	public Audience get(long id) {
-		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
+		return jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
 	}
 
 	
 	public void delete(long id) {
-		template.update(DELETE, id);
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	public void update(Audience audience) {
-		template.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
+		jdbcTemplate.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
 	}
 
 	public List<Audience> getAll() {
-		return template.query(SELECT, audienceRowMapper);
+		return jdbcTemplate.query(SELECT, audienceRowMapper);
 	}
 }

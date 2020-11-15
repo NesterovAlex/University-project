@@ -2,67 +2,65 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import com.nesterov.university.mapper.SubjectRowMapper;
+import com.nesterov.university.dao.mapper.SubjectRowMapper;
+import com.nesterov.university.dao.mapper.SubjectSimpleRowMapper;
 import com.nesterov.university.model.Subject;
 
 @Component
 public class SubjectDao {
 
-	private static final String SELECT_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id LEFT JOIN teachers ON teachers_subjects.teacher_id = teachers.id WHERE teacher_id = ?";
 	private static final String INSERT_INTO_TEACHER_SUBJECT = "INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (?, ?)";
+	private static final String SELECT_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id LEFT JOIN teachers ON teachers_subjects.teacher_id = teachers.id WHERE teacher_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM subjects WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM subjects";
 	private static final String INSERT = "INSERT INTO subjects (name) values (?)";
 	private static final String UPDATE = "UPDATE subjects SET name = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM subjects WHERE id = ?";
 
-	
+	private JdbcTemplate jdbcTemplate;
 	private SubjectRowMapper subjectRowMapper;
-	private JdbcTemplate template;
+	private SubjectSimpleRowMapper subjectSimpleRowMapper;
 
-	@Autowired
-	public SubjectDao(JdbcTemplate template, @Lazy SubjectRowMapper subjectRowMapper) {
-		this.template = template;
+	public SubjectDao(JdbcTemplate template, SubjectRowMapper subjectRowMapper,
+			SubjectSimpleRowMapper subjectSimpleRowMapper) {
+		this.jdbcTemplate = template;
 		this.subjectRowMapper = subjectRowMapper;
+		this.subjectSimpleRowMapper = subjectSimpleRowMapper;
 	}
 
 	public void create(Subject subject) {
 		final KeyHolder holder = new GeneratedKeyHolder();
-		template.update(connection -> {
+		jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
 			statement.setString(1, subject.getName());
 			return statement;
 		}, holder);
 		long id = holder.getKey().longValue();
 		subject.setId(id);
-		subject.getTeachers().stream().forEach(t -> template.update(INSERT_INTO_TEACHER_SUBJECT, t.getId(), id));
+		subject.getTeachers().stream().forEach(t -> jdbcTemplate.update(INSERT_INTO_TEACHER_SUBJECT, t.getId(), id));
 	}
 
-	public Subject getSubject(long id) {
-		return template.queryForObject(SELECT_BY_ID, new Object[] { id }, subjectRowMapper);
+	public Subject get(long id) {
+		return jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, subjectRowMapper);
 	}
 
 	public void delete(long id) {
-		template.update(DELETE, id);
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	public void update(Subject subject) {
-		template.update(UPDATE, subject.getName(), subject.getId());
+		jdbcTemplate.update(UPDATE, subject.getName(), subject.getId());
 	}
 
 	public List<Subject> getAll() {
-		return template.query(SELECT, (rs, rowNum) -> new Subject(rs.getLong("id"), rs.getString("name")));
+		return jdbcTemplate.query(SELECT, subjectRowMapper);
 	}
 
-	public List<Subject> getAllByTeacher(long id) {
-		return template.query(SELECT_BY_TEACHER, new Object[] { id },
-				(rs, rowNum) -> new Subject(rs.getLong("id"), rs.getString("name")));
+	public List<Subject> findByTeacherId(long id) {
+		return jdbcTemplate.query(SELECT_BY_TEACHER, new Object[] { id }, subjectSimpleRowMapper);
 	}
 }

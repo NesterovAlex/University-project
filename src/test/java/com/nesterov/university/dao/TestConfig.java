@@ -5,12 +5,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+
 import com.nesterov.university.configuration.ApplicationConfig;
-import com.nesterov.university.mapper.AudienceRowMapper;
-import com.nesterov.university.mapper.LessonRowMapper;
 
 @Configuration
 @ComponentScan(basePackages = "com.nesterov.university")
@@ -18,8 +17,13 @@ import com.nesterov.university.mapper.LessonRowMapper;
 public class TestConfig {
 
 	@Bean
-	DataSource dataSource() {
+	DataSource dataSource(EmbeddedDatabaseBuilder embeddedDatabaseBuilder) {
+		return embeddedDatabaseBuilder.build();
+	}
+	
+	@Bean
+	EmbeddedDatabaseBuilder embeddedDatabaseBuilder() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/test_data.sql").build();
+				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/test_data.sql");
 	}
 }

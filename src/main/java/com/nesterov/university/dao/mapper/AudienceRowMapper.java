@@ -1,4 +1,4 @@
-package com.nesterov.university.mapper;
+package com.nesterov.university.dao.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

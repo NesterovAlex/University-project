@@ -22,4 +22,13 @@ public class Teacher extends Person{
 		this.subjects = subjects;
 	}
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj);
+	}
 }

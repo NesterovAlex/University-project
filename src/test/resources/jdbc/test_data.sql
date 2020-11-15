@@ -22,10 +22,11 @@ INSERT INTO lesson_times (id, order_number, start_lesson, end_lesson) VALUES (DE
 INSERT INTO lesson_times (id, order_number, start_lesson, end_lesson) VALUES (DEFAULT, 16, '16:40', '17:50');
 INSERT INTO lesson_times (id, order_number, start_lesson, end_lesson) VALUES (DEFAULT, 18, '18:30', '19:45');
 
-INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 1, 'Bob', 'Sincler', '2012-09-17', 'Toronto', 'bob@sincler', '987654321', 'MALE');
-INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 2, 'Vasya', 'Vasin', '2014-07-19', 'Vasino', 'Vasya@vasyin', '2354657657', 'MALE');
-INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 3, 'Petr', 'Petrov', '2011-05-14', 'Petrovka', 'petr@petrov', '55r2346254', 'MALE');
-INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 4, 'Ivanka', 'Ivanova', '2019-02-15', 'Ivanovo', 'ivanka@ivanova', '358769341', 'FEMALE');
+INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender, faculty, course) VALUES (DEFAULT, 1, 'Bob', 'Sincler', '2012-09-17', 'Toronto', 'bob@sincler', '987654321', 'MALE', 'Biology', 'Biology');
+INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender, faculty, course) VALUES (DEFAULT, 2, 'Vasya', 'Vasin', '2014-07-19', 'Vasino', 'Vasya@vasyin', '2354657657', 'MALE', 'Biology', 'Biology');
+INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender, faculty, course) VALUES (DEFAULT, 3, 'Petr', 'Petrov', '2011-05-14', 'Petrovka', 'petr@petrov', '55r2346254', 'MALE', 'Biology', 'Biology');
+INSERT INTO students (id, group_id, first_name, last_name, birth_date, address, email, phone, gender, faculty, course) VALUES (DEFAULT, 4, 'Ivanka', 'Ivanova', '2019-02-15', 'Ivanovo', 'ivanka@ivanova', '358769341', 'FEMALE', 'Biology', 'Biology');
+
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Bob', 'Sincler', '2012-09-17', 'Toronto', 'bob@sincler', '987654321', 'MALE');
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Vasya', 'Vasin', '2014-07-19', 'Vasino', 'Vasya@vasyin', '2354657657', 'MALE');
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Petr', 'Petrov', '2011-05-14', 'Petrovka', 'petr@petrov', '55r2346254', 'MALE');

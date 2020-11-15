@@ -7,14 +7,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import com.nesterov.university.mapper.AudienceRowMapper;
-import com.nesterov.university.mapper.LessonRowMapper;
-import com.nesterov.university.mapper.StudentRowMapper;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan(basePackages = "com.nesterov.university")
 @PropertySource(value = "classpath:config.properties", encoding="UTF-8")
+@EnableTransactionManagement
 public class ApplicationConfig {
 
 	@Value("${driver}")
@@ -44,5 +44,10 @@ public class ApplicationConfig {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.setResultsMapCaseInsensitive(true);
 		return jdbcTemplate;
+	}
+	
+	@Bean
+	public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
 	}
 }

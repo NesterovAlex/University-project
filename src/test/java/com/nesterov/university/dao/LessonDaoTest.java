@@ -2,7 +2,6 @@ package com.nesterov.university.dao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,9 +24,9 @@ import com.nesterov.university.model.Teacher;
 class LessonDaoTest {
 
 	@Autowired
-	private LessonDao dao;
+	private LessonDao lessonDao;
 	@Autowired
-	private JdbcTemplate template;
+	private JdbcTemplate jdbcTemplate;
 	private Lesson lesson;
 
 	@BeforeEach
@@ -42,8 +41,10 @@ class LessonDaoTest {
 		lessonTime.setId(100);
 		lesson = new Lesson();
 		ArrayList<Group> groups = new ArrayList<Group>();
-		groups.add(new Group(1, "FR-98"));
+		groups.add(new Group(1, "YR-38"));
+		groups.add(new Group(1, "YR-38"));
 		groups.add(new Group(2, "YR-38"));
+		groups.add(new Group(3, "FU-45"));
 		groups.add(new Group(3, "FU-45"));
 		lesson.setId(2);
 		lesson.setAudience(audience);
@@ -53,44 +54,52 @@ class LessonDaoTest {
 		lesson.setTeacher(teacher);
 		lesson.setTime(lessonTime);
 	}
+	
+	@Test
+	void givenDataSet_whenDelete_thenExpectedCountOfLessonsReturned() {
+		lessonDao.delete(3);
+
+		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons"));
+	}
+	
+	@Test
+	void givenDataSet_whenDelete_thenExpectedCountGroupsOfLessonsDeleted() {
+		lessonDao.delete(3);
+
+		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons_groups"));
+	}
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedCountOfLessonsReturned() {
-		dao.create(lesson);
+		lessonDao.create(lesson);
 
-		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons"));
+		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons"));
 	}
 
 	@Test
 	public void givenExpectedData_whenCreate_thenExpectedGroupsOfLessonInLessons_GroupsDataBaseCreated() {
-		dao.create(lesson);
+		lessonDao.create(lesson);
 
-		assertEquals(8, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
+		assertEquals(8, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons_groups"));
 	}
 
-	@Test
-	void givenDataSet_whenDelete_thenExpectedCountOfLessonsReturned() {
-		dao.delete(3);
-
-		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons"));
-	}
-
-	@Test
-	void givenDataSet_whenDelete_thenExpectedCountGroupsOfLessonsDeleted() {
-		dao.delete(3);
-
-		assertEquals(5, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
-	}
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenUpdate_thenExpectedCountSubjectsOfLessonUpdated() {
-		dao.update(lesson);
+		lessonDao.update(lesson);
 
-		assertEquals(10, JdbcTestUtils.countRowsInTable(template, "lessons_groups"));
+		assertEquals(10, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons_groups"));
+	}
+	
+	@Test
+	void givenDataSetAndExpectedLesson_whenUpdate_thenExpectedCountOfLessonFromDataBaseReturned() {
+		lessonDao.update(lesson);
+
+		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lessons"));
 	}
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenGet_thenReturnedLessonContainedExpectedTeacher() {
-		assertEquals("Petrov", dao.get(2).getTeacher().getLastName());
+		assertEquals("Petrov", lessonDao.get(2).getTeacher().getLastName());
 	}
 }

@@ -1,4 +1,4 @@
-package com.nesterov.university.mapper;
+package com.nesterov.university.dao.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,6 +25,8 @@ public class StudentRowMapper implements RowMapper<Student> {
 		student.setEmail(resultSet.getString("email"));
 		student.setPhone(resultSet.getString("phone"));
 		student.setGender(Gender.valueOf(resultSet.getString("gender")));
+		student.setFaculty(resultSet.getString("faculty"));
+		student.setCourse(resultSet.getString("course"));
 		return student;
 	}
 }
