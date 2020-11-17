@@ -18,7 +18,7 @@ import com.nesterov.university.model.Teacher;
 @Component
 public class TeacherDao {
 
-	private static final String SELECT_ALL_SUBJECT_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id WHERE teacher_id = ?";
+	private static final String SELECT_ALL_SUBJECTS_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id WHERE teacher_id = ?";
 	private static final String INSERT_INTO_TEACHERS_SUBJECTS = "INSERT INTO teachers_subjects SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?);";
 	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE subject_id = ? AND teacher_id = ?";
 	private static final String SELECT_BY_SUBJECT = "SELECT * FROM teachers LEFT JOIN teachers_subjects ON teachers_subjects.teacher_id = teachers.id LEFT JOIN subjects ON teachers_subjects.subject_id = subjects.id WHERE subject_id = ?";
@@ -75,7 +75,7 @@ public class TeacherDao {
 		jdbcTemplate.update(UPDATE, teacher.getFirstName(), teacher.getLastName(), teacher.getBithDate(),
 				teacher.getAddress(), teacher.getEmail(), teacher.getPhone(), teacher.getGender().name(),
 				teacher.getId());
-		List<Subject> subjects = jdbcTemplate.query(SELECT_ALL_SUBJECT_BY_TEACHER, subjectSimpleRowMapper,
+		List<Subject> subjects = jdbcTemplate.query(SELECT_ALL_SUBJECTS_BY_TEACHER, subjectSimpleRowMapper,
 				teacher.getId());
 		subjects.removeAll(teacher.getSubjects());
 		subjects.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));

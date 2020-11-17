@@ -29,15 +29,16 @@ class SubjectDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	private Subject subject;
+	private Teacher teacher;
 
 	@BeforeEach
 	void initSubject() {
 		List<Teacher> teachers = new ArrayList<Teacher>();
-		Teacher teacher = new Teacher("fevaef", "wefqerf", LocalDate.of(2000, 6, 15), "rwefqer", "wfqewrf", "cdwe",
-				Gender.valueOf("FEMALE"));
-		teacher.setId(4);
+		teacher = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov", "55r2346254",
+				Gender.MALE);
+		teacher.setId(1);
 		teachers.add(teacher);
-		subject = new Subject(4, "Biology");
+		subject = new Subject(1, "Biology");
 		subject.setTeachers(teachers);
 	}
 
@@ -80,7 +81,7 @@ class SubjectDaoTest {
 	void givenDataSet_whenDelete_thenDifferentCountOfSubjectBeforeAndAfterDeletingReturned() {
 		int countRowsbeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
 
-		subjectDao.delete(1);
+		subjectDao.delete(subject.getId());
 
 		int countRowsafterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
 		assertFalse(countRowsbeforeDelete == countRowsafterDelete);
@@ -92,8 +93,8 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedSubject_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured() {
-		assertEquals(2, subjectDao.findByTeacherId(3).size());
+	void givenDataSetAndExpectedSubject_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured() {
+		assertEquals(1, subjectDao.findByTeacherId(teacher.getId()).size());
 	}
 
 	@Test
@@ -102,8 +103,17 @@ class SubjectDaoTest {
 
 		subjectDao.update(subject);
 
-		int countRowsafterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
-		assertTrue(countRowsbeforeUpdate == countRowsafterUpdate);
+		int countRowsAfterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+		assertTrue(countRowsbeforeUpdate == countRowsAfterUpdate);
 	}
 
+	@Test
+	void givenDataSetAndExpectedSubject_whenUpdate_thenDifferentCountTeachersOfSubjectBeforeAndAfterUpdatingReturned() {
+		int countRowsbeforeUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
+
+		subjectDao.update(subject);
+
+		int countRowsAfterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
+		assertFalse(countRowsbeforeUpdate == countRowsAfterUpdate);
+	}
 }

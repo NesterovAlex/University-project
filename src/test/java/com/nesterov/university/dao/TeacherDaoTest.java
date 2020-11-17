@@ -28,23 +28,24 @@ class TeacherDaoTest {
 	private TeacherDao teacherDao;
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	private Teacher updated;
+	private Teacher teacher;
 
 	@BeforeEach
 	void Init() {
 		List<Subject> subjects = new ArrayList<Subject>();
-		updated = new Teacher("Alice", "Nesterova", LocalDate.of(2015, 2, 12), "Kiev", "alice@nesterova.com",
+		teacher = new Teacher("Alice", "Nesterova", LocalDate.of(2015, 2, 12), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		subjects.add(new Subject(8, "Java"));
 		subjects.add(new Subject(3, "Java"));
-		updated.setSubjects(subjects);
+		teacher.setSubjects(subjects);
+		teacher.setId(3);
 	}
 
 	@Test
 	public void givenDataSet_whenCreate_thenDifferentCountOfRowsBeforAndAfterCreatingReturned() {
 		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
 
-		teacherDao.create(updated);
+		teacherDao.create(teacher);
 
 		int countRowsAfterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
 		assertFalse(countRowsBeforeCreate == countRowsAfterCreate);
@@ -54,7 +55,7 @@ class TeacherDaoTest {
 	public void givenTestDataSet_whenCreate_thenDifferentCountSubjectsOfTeacherBeforAndAfterCreatingReturned() {
 		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
 
-		teacherDao.create(updated);
+		teacherDao.create(teacher);
 
 		int countRowsAfterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
 		assertFalse(countRowsBeforeCreate == countRowsAfterCreate);
@@ -64,7 +65,7 @@ class TeacherDaoTest {
 	void givenTestData_whenDelete_thenDifferentCountSubjectsOfTeacherBeforeAndAfterDeletingReturned() {
 		int countRowsBeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
 
-		teacherDao.delete(3);
+		teacherDao.delete(teacher.getId());
 
 		int countRowsAfterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
 		assertFalse(countRowsBeforeDelete == countRowsAfterDelete);
@@ -74,7 +75,7 @@ class TeacherDaoTest {
 	void givenTestData_whenDelete_thenExpectedCountOfTeacherBeforeAndAfterDeleingReturned() {
 		int countRowsBeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
 
-		teacherDao.delete(3);
+		teacherDao.delete(teacher.getId());
 
 		int countRowsAfterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
 		assertFalse(countRowsBeforeDelete == countRowsAfterDelete);

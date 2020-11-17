@@ -41,7 +41,6 @@ INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, t
 INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 4, '2011-05-14', 1, 4);
 INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 3, '2019-02-15', 1, 2);
 
-
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 1);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 2);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (2, 1);

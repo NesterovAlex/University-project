@@ -63,12 +63,14 @@ public class Student extends Person {
 		if (course == null) {
 			if (other.course != null)
 				return false;
-		} else if (!course.equals(other.course))
+		} 
+		else if (!course.equals(other.course))
 			return false;
 		if (faculty == null) {
 			if (other.faculty != null)
 				return false;
-		} else if (!faculty.equals(other.faculty))
+		} 
+		else if (!faculty.equals(other.faculty))
 			return false;
 		else if (groupId != other.groupId)
 			return false;
