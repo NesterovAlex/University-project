@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -15,6 +16,7 @@ import com.nesterov.university.model.LessonTime;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
+@Sql(scripts = { "/schema.sql", "classpath:test_data.sql" })
 class LessonTimeDaoTest {
 
 	@Autowired
@@ -23,18 +25,13 @@ class LessonTimeDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	public void givenExpectedData_whenCreate_thenExpectedCountOfLessonTimesReturned() {
-		lessonTimeDao.create(new LessonTime(12, LocalTime.of(14, 30), LocalTime.of(13, 45)));
+	public void givenExpectedData_whenDifferentCountRowsBeforeAndAfterCreatingReturned() {
+		int countRowsbeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times");
 
-		assertEquals(4, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times"));
-	}
-
-	@Test
-	public void givenExpectedData_whenCreate_thenExpectedOrderNumberLessonTimesReturned() {
 		lessonTimeDao.create(new LessonTime(12, LocalTime.of(8, 40), LocalTime.of(9, 50)));
 
-		Long actual = jdbcTemplate.queryForObject("SELECT order_number FROM lesson_times where id=5", Long.class);
-		assertEquals(12, actual);
+		int countRowsafterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times");
+		assertFalse(countRowsbeforeCreate == countRowsafterCreate);
 	}
 
 	@Test
@@ -43,15 +40,13 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenDataSetIdOfLessonTime_whenGet_thenExpectedOrderNumberReturned() {
-		assertEquals(new LessonTime(2, 14, LocalTime.of(14, 45), LocalTime.of(15, 45)), lessonTimeDao.get(2));
-	}
+	void givenDataSet_whenDelete_thenCountRowsBeforeAndAfterDeletingReturned() {
+		int countRowsbeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times");
 
-	@Test
-	void givenDataSet_whenDelete_thenExpectedCountOfLessonTimesReturned() {
 		lessonTimeDao.delete(3);
 
-		assertEquals(3, JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times"));
+		int countRowsafterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "lesson_times");
+		assertFalse(countRowsbeforeDelete == countRowsafterDelete);
 	}
 
 	@Test
@@ -76,5 +71,10 @@ class LessonTimeDaoTest {
 
 		Time actual = jdbcTemplate.queryForObject("SELECT end_lesson FROM lesson_times WHERE id=4", Time.class);
 		assertEquals(LocalTime.of(17, 45), actual.toLocalTime());
+	}
+
+	@Test
+	void givenDataSetAndExpectedLessonTime_whenGetAll_thenExpectedCountOfLessonTimesReturned() {
+		assertEquals(4, lessonTimeDao.getAll().size());
 	}
 }

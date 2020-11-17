@@ -13,7 +13,7 @@ import com.nesterov.university.model.LessonTime;
 public class LessonTimeDao {
 
 	private static final String SELECT_BY_ID = "SELECT *  FROM lesson_times WHERE id = ?";
-	private static final String SELECT = "SELECT * FROM lesson_time";
+	private static final String SELECT = "SELECT * FROM lesson_times";
 	private static final String INSERT = "INSERT INTO lesson_times (order_Number, start_lesson, end_lesson) values (?, ?, ?)";
 	private static final String UPDATE = "UPDATE lesson_times SET order_number = ?, start_lesson = ?, end_lesson = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM lesson_times WHERE id = ?";

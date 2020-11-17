@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -20,6 +21,7 @@ import com.nesterov.university.model.Teacher;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
+@Sql(scripts = { "/schema.sql", "classpath:test_data.sql" })
 class SubjectDaoTest {
 
 	@Autowired
@@ -40,10 +42,13 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	public void givenExpectedData_whenCreate_thenExpectedCountOfSubjectsFromDatabaseReturned() {
+	public void givenExpectedData_whenCreate_thenDifferentCountOfSubjectBeforeAndAfterCreatingReturned() {
+		int countRowsbeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+
 		subjectDao.create(subject);
 
-		assertEquals(9, JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects"));
+		int countRowsafterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+		assertFalse(countRowsbeforeCreate == countRowsafterCreate);
 	}
 
 	@Test
@@ -67,14 +72,18 @@ class SubjectDaoTest {
 
 	@Test
 	void givenDataSetAndIdOfSubject_whenGet_thenExpectedIdOfSubjectReturned() {
-		assertEquals(new Subject(7, "Geometry"), subjectDao.get(7));
+		Subject expected = new Subject(7, "Geometry");
+		assertEquals(expected, subjectDao.get(expected.getId()));
 	}
 
 	@Test
-	void givenDataSet_whenDelete_thenExpectedCountOfSubjectsReturned() {
-		subjectDao.delete(3);
+	void givenDataSet_whenDelete_thenDifferentCountOfSubjectBeforeAndAfterDeletingReturned() {
+		int countRowsbeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
 
-		assertEquals(8, JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects"));
+		subjectDao.delete(1);
+
+		int countRowsafterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+		assertFalse(countRowsbeforeDelete == countRowsafterDelete);
 	}
 
 	@Test
@@ -88,10 +97,13 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedSubject_whenUpdate_thenExpectedCountOfSubjectsFromDataBaseReturned() {
+	void givenDataSetExpectedSubject_whenUpdate_thenEqualCountOfSubjectBeforAndAfterUpdatingReturned() {
+		int countRowsbeforeUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+
 		subjectDao.update(subject);
 
-		assertEquals(8, JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects"));
+		int countRowsafterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "subjects");
+		assertTrue(countRowsbeforeUpdate == countRowsafterUpdate);
 	}
 
 }

@@ -2,7 +2,6 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,33 +9,35 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import com.nesterov.university.dao.mapper.SubjectSimpleRowMapper;
 import com.nesterov.university.dao.mapper.TeacherRowMapper;
 import com.nesterov.university.dao.mapper.TeacherSimpleRowMapper;
+import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
 
 @Component
 public class TeacherDao {
 
-	private static final String INSERT_INTO_COPY_TEACHERS_SUBJECTS = "INSERT INTO copy_teachers_subjects SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM copy_teachers_subjects WHERE teacher_id = ? AND subject_id = ?);";
+	private static final String SELECT_ALL_SUBJECT_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id WHERE teacher_id = ?";
 	private static final String INSERT_INTO_TEACHERS_SUBJECTS = "INSERT INTO teachers_subjects SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?);";
-	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE teacher_id = ?";
-	private static final String CREATE_COPY_TEACHERS_SUBJECTS = "DROP TABLE IF EXISTS copy_teachers_subjects; CREATE TABLE copy_teachers_subjects AS SELECT * FROM teachers_subjects WHERE 1=2; INSERT INTO copy_teachers_subjects SELECT * FROM teachers_subjects;";
-	private static final String DELETE_SUPERFLUOUS_SUBJECT = "DELETE FROM teachers_subjects AS t1 WHERE t1.subject_id NOT IN (SELECT t2.subject_id FROM copy_teachers_subjects AS t2)";
+	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE subject_id = ? AND teacher_id = ?";
 	private static final String SELECT_BY_SUBJECT = "SELECT * FROM teachers LEFT JOIN teachers_subjects ON teachers_subjects.teacher_id = teachers.id LEFT JOIN subjects ON teachers_subjects.subject_id = subjects.id WHERE subject_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM teachers WHERE id = ?";
 	private static final String INSERT = "INSERT INTO teachers (first_name, last_name, birth_date, address, email, phone, gender) values (?, ?, ?, ?, ?, ?, ?)";
 	private static final String SELECT = "SELECT *  FROM teachers";
 	private static final String UPDATE = "UPDATE teachers SET first_name = ?, last_name = ?, birth_date = ?, address = ?, email = ?, phone = ?, gender = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM teachers WHERE id = ?";
-
 	private TeacherSimpleRowMapper teacherSimpleRowMapper;
+	private SubjectSimpleRowMapper subjectSimpleRowMapper;
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public TeacherDao(JdbcTemplate template, @Lazy TeacherRowMapper teacherRowMapper, TeacherSimpleRowMapper teacherSimpleRowMapper) {
+	public TeacherDao(JdbcTemplate template, @Lazy TeacherRowMapper teacherRowMapper,
+			TeacherSimpleRowMapper teacherSimpleRowMapper, SubjectSimpleRowMapper subjectSimpleRowMapper) {
 		this.jdbcTemplate = template;
 		this.teacherRowMapper = teacherRowMapper;
 		this.teacherSimpleRowMapper = teacherSimpleRowMapper;
+		this.subjectSimpleRowMapper = subjectSimpleRowMapper;
 	}
 
 	@Transactional
@@ -55,7 +56,8 @@ public class TeacherDao {
 		}, holder);
 		long id = holder.getKey().longValue();
 		teacher.setId(id);
-		teacher.getSubjects().forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, id, s.getId(), id, s.getId()));
+		teacher.getSubjects()
+				.forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, id, s.getId(), id, s.getId()));
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
@@ -66,20 +68,19 @@ public class TeacherDao {
 	@Transactional
 	public void delete(long id) {
 		jdbcTemplate.update(DELETE, id);
-		jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, id);
 	}
 
 	@Transactional
 	public void update(Teacher teacher) {
-		jdbcTemplate.execute(CREATE_COPY_TEACHERS_SUBJECTS);
 		jdbcTemplate.update(UPDATE, teacher.getFirstName(), teacher.getLastName(), teacher.getBithDate(),
 				teacher.getAddress(), teacher.getEmail(), teacher.getPhone(), teacher.getGender().name(),
 				teacher.getId());
-		teacher.getSubjects().forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(),
-				teacher.getId(), s.getId()));
-		teacher.getSubjects().forEach(s -> jdbcTemplate.update(INSERT_INTO_COPY_TEACHERS_SUBJECTS, teacher.getId(), s.getId(),
-				teacher.getId(), s.getId()));
-		jdbcTemplate.execute(DELETE_SUPERFLUOUS_SUBJECT);
+		List<Subject> subjects = jdbcTemplate.query(SELECT_ALL_SUBJECT_BY_TEACHER, subjectSimpleRowMapper,
+				teacher.getId());
+		subjects.removeAll(teacher.getSubjects());
+		subjects.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));
+		teacher.getSubjects().forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(),
+				s.getId(), teacher.getId(), s.getId()));
 	}
 
 	public List<Teacher> getAll() {

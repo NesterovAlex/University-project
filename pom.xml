@@ -17,7 +17,6 @@
 		<postgresql.version>42.2.14</postgresql.version>
 		<h2.version>1.4.200</h2.version>
 		<assertj.version>3.16.1</assertj.version>
-		<javaee-api.version>8.0.1</javaee-api.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 	</properties>
 
@@ -26,12 +25,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 			<version>${commons-collections4.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>${javaee-api.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>

@@ -2,23 +2,22 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import com.nesterov.university.dao.mapper.GroupRowMapper;
 import com.nesterov.university.dao.mapper.LessonRowMapper;
+import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Lesson;
 
 @Component
 public class LessonDao {
 
-	private static final String INSERT_INTO_COPY_LESSONS_GROUPS = "INSERT INTO copy_lessons_groups SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM copy_lessons_groups WHERE lesson_id = ? AND group_id = ?);";
-	private static final String DELETE_SUPERFLUOUS_GROUPS = "DELETE FROM lessons_groups AS t1 WHERE t1.group_id NOT IN (SELECT t2.group_id FROM copy_lessons_groups AS t2)";
-	private static final String CREATE_COPY_LESSONS_GROUPS = "DROP TABLE IF EXISTS copy_lessons_groups; CREATE TABLE copy_lessons_groups AS SELECT * FROM lessons_groups where 1=2; INSERT INTO copy_lessons_groups SELECT * FROM lessons_groups;";
-	private static final String DELETE_FROM_LESSONS_GROUPS = "DELETE FROM lessons_groups WHERE lesson_id = ?";
+	private static final String SELECT_ALL_GROUPS_BY_LESSON = "SELECT * FROM groups LEFT JOIN lessons_groups ON lessons_groups.group_id = groups.id WHERE lesson_id = ?";
+	private static final String DELETE_FROM_LESSONS_GROUPS = "DELETE FROM lessons_groups WHERE lesson_id = ? AND group_id = ?";
 	private static final String INSERT_INTO_LESSONS_GROUPS = "INSERT INTO lessons_groups SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT FROM lessons_groups WHERE lesson_id = ? AND group_id = ?);";
 	private static final String SELECT_BY_ID = "SELECT * FROM lessons WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM lessons";
@@ -27,11 +26,13 @@ public class LessonDao {
 	private static final String DELETE = "DELETE FROM lessons WHERE id = ?";
 
 	private LessonRowMapper lessonRowMapper;
+	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public LessonDao(JdbcTemplate template, @Lazy LessonRowMapper lessonRowMapper) {
+	public LessonDao(JdbcTemplate template, @Lazy LessonRowMapper lessonRowMapper, GroupRowMapper groupRowMapper) {
 		this.jdbcTemplate = template;
 		this.lessonRowMapper = lessonRowMapper;
+		this.groupRowMapper = groupRowMapper;
 	}
 
 	@Transactional
@@ -58,18 +59,17 @@ public class LessonDao {
 	@Transactional
 	public void delete(long id) {
 		jdbcTemplate.update(DELETE, id);
-		jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, id);
 	}
 
 	@Transactional
 	public void update(Lesson lesson) {
-		jdbcTemplate.execute(CREATE_COPY_LESSONS_GROUPS);
 		jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
 				lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
-		lesson.getGroups().forEach(g -> jdbcTemplate.update(INSERT_INTO_COPY_LESSONS_GROUPS, lesson.getId(), g.getId(),
+		List<Group> groups = jdbcTemplate.query(SELECT_ALL_GROUPS_BY_LESSON, groupRowMapper, lesson.getId());
+		groups.removeAll(lesson.getGroups());
+		groups.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
+		lesson.getGroups().forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
 				lesson.getId(), g.getId()));
-		lesson.getGroups().forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(), lesson.getId(), g.getId()));
-		jdbcTemplate.execute(DELETE_SUPERFLUOUS_GROUPS);
 	}
 
 	public List<Lesson> getAll() {

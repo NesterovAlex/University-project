@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -13,6 +14,7 @@ import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
+@Sql(scripts = { "/schema.sql", "classpath:test_data.sql" })
 class AudienceDaoTest {
 
 	@Autowired
@@ -21,24 +23,23 @@ class AudienceDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	void givenDataSet_whenDeleteAudience_thenExpectedCountOfAudienceReturned() {
+	void givenDataSet_whenDeleteAudience_thenOtherCountOfRowsReturned() {
+		int beforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences");
+
 		audienceDao.delete(3);
 
-		assertEquals(4, JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences"));
-	}
-	
-	@Test
-	public void givenExpectedData_whenCreate_thenReturnedExpectedCountCountRowsInTable() {
-		audienceDao.create(new Audience(14, 87));
-
-		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences"));	
+		int afterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences");
+		assertFalse(beforeDelete == afterDelete);
 	}
 
 	@Test
-	public void givenExpectedData_whenCreate_thenReturnedCurentCountRowsInTableWhereIdEqualFive() {
+	public void givenExpectedData_whenCreate_thenDifferentCountOfRowsAfterAndBeforeCreatingreturned() {
+		int beforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences");
+
 		audienceDao.create(new Audience(14, 87));
-		
-		assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audiences", "id = 5"));	
+
+		int afterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "audiences");
+		assertFalse(beforeCreate == afterCreate);
 	}
 
 	@Test
@@ -49,11 +50,6 @@ class AudienceDaoTest {
 	@Test
 	void givenDataSetIdOfAudience_whenGet_thenExpectedRoomNumberOfAudienceReturned() {
 		assertEquals(new Audience(2, 343, 187), audienceDao.get(2));
-	}
-
-	@Test
-	void givenDataSetIdOfAudience_whenGet_thenExpectedCapacityOfAudienceReturned() {
-		assertEquals(new Audience(1, 14, 87), audienceDao.get(1));
 	}
 
 	@Test
@@ -71,7 +67,7 @@ class AudienceDaoTest {
 		long actual = jdbcTemplate.queryForObject("SELECT capacity FROM audiences WHERE id=3", Long.class);
 		assertEquals(1000, actual);
 	}
-	
+
 	@Test
 	void givenDataSetExpectedAudience_whenGetAll_thenExpectedCountOfAudiencesReturned() {
 		assertEquals(4, audienceDao.getAll().size());

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -16,6 +17,7 @@ import com.nesterov.university.model.Student;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
+@Sql(scripts = { "/schema.sql", "classpath:test_data.sql" })
 class StudentDaoTest {
 
 	@Autowired
@@ -35,24 +37,13 @@ class StudentDaoTest {
 	}
 
 	@Test
-	public void givenExpectedData_whenCreate_thenReturnExpectedId() {
-		studentDao.create(student);
-		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "students"));
-	}
-
-	@Test
-	public void givenExpectedData_whenCreate_thenReturnExpectedI() {
-		Student student = new Student("Alice", "Nesterova", LocalDate.of(1999, 12, 31), "Kiev", "alice@nesterova.com",
-				"123456789", Gender.valueOf("FEMALE"));
-		student.setGroupId(2);
-		student.setId(3);
-		student.setFaculty("Biology");
-		student.setCourse("Biology");
+	public void givenExpectedData_whenCreate_thenDifferentCountOfStudentBeforeAndAfterCreatingReturned() {
+		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
 
 		studentDao.create(student);
 
-		String actual = jdbcTemplate.queryForObject("SELECT first_name FROM students where id=5", String.class);
-		assertEquals("Alice", actual);
+		int countRowsafterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
+		assertFalse(countRowsBeforeCreate == countRowsafterCreate);
 	}
 
 	@Test
@@ -63,21 +54,27 @@ class StudentDaoTest {
 		expected.setFaculty("Biology");
 		expected.setCourse("Biology");
 		expected.setGroupId(1);
-		assertEquals(expected, studentDao.get(1));
+		assertEquals(expected, studentDao.get(expected.getId()));
 	}
 
 	@Test
-	void givenDataSet_whenDelete_thenExpectedCountOfStudentInDataBaseReturned() {
-		studentDao.delete(3);
+	void givenDataSet_whenDelete_thenDifferentCountOfStudentBeforeAndAfterDeletingReturned() {
+		int countRowsBeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
 
-		assertEquals(4, JdbcTestUtils.countRowsInTable(jdbcTemplate, "students"));
+		studentDao.delete(1);
+
+		int countRowsafterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
+		assertFalse(countRowsBeforeDelete == countRowsafterDelete);
 	}
 
 	@Test
-	void givenDataSetExpectedStudent_whenUpdate_thenExpectedEmailOfStudentReturned() {
+	void givenDataSetExpectedStudent_whenUpdate_thenExpectedCountOfStudentsBeforeAndAfterUpdatingReturned() {
+		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
+
 		studentDao.update(student);
 
-		assertEquals(5, JdbcTestUtils.countRowsInTable(jdbcTemplate, "students"));
+		int countRowsafterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "students");
+		assertTrue(countRowsBeforeCreate == countRowsafterCreate);
 	}
 
 	@Test

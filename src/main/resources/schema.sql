@@ -77,13 +77,15 @@ CREATE TABLE teachers_subjects
 (
     teacher_id INT NOT NULL,
     subject_id INT NOT NULL,
-    FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
-    FOREIGN KEY(subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(subject_id) REFERENCES subjects(id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT teachers_subjects_constraint UNIQUE (teacher_id, subject_id)
 );
 CREATE TABLE lessons_groups
 (
     lesson_id INT NOT NULL,
     group_id INT NOT NULL,
+    FOREIGN KEY(lesson_id) REFERENCES lessons(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT lessons_groups_constraint UNIQUE (lesson_id, group_id)
 );

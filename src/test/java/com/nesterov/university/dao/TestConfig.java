@@ -12,7 +12,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import com.nesterov.university.configuration.ApplicationConfig;
 
 @Configuration
-@ComponentScan(basePackages = "com.nesterov.university")
 @Import({ApplicationConfig.class})
 public class TestConfig {
 
@@ -23,7 +22,6 @@ public class TestConfig {
 	
 	@Bean
 	EmbeddedDatabaseBuilder embeddedDatabaseBuilder() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-				.addScript("classpath:jdbc/schema.sql").addScript("classpath:jdbc/test_data.sql");
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2);
 	}
 }

@@ -2,19 +2,20 @@ package com.nesterov.university.model;
 
 import java.time.LocalDate;
 
-public class Student extends Person{
-	
+public class Student extends Person {
+
 	private long groupId;
 	private String faculty;
 	private String course;
-	
-	public Student() {}
-	
+
+	public Student() {
+	}
+
 	public Student(String firstName, String lastName, LocalDate bithDate, String address, String email, String phone,
 			Gender gender) {
 		super(firstName, lastName, bithDate, address, email, phone, gender);
 	}
-	
+
 	public long getGroupId() {
 		return groupId;
 	}
@@ -22,19 +23,19 @@ public class Student extends Person{
 	public void setGroupId(long groupId) {
 		this.groupId = groupId;
 	}
-	
+
 	public String getFaculty() {
 		return faculty;
 	}
-	
+
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
-	
+
 	public String getCourse() {
 		return course;
 	}
-	
+
 	public void setCourse(String course) {
 		this.course = course;
 	}
@@ -62,17 +63,15 @@ public class Student extends Person{
 		if (course == null) {
 			if (other.course != null)
 				return false;
-		} 
-		else if (!course.equals(other.course))
+		} else if (!course.equals(other.course))
 			return false;
 		if (faculty == null) {
 			if (other.faculty != null)
 				return false;
-		} 
-		else if (!faculty.equals(other.faculty))
+		} else if (!faculty.equals(other.faculty))
 			return false;
 		else if (groupId != other.groupId)
 			return false;
 		return true;
-	}	
+	}
 }
