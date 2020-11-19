@@ -19,5 +19,4 @@ public class AudienceRowMapper implements RowMapper<Audience> {
 		audience.setCapacity(rs.getInt("capacity"));
 		return audience;
 	}
-
 }

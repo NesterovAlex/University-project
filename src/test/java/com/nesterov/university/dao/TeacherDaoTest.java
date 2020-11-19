@@ -2,6 +2,7 @@ package com.nesterov.university.dao;
 
 import static org.apache.commons.collections4.CollectionUtils.containsAll;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,17 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
-@Sql(scripts = { "/schema.sql", "classpath:test_data.sql" })
 class TeacherDaoTest {
 
 	@Autowired
@@ -42,47 +40,53 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	public void givenDataSet_whenCreate_thenDifferentCountOfRowsBeforAndAfterCreatingReturned() {
-		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
+	public void givenExpectedCountRowsInTableTeachers_whenCreate_thenEqualCountRowsReturned() {
+		List<Subject> subjects = new ArrayList<Subject>();
+		Teacher teacher = new Teacher("Alice", "Nesterova", LocalDate.of(2015, 2, 12), "Kiev", "alice@nesterova.com",
+				"123456789", Gender.valueOf("FEMALE"));
+		subjects.add(new Subject(8, "Java"));
+		subjects.add(new Subject(3, "Java"));
+		teacher.setSubjects(subjects);
+		int expected = countRowsInTable(jdbcTemplate, "teachers") + 1;
 
 		teacherDao.create(teacher);
 
-		int countRowsAfterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
-		assertFalse(countRowsBeforeCreate == countRowsAfterCreate);
+		int actual = countRowsInTable(jdbcTemplate, "teachers");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	public void givenTestDataSet_whenCreate_thenDifferentCountSubjectsOfTeacherBeforAndAfterCreatingReturned() {
-		int countRowsBeforeCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
+	public void givenExpectedCountRowsInTableTeachers_Subjects_whenCreate_thenEqualCountRowsReturned() {
+		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") + 2;
 
 		teacherDao.create(teacher);
 
-		int countRowsAfterCreate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
-		assertFalse(countRowsBeforeCreate == countRowsAfterCreate);
+		int actual = countRowsInTable(jdbcTemplate, "teachers_subjects");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTestData_whenDelete_thenDifferentCountSubjectsOfTeacherBeforeAndAfterDeletingReturned() {
-		int countRowsBeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
+	void givenExpectedCountRowsInTableTeachers_Subjects_whenDelete_thenEqualCountRowsReturned() {
+		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") - 2;
 
 		teacherDao.delete(teacher.getId());
 
-		int countRowsAfterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
-		assertFalse(countRowsBeforeDelete == countRowsAfterDelete);
+		int actual = countRowsInTable(jdbcTemplate, "teachers_subjects");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTestData_whenDelete_thenExpectedCountOfTeacherBeforeAndAfterDeleingReturned() {
-		int countRowsBeforeDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
+	void givenExpectedCountRowsInTableTeachers_whenDelete_thenEqualCountRowsReturned() {
+		int expected = countRowsInTable(jdbcTemplate, "teachers") - 1;
 
-		teacherDao.delete(teacher.getId());
+		teacherDao.delete(4);
 
-		int countRowsAfterDelete = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
-		assertFalse(countRowsBeforeDelete == countRowsAfterDelete);
+		int actual = countRowsInTable(jdbcTemplate, "teachers");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenDataSet_whenGet_thenExpectedTeacherReturned() {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantTeacherReturned() {
 		Teacher expected = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov",
 				"55r2346254", Gender.MALE);
 		expected.setId(7);
@@ -91,7 +95,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenDataSetAndExpectedListSubjectsOfTeacher_whenGet_thenListOfSubjectsReturned() {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned() {
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(1, "Mathematic"));
 		subjects.add(new Subject(2, "Geography"));
@@ -100,7 +104,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedTeacher_whenUpdate_thenDifferentCountSubjctsOfTeacherBeforeAndAfterUpdatingReturned() {
+	void givenExpectedCountRowsInTableTeachers_Subjects_whenUpdate_thenEqualCountRowsReturned() {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -112,16 +116,16 @@ class TeacherDaoTest {
 		subjects.add(new Subject(1, "Pleontology"));
 		subjects.add(new Subject(5, "Paleontology"));
 		updated.setSubjects(subjects);
-		int countRowsBeforeUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
+		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") + 2;
 
 		teacherDao.update(updated);
 
-		int countRowsAfterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers_subjects");
-		assertFalse(countRowsBeforeUpdate == countRowsAfterUpdate);
+		int actual = countRowsInTable(jdbcTemplate, "teachers_subjects");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTestData_whenUpdate_thenEqualCountOfTeacherBeforeAndAfterUpdatingReturned() {
+	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenEqualCountRowsReturned() {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -130,26 +134,23 @@ class TeacherDaoTest {
 		subjects.add(new Subject(3, "Paleontology"));
 		subjects.add(new Subject(1, "Pleontology"));
 		updated.setSubjects(subjects);
-		int countRowsBeforeUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
+		int expected = countRowsInTable(jdbcTemplate, "teachers");
 
 		teacherDao.update(updated);
 
-		int countRowsAfterUpdate = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teachers");
-		assertTrue(countRowsBeforeUpdate == countRowsAfterUpdate);
+		int actual = countRowsInTable(jdbcTemplate, "teachers");
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTestData_whenGetAll_thenExpectedTeachersReturned() {
-		assertEquals(8, teacherDao.getAll().size());
+	void givenExpectedCountRowsInTableTeachers_whenGetAll_thenExpectedRowsTeachersReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.getAll().size());
 	}
 	
 	@Test
-	void givenTestData_whenGetAllBySubject_thenExpectedTeachersReturned() {
-		assertEquals(3, teacherDao.findBySubjectId(2).size());
-	}
-	
-	@Test
-	void givenTestData_whenGetAllBySubject_thenExpectedSubjectCountOfTeacherReturned() {
-		assertEquals(1, teacherDao.get(1).getSubjects().size());
+	void givenExpectedIdOfExistingSubject_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
+		int expected = 2;
+		
+		assertEquals(expected, teacherDao.findBySubjectId(expected).size());
 	}
 }

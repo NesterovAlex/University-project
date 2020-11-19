@@ -1,6 +1,7 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,7 +9,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.nesterov.university.dao.mapper.GroupRowMapper;
 import com.nesterov.university.dao.mapper.LessonRowMapper;
 import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Lesson;
@@ -16,7 +16,6 @@ import com.nesterov.university.model.Lesson;
 @Component
 public class LessonDao {
 
-	private static final String SELECT_ALL_GROUPS_BY_LESSON = "SELECT * FROM groups LEFT JOIN lessons_groups ON lessons_groups.group_id = groups.id WHERE lesson_id = ?";
 	private static final String DELETE_FROM_LESSONS_GROUPS = "DELETE FROM lessons_groups WHERE lesson_id = ? AND group_id = ?";
 	private static final String INSERT_INTO_LESSONS_GROUPS = "INSERT INTO lessons_groups SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT FROM lessons_groups WHERE lesson_id = ? AND group_id = ?);";
 	private static final String SELECT_BY_ID = "SELECT * FROM lessons WHERE id = ?";
@@ -26,13 +25,13 @@ public class LessonDao {
 	private static final String DELETE = "DELETE FROM lessons WHERE id = ?";
 
 	private LessonRowMapper lessonRowMapper;
-	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
+	private GroupDao groupDao;
 
-	public LessonDao(JdbcTemplate template, @Lazy LessonRowMapper lessonRowMapper, GroupRowMapper groupRowMapper) {
+	public LessonDao(JdbcTemplate template, @Lazy LessonRowMapper lessonRowMapper, GroupDao groupDao) {
 		this.jdbcTemplate = template;
 		this.lessonRowMapper = lessonRowMapper;
-		this.groupRowMapper = groupRowMapper;
+		this.groupDao = groupDao;
 	}
 
 	@Transactional
@@ -65,14 +64,18 @@ public class LessonDao {
 	public void update(Lesson lesson) {
 		jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
 				lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
-		List<Group> groups = jdbcTemplate.query(SELECT_ALL_GROUPS_BY_LESSON, groupRowMapper, lesson.getId());
-		groups.removeAll(lesson.getGroups());
-		groups.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
-		lesson.getGroups().forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
+		List<Group> groups = groupDao.findByLessonId(lesson.getId());
+		List<Group> groupForDeleting = new ArrayList<>(groups);
+		List<Group> groupForInserting = new ArrayList<>(lesson.getGroups());
+		groupForDeleting.removeAll(lesson.getGroups());
+		groupForInserting.removeAll(groups);
+		groupForDeleting.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
+		groupForInserting.forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
 				lesson.getId(), g.getId()));
 	}
 
-	public List<Lesson> getAll() {
+	@Transactional
+	public List<Lesson> findAll() {
 		return jdbcTemplate.query(SELECT, lessonRowMapper);
 	}
 }

@@ -19,5 +19,4 @@ public class LessonTimeRowMapper implements RowMapper<LessonTime>{
 		lessonTime.setEnd(rs.getObject("end_lesson", LocalTime.class));
 		return lessonTime;
 	}
-
 }

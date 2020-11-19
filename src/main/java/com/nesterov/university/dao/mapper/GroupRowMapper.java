@@ -24,5 +24,4 @@ public class GroupRowMapper implements RowMapper<Group>{
 		group.setStudents(studentDao.findByGroupId(rs.getLong("id")));
 		return group;
 	}
-
 }
