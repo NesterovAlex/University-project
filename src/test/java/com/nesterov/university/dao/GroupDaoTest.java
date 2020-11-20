@@ -45,8 +45,6 @@ class GroupDaoTest {
 		student.setCourse("Biology");
 		student.setId(1);
 		student.setGroupId(1);
-		List<Student> students = new ArrayList<Student>();
-		students.add(student);
 		
 		assertEquals(expected, groupDao.get(1));
 	}

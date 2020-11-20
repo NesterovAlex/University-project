@@ -77,7 +77,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedCountRowInTableLessons_Groups_whenUpdate_thenEqualCountRowsInTableReturnedReturned() {
-		int expected = countRowsInTable(jdbcTemplate, "lessons_groups");
+		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") + 1;
 
 		lessonDao.update(lesson);
 
@@ -98,7 +98,7 @@ class LessonDaoTest {
 	@Test
 	void givenExpectedTeacherNameOfExistingLesson_whenGet_thenRelevantNameOfTeacherReturned() {
 		String expected = "Vasin"; 
-		assertEquals(expected, lessonDao.get(1).getTeacher().getLastName());
+		assertEquals(expected, lessonDao.get(4).getTeacher().getLastName());
 	}
 
 	@Test
@@ -110,7 +110,7 @@ class LessonDaoTest {
 	void givenExpectedCountRowsInTableLessons_whenDelete_thenEqualCountRowsInTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "lessons") - 1;
 
-		lessonDao.delete(2);
+		lessonDao.delete(1);
 
 		int actual = countRowsInTable(jdbcTemplate, "lessons");
 		assertEquals(expected, actual);
@@ -118,7 +118,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedCountRowInTableLessons_Groups_whenDelete_thenEqualCountRowsInTableReturned() {
-		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") - 3;
+		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") - 1;
 
 		lessonDao.delete(2);
 

@@ -34,7 +34,7 @@ class TeacherDaoTest {
 		teacher = new Teacher("Alice", "Nesterova", LocalDate.of(2015, 2, 12), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		subjects.add(new Subject(8, "Java"));
-		subjects.add(new Subject(3, "Java"));
+		subjects.add(new Subject(3, "Geometry"));
 		teacher.setSubjects(subjects);
 		teacher.setId(3);
 	}
@@ -109,14 +109,14 @@ class TeacherDaoTest {
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
 		List<Subject> subjects = new ArrayList<>();
-		subjects.add(new Subject(2, "Filosophy"));
-		subjects.add(new Subject(4, "Paleontology"));
-		subjects.add(new Subject(4, "Paleontology"));
-		subjects.add(new Subject(3, "Paleontology"));
-		subjects.add(new Subject(1, "Pleontology"));
-		subjects.add(new Subject(5, "Paleontology"));
+		subjects.add(new Subject(2, "Geography"));
+		subjects.add(new Subject(4, "Physic"));
+		subjects.add(new Subject(4, "Physic"));
+		subjects.add(new Subject(3, "Geometry"));
+		subjects.add(new Subject(1, "Mathematic"));
+		subjects.add(new Subject(5, "Mathematic"));
 		updated.setSubjects(subjects);
-		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") + 2;
+		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") + 3;
 
 		teacherDao.update(updated);
 
@@ -130,9 +130,9 @@ class TeacherDaoTest {
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
 		List<Subject> subjects = new ArrayList<>();
-		subjects.add(new Subject(2, "Filosophy"));
-		subjects.add(new Subject(3, "Paleontology"));
-		subjects.add(new Subject(1, "Pleontology"));
+		subjects.add(new Subject(2, "Geography"));
+		subjects.add(new Subject(3, "Geometry"));
+		subjects.add(new Subject(1, "Mathematic"));
 		updated.setSubjects(subjects);
 		int expected = countRowsInTable(jdbcTemplate, "teachers");
 
@@ -149,8 +149,9 @@ class TeacherDaoTest {
 	
 	@Test
 	void givenExpectedIdOfExistingSubject_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
-		int expected = 2;
+		Subject actual = new Subject(2, "Geography");
+		int expected = 3;
 		
-		assertEquals(expected, teacherDao.findBySubjectId(expected).size());
+		assertEquals(expected, teacherDao.findBySubjectId(actual.getId()).size());
 	}
 }

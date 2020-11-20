@@ -105,7 +105,7 @@ class SubjectDaoTest {
 
 	@Test
 	void givenExpectedCountSubjectsOfTeacher_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured() {
-		int expected = 2;
+		int expected = 3;
 		assertEquals(expected, subjectDao.findByTeacherId(teacher.getId()).size());
 	}
 

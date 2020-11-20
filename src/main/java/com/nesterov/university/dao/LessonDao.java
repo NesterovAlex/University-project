@@ -65,12 +65,8 @@ public class LessonDao {
 		jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
 				lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
 		List<Group> groups = groupDao.findByLessonId(lesson.getId());
-		List<Group> groupForDeleting = new ArrayList<>(groups);
-		List<Group> groupForInserting = new ArrayList<>(lesson.getGroups());
-		groupForDeleting.removeAll(lesson.getGroups());
-		groupForInserting.removeAll(groups);
-		groupForDeleting.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
-		groupForInserting.forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
+		groups.stream().filter(g -> !lesson.getGroups().contains(g)).forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
+		lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
 				lesson.getId(), g.getId()));
 	}
 

@@ -61,13 +61,9 @@ public class SubjectDao {
 	public void update(Subject subject) {
 		jdbcTemplate.update(UPDATE, subject.getName(), subject.getId());
 		List<Teacher> teachers = teacherDao.findBySubjectId(subject.getId());
-		List<Teacher> teachersForDeleting = new ArrayList<>(teachers);
-		List<Teacher> teachersForInserting = new ArrayList<>(subject.getTeachers());
-		teachersForDeleting.removeAll(subject.getTeachers());
-		teachersForInserting.removeAll(teachers);
-		teachersForDeleting
+		teachers.stream().filter(t -> !subject.getTeachers().contains(t))
 				.forEach(t -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, t.getId(), subject.getId()));
-		teachersForInserting.forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, s.getId(), subject.getId(),
+		subject.getTeachers().stream().filter(t -> !teachers.contains(t)).forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, s.getId(), subject.getId(),
 				s.getId(), subject.getId()));
 	}
 

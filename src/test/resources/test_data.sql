@@ -49,5 +49,5 @@ INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (1, 2);
 
 INSERT INTO lessons_groups (lesson_id, group_id) VALUES (3, 1);
 INSERT INTO lessons_groups (lesson_id, group_id) VALUES (3, 2);
-INSERT INTO lessons_groups (lesson_id, group_id) VALUES (3, 4);
+INSERT INTO lessons_groups (lesson_id, group_id) VALUES (2, 4);
 INSERT INTO lessons_groups (lesson_id, group_id) VALUES (1, 2);

@@ -1,7 +1,6 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -76,13 +75,9 @@ public class TeacherDao {
 				teacher.getAddress(), teacher.getEmail(), teacher.getPhone(), teacher.getGender().name(),
 				teacher.getId());
 		List<Subject> subjects = subjectDao.findByTeacherId(teacher.getId());
-		List<Subject> subjectsForDeleting = new ArrayList<>(subjects);
-		List<Subject> subjectsForInserting = new ArrayList<>(teacher.getSubjects());
-		subjectsForDeleting.removeAll(teacher.getSubjects());
-		subjectsForInserting.removeAll(subjects);
-		subjectsForDeleting
+		subjects.stream().filter(s -> !teacher.getSubjects().contains(s))
 				.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));
-		subjectsForInserting.forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(),
+		teacher.getSubjects().stream().filter(s -> !subjects.contains(s)).forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(),
 				teacher.getId(), s.getId()));
 	}
 
