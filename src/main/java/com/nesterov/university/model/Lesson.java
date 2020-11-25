@@ -15,7 +15,8 @@ public class Lesson {
 	private Teacher teacher;
 	private List<Group> groups;
 
-	public Lesson() {}
+	public Lesson() {
+	}
 
 	public Lesson(Subject subject, Audience audience, LocalDate date, LessonTime time, Teacher teacher) {
 		this.subject = subject;
@@ -32,6 +33,15 @@ public class Lesson {
 		this.date = date;
 		this.time = time;
 		this.teacher = teacher;
+	}
+
+	public Lesson(Subject subject, Audience audience, LocalDate date, LessonTime time, Teacher teacher, List<Group> groups) {
+		this.subject = subject;
+		this.audience = audience;
+		this.date = date;
+		this.time = time;
+		this.teacher = teacher;
+		this.groups = groups;
 	}
 
 	public long getId() {
@@ -115,7 +125,7 @@ public class Lesson {
 		if (audience == null) {
 			if (other.audience != null)
 				return false;
-		}
+		} 
 		else if (!audience.equals(other.audience))
 			return false;
 		if (date == null) {
@@ -141,7 +151,7 @@ public class Lesson {
 		if (time == null) {
 			if (other.time != null)
 				return false;
-		}
+		} 
 		else if (!time.equals(other.time))
 			return false;
 		return true;

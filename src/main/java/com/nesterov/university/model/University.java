@@ -1,7 +1,11 @@
 package com.nesterov.university.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class University {
 
 	private String name;
@@ -9,7 +13,34 @@ public class University {
 	private List<Audience> audiences;
 	private List<Subject> subjects;
 	private List<Lesson> lessons;
+	private List<Student> students;
+	private List<Group> groups;
 	
+	public University() {
+		this.teachers = new ArrayList<>();
+		this.audiences = new ArrayList<>();
+		this.subjects = new ArrayList<>();
+		this.lessons = new ArrayList<>();
+		this.students = new ArrayList<>();
+		this.groups = new ArrayList<>();
+	}
+	
+	public List<Group> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+
+	public List<Student> getStudents() {
+		return students;
+	}
+
+	public void setStudents(List<Student> students) {
+		this.students = students;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -48,6 +79,5 @@ public class University {
 	
 	public void setLessons(List<Lesson> lessons) {
 		this.lessons = lessons;
-	}
-	
+	}	
 }

@@ -36,10 +36,10 @@ INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, pho
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Petr', 'Petrov', '2011-05-14', 'Petrovka', 'petr@petrov', '55r2346254', 'MALE');
 INSERT INTO teachers (id, first_name, last_name, birth_date, address, email, phone, gender) VALUES (DEFAULT, 'Ivanka', 'Ivanova', '2019-02-15', 'Ivanovo', 'ivanka@ivanova', '358769341', 'FEMALE');
 
-INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 3, '2012-09-17', 4, 2);
+INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 3, '2020-11-24', 4, 2);
 INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 4, 1, '2014-07-19', 1, 3);
 INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 4, '2011-05-14', 1, 4);
-INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 3, '2019-02-15', 1, 2);
+INSERT INTO lessons (id, subject_id, audience_id, lesson_date, lesson_time_id, teacher_id) VALUES (DEFAULT, 1, 3, '2020-11-24', 1, 2);
 
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 1);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 2);
