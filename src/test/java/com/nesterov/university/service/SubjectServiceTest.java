@@ -1,165 +1,109 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
-import static java.util.Arrays.asList;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.nesterov.university.dao.TestConfig;
-import com.nesterov.university.model.Gender;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.dao.EmptyResultDataAccessException;
+import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.model.Subject;
-import com.nesterov.university.model.Teacher;
 
-@SpringJUnitConfig(TestConfig.class)
-@ExtendWith(SpringExtension.class)
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SubjectServiceTest {
 
-	@Autowired
+	@Mock
+	private SubjectDao subjectDao;
+
+	@InjectMocks
 	private SubjectService subjectService;
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	private Subject subject;
-	private List<Teacher> teachers;
-	private Teacher teacher;
+
+	@Spy
+	List<Subject> subjects = new ArrayList<>();
 
 	@BeforeEach
 	void setUp() throws Exception {
-		subject = new Subject("Literature");
-		subject.setId(9);
-		teacher = new Teacher("Bob", "Sincler", LocalDate.of(2012, 9, 17), "Toronto", "bob@sincler", "987654321",
-				Gender.MALE);
-		teacher.setId(1);
-		teachers = Arrays.asList(teacher);
-		subject.setTeachers(teachers);
-	}
-
-	@AfterEach
-	void tearDown() throws Exception {
+		MockitoAnnotations.initMocks(this);
+		subjects.add(new Subject(1, "Literature"));
 	}
 
 	@Test
-	void givenExpectedIdOfSubject_whenCreateSubject_thenEqualIdOfCreatedSubjectReturned() {
-		long expected = 9;
+	void givenExpectedListOfExistsSubjects_whenFindAll_thenRelevantListOfSubjectsReturned() {
+		List<Subject> expected = new ArrayList<>();
+		expected.add(new Subject(1, "Literature"));
+		expected.add(new Subject(2, "Geography"));
+		expected.add(new Subject(1, "Mathematic"));
+		given(subjectDao.getAll()).willReturn(expected);
 
-		Subject actual = subjectService.createSubject(subject);
+		List<Subject> actual = subjectService.findAll();
 
-		assertEquals(expected, actual.getId());
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	void givenExpectedSubject_whenGetSubject_thenEqualSubjectReturned() {
-		Teacher firstTeacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin",
-				"2354657657", Gender.MALE);
-		firstTeacher.setId(2);
-		firstTeacher.setSubjects(asList(new Subject("Mathematic")));
-		Teacher secondTeacher = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov",
-				"55r2346254", Gender.MALE);
-		secondTeacher.setSubjects(asList(new Subject("Mathematic")));
-		Subject expected = new Subject(1, "Mathematic");
-		expected.setTeachers(Arrays.asList(firstTeacher, secondTeacher));
+		final Subject expected = new Subject(1, "Literature");
+		given(subjectDao.get(anyLong())).willReturn(expected);
 
-		Subject actual = subjectService.getSubject(expected);
+		final Subject actual = subjectService.get(anyLong());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedIdOfSubject_whenDeleteSubject_thenEqualIdOfDeletedSubjectReturned() {
-		long expected = 9;
+	void givenExpectedCountOfDaoMethodCall_whenDeleteSubject_thenEqualOfDaoMethodCallReturned() {
+		doNothing().when(subjectDao).delete(anyLong());
 
-		long actual = subjectService.deleteSubject(subject);
+		subjectService.delete(anyLong());
 
-		assertEquals(expected, actual);
+		verify(subjectDao, times(1)).delete(anyLong());
 	}
 
 	@Test
-	void givenExpectedNameOfExistingSubject_whenUpdateSubject_thenRelevantNameOfSubjectReturned() {
+	void givenExpectedCountOfDaoMethodCall_whenUpdateSubject_thenEqualOfDaoMethodCallReturned() {
 		Subject expected = new Subject(8, "Literature");
-		Teacher teacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin",
-				"2354657657", Gender.MALE);
-		teacher.setId(2);
-		teacher.setSubjects(asList(new Subject("Mathematic")));
-		expected.setTeachers(asList(teacher));
-
-		subjectService.updateSubject(expected);
-
-		String actual = jdbcTemplate.queryForObject("SELECT name FROM subjects WHERE id = ?",
-				new Object[] { expected.getId() }, String.class);
-		assertEquals(expected.getName(), actual);
-	}
-
-	@Test
-	void givenCountRowInTable_whenfindAll_thenEqualCountOfSubjectsReturned() {
-		int expected = countRowsInTable(jdbcTemplate, "subjects");
-
-		int actual = subjectService.findAll().size();
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenExpectedCountSubjectsOfExistingTeacher_whenfindAllByTeacher_thenEqualCountOfSubjectsReturned() {
-		Teacher teacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin",
-				"2354657657", Gender.MALE);
-		teacher.setId(2);
-		int expected = jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM subjects LEFT JOIN teachers_subjects ON subjects.id = teachers_subjects.subject_id WHERE teacher_id = ?",
-				new Object[] { teacher.getId() }, Integer.class);
-
-		int actual = subjectService.findByTeacherId(teacher.getId()).size();
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenExpectedCountTeachersOfExistingSubject_whenAddTeacher_thenEqualCountTeachersFromDataBaseReturned() {
-		Subject expected = new Subject(8, "Literature");
-		Teacher added = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin", "2354657657",
-				Gender.MALE);
-		List<Teacher> teachers = new ArrayList<>();
-		teachers.add(teacher);
-		added.setId(2);
-		added.setSubjects(asList(new Subject("Mathematic")));
-		expected.setTeachers(teachers);
-
-		subjectService.addTeacher(expected, added);
-
-		int actual = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM teachers_subjects WHERE subject_id = ?",
-				new Object[] { expected.getId() }, Integer.class);
-		assertEquals(expected.getTeachers().size(), actual);
-	}
-	
-	@Test
-	void givenExpectedCountTeachersOfExistingSubject_whenRemoveTeacher_thenExpectedCountTeachersFromDataBaseReturned() {
-		List<Teacher> teachers = new ArrayList<>();
-		Teacher teacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin",
-				"2354657657", Gender.MALE);
-		teacher.setId(2);
-		teacher.setSubjects(asList(new Subject("Mathematic")));
-		Teacher deleted = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov",
-				"55r2346254", Gender.MALE);
-		deleted.setId(2);
-		deleted.setSubjects(asList(new Subject("Mathematic")));
-		Subject subject = new Subject(1, "Mathematic");
-		teachers.add(teacher);
-		teachers.add(deleted);
-		subject.setTeachers(teachers);
-		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") - 1;
+		doNothing().when(subjectDao).update(any(Subject.class));
 		
-		subjectService.removeTeacher(subject, deleted);
+		subjectService.update(expected);
+		subjectService.update(expected);
 		
-		int actual = countRowsInTable(jdbcTemplate, "teachers_subjects");
+		verify(subjectDao, times(2)).update(expected);
+	}
+
+	@Test
+	void givenExpectedListOfExistsSubjects_whenfindAllByTeacher_thenRelevantListOfSubjectsReturned() {
+		List<Subject> expected = new ArrayList<>();
+		expected.add(new Subject(1, "Literature"));
+		expected.add(new Subject(2, "Geography"));
+		expected.add(new Subject(1, "Mathematic"));
+		given(subjectDao.findByTeacherId(anyLong())).willReturn(expected);
+
+		List<Subject> actual = subjectService.findByTeacherId(anyLong());
+
 		assertEquals(expected, actual);
 	}
+
+	@Test
+	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
+		Subject subject = new Subject(1, "Literature");
+		doThrow(new EmptyResultDataAccessException(1)).when(subjectDao).get(1);
+
+		subjectService.create(subjects.get(0));
+
+		verify(subjectDao, times(1)).create(subject);
+	}
+
 }

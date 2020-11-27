@@ -2,11 +2,10 @@ package com.nesterov.university.service;
 
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
-
 import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.model.Subject;
-import com.nesterov.university.model.Teacher;
 
 @Component
 public class SubjectService {
@@ -16,40 +15,40 @@ public class SubjectService {
 	public SubjectService(SubjectDao subjectDao) {
 		this.subjectDao = subjectDao;
 	}
-	
-	public Subject createSubject(Subject subject) {
-		subjectDao.create(subject);
-		return subject;
+
+	public void create(Subject subject) {
+		if (!existsById(subject.getId()))
+			subjectDao.create(subject);
 	}
-	
-	public long deleteSubject(Subject subject) {
-		subjectDao.delete(subject.getId());
-		return subject.getId();
+
+	public void delete(long id) {
+		subjectDao.delete(id);
 	}
-	
-	public Subject getSubject(Subject subject) {
-		return subjectDao.get(subject.getId());
+
+	public Subject get(long id) {
+		return subjectDao.get(id);
 	}
-	
-	public void updateSubject(Subject subject) {
+
+	public void update(Subject subject) {
 		subjectDao.update(subject);
 	}
-	
-	public List<Subject> findAll(){
+
+	public List<Subject> findAll() {
 		return subjectDao.getAll();
 	}
-	
-	public List<Subject> findByTeacherId(long id){
+
+	public List<Subject> findByTeacherId(long id) {
 		return subjectDao.findByTeacherId(id);
 	}
-	
-	public void addTeacher(Subject subject, Teacher teacher) {
-		subject.getTeachers().add(teacher);
-		subjectDao.update(subject);
-	}
-	
-	public void removeTeacher(Subject subject, Teacher teacher) {
-		subject.getTeachers().remove(teacher);
-		subjectDao.update(subject);
+
+	private boolean existsById(long id) {
+		boolean exist;
+		try {
+			subjectDao.get(id);
+			exist = true;
+		} catch (EmptyResultDataAccessException e) {
+			exist = false;
+		}
+		return exist;
 	}
 }

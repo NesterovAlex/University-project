@@ -18,6 +18,7 @@
 		<h2.version>1.4.200</h2.version>
 		<assertj.version>3.16.1</assertj.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
+		<mockito-junit-jupiter.version>3.6.28</mockito-junit-jupiter.version>
 	</properties>
 
 	<dependencies>
@@ -70,6 +71,17 @@
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito-junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.24.0</version>
 		</dependency>
 	</dependencies>
 	<build>
