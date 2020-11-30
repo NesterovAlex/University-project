@@ -1,5 +1,8 @@
 package com.nesterov.university.service;
 
+import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.nesterov.university.dao.AudienceDao;
@@ -13,21 +16,36 @@ public class AudienceService {
 	public AudienceService(AudienceDao audienceDao) {
 		this.audienceDao = audienceDao;
 	}
-	
-	public void createAudience(Audience audience) {
-		audienceDao.create(audience);
+
+	public void create(Audience audience) {
+		if (!existsById(audience.getId()))
+			audienceDao.create(audience);
 	}
-	
-	public void deleteAudience(Audience audience) {
-		audienceDao.delete(audience.getId());
+
+	public Audience get(long id) {
+		return audienceDao.get(id);
 	}
-	
-	public void updateAudience(Audience audience) {
+
+	public void delete(long id) {
+		audienceDao.delete(id);
+	}
+
+	public void update(Audience audience) {
 		audienceDao.update(audience);
 	}
 	
-	public void findAudience(Audience audience) {
-		audienceDao.get(audience.getId());
+	public List<Audience> getAll() {
+		return audienceDao.getAll();
 	}
-	
+
+	private boolean existsById(long id) {
+		boolean exist;
+		try {
+			audienceDao.get(id);
+			exist = true;
+		} catch (EmptyResultDataAccessException e) {
+			exist = false;
+		}
+		return exist;
+	}
 }

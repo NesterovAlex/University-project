@@ -56,7 +56,7 @@ public class GroupDao {
 		jdbcTemplate.update(UPDATE, group.getName(), group.getId());
 	}
 
-	public List<Group> findAll() {
+	public List<Group> getAll() {
 		return jdbcTemplate.query(SELECT, groupRowMapper);
 	}
 

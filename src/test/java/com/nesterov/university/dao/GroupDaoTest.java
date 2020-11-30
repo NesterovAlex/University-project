@@ -61,7 +61,7 @@ class GroupDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.findAll().size());
+		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.getAll().size());
 	}
 
 	@Test

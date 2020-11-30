@@ -70,7 +70,7 @@ public class LessonDao {
 	}
 
 	@Transactional
-	public List<Lesson> findAll() {
+	public List<Lesson> getAll() {
 		return jdbcTemplate.query(SELECT, lessonRowMapper);
 	}
 }

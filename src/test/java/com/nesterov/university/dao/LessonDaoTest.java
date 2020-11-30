@@ -103,7 +103,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenFindAll_thenReturnedLessonContainedExpectedTeacher() {
-		assertEquals(countRowsInTable(jdbcTemplate, "lessons"), lessonDao.findAll().size());
+		assertEquals(countRowsInTable(jdbcTemplate, "lessons"), lessonDao.getAll().size());
 	}
 	
 	@Test

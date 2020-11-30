@@ -1,9 +1,8 @@
 package com.nesterov.university.service;
 
 import java.util.List;
-
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
-
 import com.nesterov.university.dao.LessonDao;
 import com.nesterov.university.model.Lesson;
 
@@ -15,17 +14,36 @@ public class LessonService {
 	public LessonService(LessonDao lessonDao) {
 		this.lessonDao = lessonDao;
 	}
-	
-	public void createLesson(Lesson lesson){
-		lessonDao.create(lesson);
+
+	public void create(Lesson lesson) {
+		if (!existsById(lesson.getId()))
+			lessonDao.create(lesson);
 	}
-	
-	public void deleteLesson(Lesson lesson){
-		lessonDao.delete(lesson.getId());
+
+	public void delete(long id) {
+		lessonDao.delete(id);
 	}
-	
-	public List<Lesson> getAllLessons(){
-		return lessonDao.findAll();
+
+	public Lesson get(long id) {
+		return lessonDao.get(id);
 	}
-	
+
+	public void update(Lesson subject) {
+		lessonDao.update(subject);
+	}
+
+	public List<Lesson> getAll() {
+		return lessonDao.getAll();
+	}
+
+	private boolean existsById(long id) {
+		boolean exist;
+		try {
+			lessonDao.get(id);
+			exist = true;
+		} catch (EmptyResultDataAccessException e) {
+			exist = false;
+		}
+		return exist;
+	}
 }

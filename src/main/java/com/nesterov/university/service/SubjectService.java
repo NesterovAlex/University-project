@@ -33,7 +33,7 @@ public class SubjectService {
 		subjectDao.update(subject);
 	}
 
-	public List<Subject> findAll() {
+	public List<Subject> getAll() {
 		return subjectDao.getAll();
 	}
 
