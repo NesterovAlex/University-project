@@ -51,7 +51,7 @@ public class LessonTimeDao {
 				lessonTime.getId());
 	}
 
-	public List<LessonTime> getAll() {
+	public List<LessonTime> findAll() {
 		return jdbcTemplate.query(SELECT, lessonTimeRowMapper);
 	}
 }

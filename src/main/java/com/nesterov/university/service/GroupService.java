@@ -1,7 +1,6 @@
 package com.nesterov.university.service;
 
 import java.util.List;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.GroupDao;
 import com.nesterov.university.model.Group;
@@ -9,15 +8,16 @@ import com.nesterov.university.model.Group;
 @Component
 public class GroupService {
 
-	GroupDao groupDao;
+	private GroupDao groupDao;
 
 	public GroupService(GroupDao groupDao) {
 		this.groupDao = groupDao;
 	}
-	
+
 	public void create(Group group) {
-		if (!existsById(group.getId()))
+		if (!hasName(group.getName())) {
 			groupDao.create(group);
+		}
 	}
 
 	public void delete(long id) {
@@ -29,25 +29,24 @@ public class GroupService {
 	}
 
 	public void update(Group group) {
-		groupDao.update(group);
+		if (!hasName(group.getName())) {
+			groupDao.update(group);
+		}
 	}
 
 	public List<Group> getAll() {
-		return groupDao.getAll();
+		return groupDao.findAll();
 	}
 
 	public List<Group> findByLessonId(long id) {
 		return groupDao.findByLessonId(id);
 	}
 
-	private boolean existsById(long id) {
-		boolean exist;
-		try {
-			groupDao.get(id);
-			exist = true;
-		} catch (EmptyResultDataAccessException e) {
-			exist = false;
+	private boolean hasName(String name) {
+		boolean hasName = false;
+		if (groupDao.findByName(name) != null) {
+			hasName = true;
 		}
-		return exist;
+		return hasName;
 	}
 }

@@ -3,6 +3,8 @@ package com.nesterov.university.dao;
 import java.sql.PreparedStatement;
 
 import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -13,7 +15,8 @@ import com.nesterov.university.model.Audience;
 @Component
 public class AudienceDao {
 
-	private static final String SELECT_BY_ID = "SELECT *  FROM audiences WHERE id = ?";
+	private static final String SELECT_BY_ROOM_NUMBER = "SELECT * FROM audiences WHERE room_number = ?";
+	private static final String SELECT_BY_ID = "SELECT * FROM audiences WHERE id = ?";
 	private static final String INSERT = "INSERT INTO audiences (room_number, capacity) values (?, ?)";
 	private static final String UPDATE = "UPDATE audiences SET room_number = ?, capacity = ? WHERE id = ?";
 	private static final String DELETE = "DELETE FROM audiences WHERE id = ?";
@@ -51,7 +54,17 @@ public class AudienceDao {
 		jdbcTemplate.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
 	}
 
-	public List<Audience> getAll() {
+	public List<Audience> findAll() {
 		return jdbcTemplate.query(SELECT, audienceRowMapper);
+	}
+	
+	public Audience findByRoomNumber(int roomNumber) {
+		Audience audience = null;
+		try {
+			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber }, audienceRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return audience;
 	}
 }

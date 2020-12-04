@@ -34,6 +34,7 @@ public class LessonRowMapper implements RowMapper<Lesson> {
 	@Override
 	public Lesson mapRow(ResultSet rs, int rowNum) throws SQLException {
 		Lesson lesson = new Lesson();
+		lesson.setId(rs.getLong("id"));
 		lesson.setAudience(audienceDao.get(rs.getLong("audience_id")));
 		lesson.setSubject(subjectDao.get(rs.getLong("subject_id")));
 		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));

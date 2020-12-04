@@ -5,9 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import com.nesterov.university.dao.GroupDao;
 import com.nesterov.university.model.Group;
 
@@ -32,13 +31,9 @@ class GroupServiceTest {
 	@InjectMocks
 	private GroupService groupService;
 
-	@Spy
-	List<Group> groups = new ArrayList<>();
-
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		groups.add(new Group(5, "G-12"));
 	}
 
 	@Test
@@ -47,11 +42,12 @@ class GroupServiceTest {
 		expected.add(new Group(1, "G-12"));
 		expected.add(new Group(2, "G-12"));
 		expected.add(new Group(3, "G-12"));
-		given(groupDao.getAll()).willReturn(expected);
+		given(groupDao.findAll()).willReturn(expected);
 
 		List<Group> actual = groupService.getAll();
 
 		assertEquals(expected, actual);
+		verify(groupDao, times(1)).findAll();
 	}
 
 	@Test
@@ -62,15 +58,16 @@ class GroupServiceTest {
 		final Group actual = groupService.get(anyLong());
 
 		assertEquals(expected, actual);
+		verify(groupDao, times(1)).get(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
-		doNothing().when(groupDao).delete(anyLong());
+		int expected = 1;
 
 		groupService.delete(anyLong());
 
-		verify(groupDao, times(1)).delete(anyLong());
+		verify(groupDao, times(expected)).delete(anyLong());
 	}
 
 	@Test
@@ -96,16 +93,27 @@ class GroupServiceTest {
 		List<Group> actual = groupService.findByLessonId(anyLong());
 
 		assertEquals(expected, actual);
+		verify(groupDao, times(1)).findByLessonId(anyLong());
 	}
 
 	@Test
-	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
+	void givenExpectedCountOfCreateDaoMethodCall_whenCreate_thenEqualOfDaoCreateMethodCallReturned() {
+		int expected = 1;
+		Group group = new Group(expected, "G-12");
+
+		groupService.create(group);
+
+		verify(groupDao, times(expected)).create(group);
+	}
+
+	@Test
+	void givenExistingGroup_whenCreate_thenDontCallDaoCreateMethod() {
 		int expected = 5;
 		Group group = new Group(expected, "G-12");
-		doThrow(new EmptyResultDataAccessException(1)).when(groupDao).get(expected);
+		when(groupDao.findByName(group.getName())).thenReturn(group);
 
-		groupService.create(groups.get(0));
+		groupService.create(group);
 
-		verify(groupDao, times(1)).create(group);
+		verify(groupDao, never()).create(group);
 	}
 }

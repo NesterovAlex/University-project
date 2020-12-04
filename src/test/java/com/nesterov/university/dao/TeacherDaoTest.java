@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Gender;
+import com.nesterov.university.model.Student;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
 
@@ -143,15 +144,42 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_whenGetAll_thenExpectedRowsTeachersReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.getAll().size());
+	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.findAll().size());
 	}
-	
+
 	@Test
 	void givenExpectedIdOfExistingSubject_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
 		Subject actual = new Subject(2, "Geography");
 		int expected = 3;
-		
+
 		assertEquals(expected, teacherDao.findBySubjectId(actual.getId()).size());
+	}
+
+	@Test
+	void givenExpectedEmailOfExistingTeacher_whenFindByEmail_thenNotEmptyListOfTeachersReturned() {
+		String expected = "ivanka@ivanova";
+
+		List<Teacher> teachers = teacherDao.findByAddress(expected);
+
+		assertNotNull(teachers);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingTeacher_whenFindByPhone_thenNotEmptyListOfTeachersReturned() {
+		String expected = "358769341";
+
+		List<Teacher> teachers = teacherDao.findByPhone(expected);
+
+		assertNotNull(teachers);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingTeacher_whenFindByAddress_thenNotEmptyListOfTeachersReturned() {
+		String expected = "Ivanovo";
+
+		List<Teacher> teachers = teacherDao.findByAddress(expected);
+
+		assertNotNull(teachers);
 	}
 }

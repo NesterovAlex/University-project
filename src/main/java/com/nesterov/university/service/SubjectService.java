@@ -1,8 +1,6 @@
 package com.nesterov.university.service;
 
 import java.util.List;
-
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.model.Subject;
@@ -17,8 +15,9 @@ public class SubjectService {
 	}
 
 	public void create(Subject subject) {
-		if (!existsById(subject.getId()))
+		if (!hasName(subject.getName())) {
 			subjectDao.create(subject);
+		}
 	}
 
 	public void delete(long id) {
@@ -30,25 +29,24 @@ public class SubjectService {
 	}
 
 	public void update(Subject subject) {
-		subjectDao.update(subject);
+		if (!hasName(subject.getName())) {
+			subjectDao.update(subject);
+		}
 	}
 
 	public List<Subject> getAll() {
-		return subjectDao.getAll();
+		return subjectDao.findAll();
 	}
 
 	public List<Subject> findByTeacherId(long id) {
 		return subjectDao.findByTeacherId(id);
 	}
 
-	private boolean existsById(long id) {
-		boolean exist;
-		try {
-			subjectDao.get(id);
-			exist = true;
-		} catch (EmptyResultDataAccessException e) {
-			exist = false;
+	private boolean hasName(String name) {
+		boolean hasName = false;
+		if (subjectDao.findByName(name) != null) {
+			hasName = true;
 		}
-		return exist;
+		return hasName;
 	}
 }

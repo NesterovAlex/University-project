@@ -2,6 +2,8 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,6 +16,9 @@ public class StudentDao {
 
 	private static final String SELECT_BY_GROUP = "SELECT * FROM students WHERE group_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM students WHERE id = ?";
+	private static final String SELECT_BY_EMAIL = "SELECT *  FROM students WHERE email = ?";
+	private static final String SELECT_BY_PHONE = "SELECT *  FROM students WHERE phone = ?";
+	private static final String SELECT_BY_ADDRESS = "SELECT *  FROM students WHERE address = ?";
 	private static final String SELECT = "SELECT * FROM students";
 	private static final String INSERT = "INSERT INTO students (group_id, first_name, last_name, birth_date, address, email, phone, gender, faculty, course) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, address = ?, email = ?, phone = ?, gender = ? WHERE id = ?";
@@ -47,7 +52,13 @@ public class StudentDao {
 	}
 
 	public Student get(long id) {
-		return jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, studentRowMapper);
+		Student student = new Student();
+		try {
+			student = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, studentRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return student;
 	}
 
 	public void delete(long id) {
@@ -60,11 +71,41 @@ public class StudentDao {
 				student.getId());
 	}
 
-	public List<Student> getAll() {
+	public List<Student> findAll() {
 		return jdbcTemplate.query(SELECT, studentRowMapper);
 	}
 
 	public List<Student> findByGroupId(long id) {
 		return jdbcTemplate.query(SELECT_BY_GROUP, new Object[] { id }, studentRowMapper);
+	}
+
+	public List<Student> findByEmail(String email) {
+		List<Student> students = null;
+		try {
+			students = jdbcTemplate.query(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return students;
+	}
+
+	public List<Student> findByPhone(String phone) {
+		List<Student> students = null;
+		try {
+			students = jdbcTemplate.query(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return students;
+	}
+
+	public List<Student> findByAddress(String address) {
+		List<Student> students = null;
+		try {
+			students = jdbcTemplate.query(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return students;
 	}
 }

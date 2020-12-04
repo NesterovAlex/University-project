@@ -3,6 +3,7 @@ package com.nesterov.university.dao;
 import java.sql.PreparedStatement;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -21,6 +22,9 @@ public class TeacherDao {
 	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE subject_id = ? AND teacher_id = ?";
 	private static final String SELECT_BY_SUBJECT = "SELECT * FROM teachers LEFT JOIN teachers_subjects ON teachers_subjects.teacher_id = teachers.id LEFT JOIN subjects ON teachers_subjects.subject_id = subjects.id WHERE subject_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM teachers WHERE id = ?";
+	private static final String SELECT_BY_EMAIL = "SELECT *  FROM teachers WHERE email = ?";
+	private static final String SELECT_BY_PHONE = "SELECT *  FROM teachers WHERE phone = ?";
+	private static final String SELECT_BY_ADDRESS = "SELECT *  FROM teachers WHERE address = ?";
 	private static final String INSERT = "INSERT INTO teachers (first_name, last_name, birth_date, address, email, phone, gender) values (?, ?, ?, ?, ?, ?, ?)";
 	private static final String SELECT = "SELECT *  FROM teachers";
 	private static final String UPDATE = "UPDATE teachers SET first_name = ?, last_name = ?, birth_date = ?, address = ?, email = ?, phone = ?, gender = ? WHERE id = ?";
@@ -77,15 +81,45 @@ public class TeacherDao {
 		List<Subject> subjects = subjectDao.findByTeacherId(teacher.getId());
 		subjects.stream().filter(s -> !teacher.getSubjects().contains(s))
 				.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));
-		teacher.getSubjects().stream().filter(s -> !subjects.contains(s)).forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(),
-				teacher.getId(), s.getId()));
+		teacher.getSubjects().stream().filter(s -> !subjects.contains(s)).forEach(s -> jdbcTemplate
+				.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(), teacher.getId(), s.getId()));
 	}
 
-	public List<Teacher> getAll() {
+	public List<Teacher> findAll() {
 		return jdbcTemplate.query(SELECT, teacherRowMapper);
 	}
 
 	public List<Teacher> findBySubjectId(long id) {
 		return jdbcTemplate.query(SELECT_BY_SUBJECT, new Object[] { id }, teacherSimpleRowMapper);
+	}
+
+	public List<Teacher> findByEmail(String email) {
+		List<Teacher> teachers = null;
+		try {
+			teachers = jdbcTemplate.query(SELECT_BY_EMAIL, new Object[] { email }, teacherRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return teachers;
+	}
+
+	public List<Teacher> findByPhone(String phone) {
+		List<Teacher> teachers = null;
+		try {
+			teachers = jdbcTemplate.query(SELECT_BY_PHONE, new Object[] { phone }, teacherRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return teachers;
+	}
+
+	public List<Teacher> findByAddress(String address) {
+		List<Teacher> teachers = null;
+		try {
+			teachers = jdbcTemplate.query(SELECT_BY_ADDRESS, new Object[] { address }, teacherRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return teachers;
 	}
 }

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,13 +48,13 @@ class StudentDaoTest {
 
 	@Test
 	void givenExpectedOfExistingStudent_whenGet_thenEqualStudentReturned() {
-		Student expected = new Student("Bob", "Sincler", LocalDate.of(2012, 9, 17), "Toronto", "bob@sincler",
-				"987654321", Gender.MALE);
-		expected.setId(1);
+		Student expected = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+		expected.setId(4);
 		expected.setFaculty("Biology");
 		expected.setCourse("Biology");
-		expected.setGroupId(1);
-		
+		expected.setGroupId(4);
+
 		assertEquals(expected, studentDao.get(expected.getId()));
 	}
 
@@ -85,14 +87,41 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedStudent_whenGetAll_thenExpectedCountOfStudentReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "students"), studentDao.getAll().size());
+	void givenDataSetExpectedStudent_whenFindAll_thenExpectedCountOfStudentReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "students"), studentDao.findAll().size());
 	}
 
 	@Test
 	void givenExpectedIdOfExistingGroup_whenFindByGroupId_thenExpectedCountOfStudentReturned() {
 		int expected = 4;
-		
+
 		assertEquals(1, studentDao.findByGroupId(expected).size());
+	}
+
+	@Test
+	void givenExpectedEmailOfExistingStudent_whenFindByEmail_thenExpectedEmailOfStudentReturned() {
+		String expected = "ivanka@ivanova";
+
+		List<Student> students = studentDao.findByEmail(expected);
+
+		assertNotNull(students);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingStudent_whenFindByPhone_thenExpectedPhoneOfStudentReturned() {
+		String expected = "358769341";
+
+		List<Student> students = studentDao.findByPhone(expected);
+
+		assertNotNull(students);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingStudent_whenFindByAddress_thenExpectedPhoneOfStudentReturned() {
+		String expected = "Ivanovo";
+
+		List<Student> students = studentDao.findByAddress(expected);
+
+		assertNotNull(students);
 	}
 }

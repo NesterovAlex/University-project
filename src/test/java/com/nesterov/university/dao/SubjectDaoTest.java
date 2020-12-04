@@ -39,7 +39,7 @@ class SubjectDaoTest {
 		subject = new Subject(1, "Biology");
 		subject.setTeachers(teachers);
 	}
-	
+
 	@Test
 	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects");
@@ -49,10 +49,10 @@ class SubjectDaoTest {
 		int actual = countRowsInTable(jdbcTemplate, "teachers_subjects");
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
-	void givenExpectedCountRowsInTable_whenGetAll_thenExpectedCountOfSubjectsReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "subjects"), subjectDao.getAll().size());
+	void givenExpectedCountRowsInTable_whenFindAll_thenExpectedCountOfSubjectsReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "subjects"), subjectDao.findAll().size());
 	}
 
 	@Test
@@ -82,14 +82,14 @@ class SubjectDaoTest {
 		List<Teacher> teachers = new ArrayList<>();
 		teachers.add(teacher);
 		teachers.add(otherTacher);
-		
+
 		assertTrue(containsAll(teachers, subjectDao.get(subject.getId()).getTeachers()));
 	}
 
 	@Test
 	void givenExpectedIdOfExistingSubject_whenGet_thenEqualIdOfSubjectReturned() {
 		Subject expected = new Subject(7, "Geometry");
-		
+
 		assertEquals(expected, subjectDao.get(expected.getId()));
 	}
 

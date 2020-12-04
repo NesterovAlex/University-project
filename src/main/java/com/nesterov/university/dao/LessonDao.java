@@ -1,8 +1,11 @@
 package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,6 +18,7 @@ import com.nesterov.university.model.Lesson;
 @Component
 public class LessonDao {
 
+	private static final String SELECT_BY_DATE = "SELECT * FROM lessons WHERE lesson_date = ?";
 	private static final String DELETE_FROM_LESSONS_GROUPS = "DELETE FROM lessons_groups WHERE lesson_id = ? AND group_id = ?";
 	private static final String INSERT_INTO_LESSONS_GROUPS = "INSERT INTO lessons_groups SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT FROM lessons_groups WHERE lesson_id = ? AND group_id = ?);";
 	private static final String SELECT_BY_ID = "SELECT * FROM lessons WHERE id = ?";
@@ -64,13 +68,25 @@ public class LessonDao {
 		jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
 				lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
 		List<Group> groups = groupDao.findByLessonId(lesson.getId());
-		groups.stream().filter(g -> !lesson.getGroups().contains(g)).forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
-		lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(),
-				lesson.getId(), g.getId()));
+		groups.stream().filter(g -> !lesson.getGroups().contains(g))
+				.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
+		lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate
+				.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(), lesson.getId(), g.getId()));
 	}
 
 	@Transactional
-	public List<Lesson> getAll() {
+	public List<Lesson> findAll() {
 		return jdbcTemplate.query(SELECT, lessonRowMapper);
+	}
+
+	@Transactional
+	public List<Lesson> findByDate(LocalDate date) {
+		List<Lesson> lessons = new ArrayList<>();
+		try {
+			lessons = jdbcTemplate.query(SELECT_BY_DATE, new Object[] { date }, lessonRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			System.out.println(e.getStackTrace());
+		}
+		return lessons;
 	}
 }

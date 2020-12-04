@@ -1,13 +1,12 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import com.nesterov.university.dao.AudienceDao;
 import com.nesterov.university.model.Audience;
 
@@ -32,13 +29,9 @@ class AudienceServiceTest {
 	@InjectMocks
 	private AudienceService audienceService;
 
-	@Spy
-	List<Audience> audiences = new ArrayList<>();
-
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		audiences.add(new Audience(5, 14, 3));
 	}
 
 	@Test
@@ -47,11 +40,12 @@ class AudienceServiceTest {
 		expected.add(new Audience(1, 12, 20));
 		expected.add(new Audience(2, 10, 23));
 		expected.add(new Audience(3, 6, 15));
-		given(audienceDao.getAll()).willReturn(expected);
+		given(audienceDao.findAll()).willReturn(expected);
 
 		List<Audience> actual = audienceService.getAll();
 
 		assertEquals(expected, actual);
+		verify(audienceDao, times(1)).findAll();
 	}
 
 	@Test
@@ -62,22 +56,22 @@ class AudienceServiceTest {
 		final Audience actual = audienceService.get(anyLong());
 
 		assertEquals(expected, actual);
+		verify(audienceDao, times(1)).get(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaodeleteMethodCall_whenDelete_thenEqualOfDaodeleteMethodCallReturned() {
-		doNothing().when(audienceDao).delete(anyLong());
+		int expected = 1;
 
 		audienceService.delete(anyLong());
 
-		verify(audienceDao, times(1)).delete(anyLong());
+		verify(audienceDao, times(expected)).delete(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualCountOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
 		Audience audience = new Audience(5, 14, 3);
-		doNothing().when(audienceDao).update(any(Audience.class));
 
 		audienceService.update(audience);
 		audienceService.update(audience);
@@ -86,12 +80,12 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoGetMethodCall_whenCreate_EqualOfDaoGetMethodCallReturned() {
+	void givenNonExistingAudience_whenCreate_thenDontCallDaoCreateMethod() {
 		Audience audience = new Audience(5, 14, 3);
-		doThrow(new EmptyResultDataAccessException(1)).when(audienceDao).get(5);
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
-		audienceService.create(audiences.get(0));
+		audienceService.create(audience);
 
-		verify(audienceDao, times(1)).create(audience);
+		verify(audienceDao, never()).create(audience);
 	}
 }

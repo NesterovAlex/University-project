@@ -2,6 +2,8 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,6 +19,7 @@ public class SubjectDao {
 	private static final String INSERT_INTO_TEACHERS_SUBJECTS = "INSERT INTO teachers_subjects SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?);";
 	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?";
 	private static final String SELECT_BY_TEACHER = "SELECT * FROM subjects LEFT JOIN teachers_subjects ON teachers_subjects.subject_id = subjects.id LEFT JOIN teachers ON teachers_subjects.teacher_id = teachers.id WHERE teacher_id = ?";
+	private static final String SELECT_BY_NAME = "SELECT *  FROM subjects WHERE name = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM subjects WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM subjects";
 	private static final String INSERT = "INSERT INTO subjects (name) values (?)";
@@ -62,15 +65,25 @@ public class SubjectDao {
 		List<Teacher> teachers = teacherDao.findBySubjectId(subject.getId());
 		teachers.stream().filter(t -> !subject.getTeachers().contains(t))
 				.forEach(t -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, t.getId(), subject.getId()));
-		subject.getTeachers().stream().filter(t -> !teachers.contains(t)).forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, s.getId(), subject.getId(),
-				s.getId(), subject.getId()));
+		subject.getTeachers().stream().filter(t -> !teachers.contains(t)).forEach(s -> jdbcTemplate
+				.update(INSERT_INTO_TEACHERS_SUBJECTS, s.getId(), subject.getId(), s.getId(), subject.getId()));
 	}
 
-	public List<Subject> getAll() {
+	public List<Subject> findAll() {
 		return jdbcTemplate.query(SELECT, subjectRowMapper);
 	}
 
 	public List<Subject> findByTeacherId(long id) {
 		return jdbcTemplate.query(SELECT_BY_TEACHER, new Object[] { id }, subjectSimpleRowMapper);
+	}
+
+	public Subject findByName(String name) {
+		Subject subject = new Subject();
+		try {
+			subject = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, subjectRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return subject;
 	}
 }

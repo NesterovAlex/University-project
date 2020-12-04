@@ -1,7 +1,6 @@
 package com.nesterov.university.service;
 
 import java.util.List;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.StudentDao;
 import com.nesterov.university.model.Student;
@@ -16,8 +15,9 @@ public class StudentService {
 	}
 
 	public void create(Student student) {
-		if (!existsById(student.getId()))
+		if (!hasEmail(student.getEmail()) && !hasPhone(student.getPhone()) && !hasAddress(student.getAddress())) {
 			studentDao.create(student);
+		}
 	}
 
 	public void delete(long id) {
@@ -29,25 +29,40 @@ public class StudentService {
 	}
 
 	public void update(Student student) {
-		studentDao.update(student);
+		if (!hasEmail(student.getEmail()) && !hasPhone(student.getPhone()) && !hasAddress(student.getAddress())) {
+			studentDao.update(student);
+		}
 	}
 
 	public List<Student> getAll() {
-		return studentDao.getAll();
+		return studentDao.findAll();
 	}
 
 	public List<Student> findByGroupId(long id) {
 		return studentDao.findByGroupId(id);
 	}
 
-	private boolean existsById(long id) {
-		boolean exist;
-		try {
-			studentDao.get(id);
-			exist = true;
-		} catch (EmptyResultDataAccessException e) {
-			exist = false;
+	private boolean hasEmail(String email) {
+		boolean hasName = false;
+		if (studentDao.findByEmail(email) != null) {
+			hasName = true;
 		}
-		return exist;
+		return hasName;
+	}
+
+	private boolean hasPhone(String phone) {
+		boolean hasPhone = false;
+		if (studentDao.findByPhone(phone) != null) {
+			hasPhone = true;
+		}
+		return hasPhone;
+	}
+
+	private boolean hasAddress(String address) {
+		boolean hasAddress = false;
+		if (studentDao.findByAddress(address) != null) {
+			hasAddress = true;
+		}
+		return hasAddress;
 	}
 }

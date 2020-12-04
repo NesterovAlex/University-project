@@ -1,10 +1,17 @@
 package com.nesterov.university.dao;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Audience;
+import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Lesson;
 import com.nesterov.university.model.LessonTime;
@@ -31,14 +39,20 @@ class LessonDaoTest {
 
 	@BeforeEach
 	void initLesson() {
-		Subject subject = new Subject();
-		subject.setId(23);
-		Audience audience = new Audience();
-		audience.setId(34);
-		Teacher teacher = new Teacher();
-		teacher.setId(78);
+		Subject subject = new Subject(2, "Literature");
+		List<Subject> subjects = new ArrayList<>();
+		subjects.add(subject);
+		Audience audience = new Audience(44, 67);
+		audience.setId(3);
+		Teacher teacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 07, 19), "Vasino", "Vasya@vasyin",
+				"2354657657", Gender.MALE);
+		teacher.setId(2);
+		teacher.setSubjects(subjects);
 		LessonTime lessonTime = new LessonTime();
-		lessonTime.setId(100);
+		lessonTime.setId(4);
+		lessonTime.setOrderNumber(18);
+		lessonTime.setStart(LocalTime.of(18, 30));
+		lessonTime.setEnd(LocalTime.of(19, 45));
 		lesson = new Lesson();
 		ArrayList<Group> groups = new ArrayList<Group>();
 		groups.add(new Group(1, "G-45"));
@@ -48,7 +62,7 @@ class LessonDaoTest {
 		groups.add(new Group(3, "T-56"));
 		lesson.setId(3);
 		lesson.setAudience(audience);
-		lesson.setDate(LocalDate.of(2020, 11, 29));
+		lesson.setDate(LocalDate.of(2020, 11, 24));
 		lesson.setGroups(groups);
 		lesson.setSubject(subject);
 		lesson.setTeacher(teacher);
@@ -97,15 +111,15 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedTeacherNameOfExistingLesson_whenGet_thenRelevantNameOfTeacherReturned() {
-		String expected = "Vasin"; 
+		String expected = "Vasin";
 		assertEquals(expected, lessonDao.get(4).getTeacher().getLastName());
 	}
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenFindAll_thenReturnedLessonContainedExpectedTeacher() {
-		assertEquals(countRowsInTable(jdbcTemplate, "lessons"), lessonDao.getAll().size());
+		assertEquals(countRowsInTable(jdbcTemplate, "lessons"), lessonDao.findAll().size());
 	}
-	
+
 	@Test
 	void givenExpectedCountRowsInTableLessons_whenDelete_thenEqualCountRowsInTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "lessons") - 1;
@@ -124,5 +138,23 @@ class LessonDaoTest {
 
 		int actual = countRowsInTable(jdbcTemplate, "lessons_groups");
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenNonExistingLessonWIthExpectedDate_whenFindByDate_thenListLessonsWithNullSizeReturned() {
+		int expected = 0;
+
+		List<Lesson> actual = lessonDao.findByDate(LocalDate.of(1999, 9, 9));
+
+		assertEquals(expected, actual.size());
+	}
+
+	@Test
+	void givenExistingLessonWIthExpectedDate_whenFindByDate_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 4;
+
+		List<Lesson> actual = lessonDao.findByDate(LocalDate.of(2020, 11, 24));
+
+		assertEquals(expected, actual.size());
 	}
 }

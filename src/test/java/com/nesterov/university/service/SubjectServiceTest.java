@@ -3,6 +3,9 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.model.Subject;
 
@@ -27,13 +28,9 @@ class SubjectServiceTest {
 	@InjectMocks
 	private SubjectService subjectService;
 
-	@Spy
-	List<Subject> subjects = new ArrayList<>();
-
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		subjects.add(new Subject(1, "Literature"));
 	}
 
 	@Test
@@ -42,37 +39,38 @@ class SubjectServiceTest {
 		expected.add(new Subject(1, "Literature"));
 		expected.add(new Subject(2, "Geography"));
 		expected.add(new Subject(1, "Mathematic"));
-		given(subjectDao.getAll()).willReturn(expected);
+		given(subjectDao.findAll()).willReturn(expected);
 
 		List<Subject> actual = subjectService.getAll();
 
 		assertEquals(expected, actual);
+		verify(subjectDao, times(1)).findAll();
 	}
 
 	@Test
 	void givenExpectedSubject_whenGet_thenEqualSubjectReturned() {
-		final Subject expected = new Subject(1, "Literature");
+		Subject expected = new Subject(1, "Literature");
 		given(subjectDao.get(anyLong())).willReturn(expected);
 
-		final Subject actual = subjectService.get(anyLong());
+		Subject actual = subjectService.get(anyLong());
 
 		assertEquals(expected, actual);
+		verify(subjectDao, times(1)).get(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
-		doNothing().when(subjectDao).delete(anyLong());
+		int expected = 1;
 
 		subjectService.delete(anyLong());
 
-		verify(subjectDao, times(1)).delete(anyLong());
+		verify(subjectDao, times(expected)).delete(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
 		Subject subject = new Subject(8, "Literature");
-		doNothing().when(subjectDao).update(any(Subject.class));
 
 		subjectService.update(subject);
 		subjectService.update(subject);
@@ -91,15 +89,26 @@ class SubjectServiceTest {
 		List<Subject> actual = subjectService.findByTeacherId(anyLong());
 
 		assertEquals(expected, actual);
+		verify(subjectDao, times(1)).findByTeacherId(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
+		int expected = 1;
 		Subject subject = new Subject(1, "Literature");
-		doThrow(new EmptyResultDataAccessException(1)).when(subjectDao).get(1);
 
-		subjectService.create(subjects.get(0));
+		subjectService.create(subject);
 
-		verify(subjectDao, times(1)).create(subject);
+		verify(subjectDao, times(expected)).create(subject);
+	}
+
+	@Test
+	void givenExistingSubject_whenCreate_thenDontCallDaoCreateMethod() {
+		Subject subject = new Subject(1, "Literature");
+		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
+
+		subjectService.create(subject);
+
+		verify(subjectDao, never()).create(subject);
 	}
 }

@@ -61,12 +61,12 @@ class GroupDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.getAll().size());
+		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.findAll().size());
 	}
 
 	@Test
 	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned() {
-		int expected = 3;
+		int expected = 2;
 		
 		assertEquals(expected, groupDao.findByLessonId(3).size());
 	}
@@ -79,5 +79,23 @@ class GroupDaoTest {
 
 		int actual = countRowsInTable(jdbcTemplate, "groups");
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenExpectedNameOfExistingGroup_whenFindByName_thenGroupWithRelevantNameReturned() {
+		String expected = "T-56";
+		
+		Group actual = groupDao.findByName(expected);
+		
+		assertEquals(expected, actual.getName());
+	}
+	
+	@Test
+	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() {
+		String name = "T-5";
+		
+		Group nonExisting = groupDao.findByName(name);
+		
+		assertNull(nonExisting);
 	}
 }

@@ -79,7 +79,7 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsinTable_whenGetAll_thenEqualCountRowsinTableReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "lesson_times"), lessonTimeDao.getAll().size());
+	void givenExpectedCountRowsinTable_whenFindAll_thenEqualCountRowsinTableReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "lesson_times"), lessonTimeDao.findAll().size());
 	}
 }

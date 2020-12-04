@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Audience;
+import com.nesterov.university.model.Group;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
@@ -54,7 +55,25 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExpectedRowsFromTable_whenGetAll_thenEqualCountOfAudiencesReturned() {
-		assertEquals(countRowsInTable(jdbcTemplate, "audiences"), audienceDao.getAll().size());
+	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned() {
+		assertEquals(countRowsInTable(jdbcTemplate, "audiences"), audienceDao.findAll().size());
+	}
+	
+	@Test
+	void givenExpectedRoomNumberOfExistingAudience_whenfindByRoomNumber_thenAudienceWithRelevantRoomNumberReturned() {
+		int expected = 343;
+		
+		Audience actual = audienceDao.findByRoomNumber(expected);
+		
+		assertEquals(expected, actual.getRoomNumber());
+	}
+	
+	@Test
+	void givenNameOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned() {
+		int roomNumber = 99;
+		
+		Audience nonExisting = audienceDao.findByRoomNumber(roomNumber);
+		
+		assertNull(nonExisting);
 	}
 }

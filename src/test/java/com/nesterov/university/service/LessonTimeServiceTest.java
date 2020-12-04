@@ -1,11 +1,8 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import java.time.LocalTime;
@@ -17,9 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import com.nesterov.university.dao.LessonTimeDao;
 import com.nesterov.university.model.LessonTime;
 
@@ -32,50 +27,48 @@ class LessonTimeServiceTest {
 	@InjectMocks
 	private LessonTimeService lessonTimeService;
 
-	@Spy
-	List<LessonTime> lessonTimes = new ArrayList<>();
-
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		lessonTimes.add(new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45)));
 	}
 
 	@Test
 	void givenExpectedListOfExistsLessonTimes_whenGetAll_thenRelevantListOfLessonTimesReturned() {
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
 		List<LessonTime> expected = new ArrayList<>();
-		expected.add(lessonTimes.get(0));
-		given(lessonTimeDao.getAll()).willReturn(expected);
+		expected.add(lessonTime);
+		given(lessonTimeDao.findAll()).willReturn(expected);
 
 		List<LessonTime> actual = lessonTimeService.getAll();
 
 		assertEquals(expected, actual);
+		verify(lessonTimeDao, times(1)).findAll();
 	}
 
 	@Test
 	void givenExpectedLessonTime_whenGet_thenRelevantLessonTimeReturned() {
-		final LessonTime expected = lessonTimes.get(0);
+		LessonTime expected = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
 		given(lessonTimeDao.get(anyLong())).willReturn(expected);
 
 		final LessonTime actual = lessonTimeService.get(anyLong());
 
 		assertEquals(expected, actual);
+		verify(lessonTimeDao, times(1)).get(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
-		doNothing().when(lessonTimeDao).delete(anyLong());
+		int expected = 1;
 
 		lessonTimeService.delete(anyLong());
 
-		verify(lessonTimeDao, times(1)).delete(anyLong());
+		verify(lessonTimeDao, times(expected)).delete(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoGetMethodCall_whenUpdate_thenEqualCountOfDaoGetMethodCallReturned() {
 		int expected = 2;
-		LessonTime lessonTime = lessonTimes.get(0);
-		doNothing().when(lessonTimeDao).update(any(LessonTime.class));
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
 
 		lessonTimeService.update(lessonTime);
 		lessonTimeService.update(lessonTime);
@@ -85,11 +78,11 @@ class LessonTimeServiceTest {
 
 	@Test
 	void givenExpectedCountOfDaoGetMethodCall_whenCreate_EqualOfDaoGetMethodCallReturned() {
-		LessonTime lessonTime = lessonTimes.get(0);
-		doThrow(new EmptyResultDataAccessException(1)).when(lessonTimeDao).get(lessonTime.getId());
+		int expected = 1;
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
 
-		lessonTimeService.create(lessonTimes.get(0));
+		lessonTimeService.create(lessonTime);
 
-		verify(lessonTimeDao, times(1)).create(lessonTime);
+		verify(lessonTimeDao, times(expected)).create(lessonTime);
 	}
 }

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,9 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import com.nesterov.university.dao.TeacherDao;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Teacher;
@@ -34,21 +32,18 @@ class TeacherServiceTest {
 	@InjectMocks
 	private TeacherService teacherService;
 
-	@Spy
-	List<Teacher> teachers = new ArrayList<>();
-
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		teachers.add(new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov", "123456789",
-				Gender.MALE));
 	}
 
 	@Test
 	void givenExpectedListOfExistsTeachers_whenGetAll_thenRelevantListOfTeachersReturned() {
+		Teacher teacher = new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov",
+				"123456789", Gender.MALE);
 		List<Teacher> expected = new ArrayList<>();
-		expected.add(teachers.get(0));
-		given(teacherDao.getAll()).willReturn(expected);
+		expected.add(teacher);
+		given(teacherDao.findAll()).willReturn(expected);
 
 		List<Teacher> actual = teacherService.getAll();
 
@@ -57,7 +52,8 @@ class TeacherServiceTest {
 
 	@Test
 	void givenExpectedTeacher_whenGet_thenEqualTeacherReturned() {
-		final Teacher expected = teachers.get(0);
+		Teacher expected = new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov",
+				"123456789", Gender.MALE);
 		given(teacherDao.get(anyLong())).willReturn(expected);
 
 		final Teacher actual = teacherService.get(anyLong());
@@ -67,18 +63,21 @@ class TeacherServiceTest {
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
-		doNothing().when(teacherDao).delete(anyLong());
+		int expected = 1;
 
 		teacherService.delete(anyLong());
 
-		verify(teacherDao, times(1)).delete(anyLong());
+		verify(teacherDao, times(expected)).delete(anyLong());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
-		Teacher teacher = teachers.get(0);
-		doNothing().when(teacherDao).update(any(Teacher.class));
+		Teacher teacher = new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov",
+				"123456789", Gender.MALE);
+		when(teacherDao.findByEmail(any(String.class))).thenReturn(null);
+		when(teacherDao.findByPhone(any(String.class))).thenReturn(null);
+		when(teacherDao.findByAddress(any(String.class))).thenReturn(null);
 
 		teacherService.update(teacher);
 		teacherService.update(teacher);
@@ -87,23 +86,34 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExpectedListOfExistsTeachers_whenFindBySubjectId_thenRelevantListOfTeachersReturned() {
-		List<Teacher> expected = new ArrayList<>();
-		expected.add(teachers.get(0));
-		given(teacherDao.findBySubjectId(anyLong())).willReturn(expected);
+	void givenExpectedCountCallsOfFindBySubjectMethod_whenFindBySubjectId_thenCountReturned() {
+		int expected = 1;
+		teacherService.findBySubjectId(anyLong());
 
-		List<Teacher> actual = teacherService.findBySubjectId(anyLong());
-
-		assertEquals(expected, actual);
+		verify(teacherDao, times(expected)).findBySubjectId(anyLong());
 	}
 
 	@Test
-	void givenExpectedCountOfDaoCreateMethodCall_whenCreate_EqualOfDaoCreateMethodCallReturned() {
-		Teacher teacher = teachers.get(0);
-		doThrow(new EmptyResultDataAccessException(1)).when(teacherDao).get(teacher.getId());
+	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
+		int expected = 1;
+		Teacher teacher = new Teacher("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+		when(teacherDao.findByEmail(any(String.class))).thenReturn(null);
+		when(teacherDao.findByPhone(any(String.class))).thenReturn(null);
+		when(teacherDao.findByAddress(any(String.class))).thenReturn(null);
 
-		teacherService.create(teachers.get(0));
+		teacherService.create(teacher);
 
-		verify(teacherDao, times(1)).create(teacher);
+		verify(teacherDao, times(expected)).create(teacher);
+	}
+
+	@Test
+	void givenExistingTeacher_whenCreate_thenDaoCreateMethodDontCall() {
+		Teacher teacher = new Teacher("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+
+		teacherService.create(teacher);
+
+		verify(teacherDao, never()).create(teacher);
 	}
 }

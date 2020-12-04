@@ -2,6 +2,8 @@ package com.nesterov.university.dao;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,6 +18,7 @@ import com.nesterov.university.model.Group;
 public class GroupDao {
 
 	private static final String SELECT_FROM_LESSONS_GROUPS = "SELECT *  FROM groups LEFT JOIN lessons_groups ON lessons_groups.group_id = groups.id WHERE lesson_id = ?";
+	private static final String SELECT_BY_NAME = "SELECT *  FROM groups WHERE name = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM groups WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM groups";
 	private static final String INSERT = "INSERT INTO groups (name) VALUES (?)";
@@ -56,11 +59,21 @@ public class GroupDao {
 		jdbcTemplate.update(UPDATE, group.getName(), group.getId());
 	}
 
-	public List<Group> getAll() {
+	public List<Group> findAll() {
 		return jdbcTemplate.query(SELECT, groupRowMapper);
 	}
 
 	public List<Group> findByLessonId(long id) {
 		return jdbcTemplate.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, groupRowMapper);
+	}
+
+	public Group findByName(String name) {
+		Group group = null;
+		try {
+			group = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			e.getMessage();
+		}
+		return group;
 	}
 }
