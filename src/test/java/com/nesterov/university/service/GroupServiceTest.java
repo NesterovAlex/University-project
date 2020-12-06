@@ -71,10 +71,10 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
+	void givenExpectedNameOfExistingGroup_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
 		Group group = new Group(5, "G-12");
-		doNothing().when(groupDao).update(any(Group.class));
+		when(groupDao.findByName(any(String.class))).thenReturn(group);
 
 		groupService.update(group);
 		groupService.update(group);
@@ -83,17 +83,13 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenExpectedListOfExistsGroups_whenFindByLessonId_thenRelevantListOfGroupsReturned() {
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "G-12"));
-		expected.add(new Group(2, "G-12"));
-		expected.add(new Group(3, "G-12"));
-		given(groupDao.findByLessonId(anyLong())).willReturn(expected);
+	void givenNonExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
+		Group group = new Group(5, "G-12");
+		when(groupDao.findByName(any(String.class))).thenReturn(null);
 
-		List<Group> actual = groupService.findByLessonId(anyLong());
+		groupService.update(group);
 
-		assertEquals(expected, actual);
-		verify(groupDao, times(1)).findByLessonId(anyLong());
+		verify(groupDao, never()).update(group);
 	}
 
 	@Test

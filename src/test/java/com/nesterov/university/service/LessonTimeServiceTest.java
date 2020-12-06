@@ -3,6 +3,7 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import java.time.LocalTime;
@@ -77,12 +78,30 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoGetMethodCall_whenCreate_EqualOfDaoGetMethodCallReturned() {
+	void givenExpectedCountOfDaoGetMethodCall_whenCreate_thenEqualOfDaoGetMethodCallReturned() {
 		int expected = 1;
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
 
 		lessonTimeService.create(lessonTime);
 
 		verify(lessonTimeDao, times(expected)).create(lessonTime);
+	}
+	
+	@Test
+	void givenExpectedLessonTimeWithWrongStartAndEndTime_whenCreate_thenDontCallOfDaoCreateMethod() {
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(8, 45));
+
+		lessonTimeService.create(lessonTime);
+
+		verify(lessonTimeDao, never()).create(lessonTime);
+	}
+	
+	@Test
+	void givenExpectedLessonTimeWithWrongStartAndEndTime_whenUpdate_thenDontCallOfDaoCreateMethod() {
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(8, 45));
+
+		lessonTimeService.update(lessonTime);
+
+		verify(lessonTimeDao, never()).update(lessonTime);
 	}
 }

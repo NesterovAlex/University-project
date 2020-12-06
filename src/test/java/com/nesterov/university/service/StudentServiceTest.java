@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,10 +76,12 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
+	void givenExistingStudent_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
 		Student student = new Student("Ivan", "Ivanov", LocalDate.of(1999, 6, 14), "Kiev", "Ivan@Ivanov", "123456789",
 				Gender.MALE);
+		List<Student> students = new ArrayList<>();
+		students.add(student);
 		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
 		when(studentDao.findByPhone(any(String.class))).thenReturn(null);
 		when(studentDao.findByAddress(any(String.class))).thenReturn(null);
@@ -86,6 +90,19 @@ class StudentServiceTest {
 		studentService.update(student);
 
 		verify(studentDao, times(expected)).update(student);
+	}
+
+	@Test
+	void givenNonExistingStudent_whenUpdate_thenDaoUpdateMethodDontCall() {
+		Student student = new Student("Ivan", "Ivanov", LocalDate.of(1999, 6, 14), "Kiev", "Ivan@Ivanov", "123456789",
+				Gender.MALE);
+		List<Student> students = new ArrayList<>();
+		students.add(student);
+		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
+
+		studentService.update(student);
+
+		verify(studentDao, never()).update(student);
 	}
 
 	@Test
@@ -103,13 +120,15 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
+	void givenExpectedCountOfDaoMethodCall_whenCreate_thenEqualOfDaoMethodCallReturned() {
 		int expected = 1;
 		Student student = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
 				"358769341", Gender.FEMALE);
+		List<Student> students = new ArrayList<>();
 		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
 		when(studentDao.findByPhone(any(String.class))).thenReturn(null);
 		when(studentDao.findByAddress(any(String.class))).thenReturn(null);
+		when(studentDao.findByGroupId(anyLong())).thenReturn(students);
 
 		studentService.create(student);
 
@@ -124,5 +143,52 @@ class StudentServiceTest {
 		studentService.create(student);
 
 		verify(studentDao, never()).create(student);
+	}
+
+	@Test
+	void givenExpectedStudentWithGroupMoreThenThirtyStudentIn_whenCreate_thenDaoCreateMethodDontCall() {
+		Student student = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+		List<Student> students = new ArrayList<>();
+		Stream.iterate(0, n -> n + 1).limit(50).forEach(x -> students.add(new Student()));
+		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
+		when(studentDao.findByPhone(any(String.class))).thenReturn(null);
+		when(studentDao.findByAddress(any(String.class))).thenReturn(null);
+		when(studentDao.findByGroupId(anyLong())).thenReturn(students);
+
+		studentService.create(student);
+
+		verify(studentDao, never()).create(student);
+	}
+	
+	@Test
+	void givenExpectedStudentWithGroupMoreThenThirtyStudentIn_whenUpdate_thenDaoCreateMethodDontCall() {
+		Student student = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+		List<Student> students = new ArrayList<>();
+		Stream.iterate(0, n -> n + 1).limit(50).forEach(x -> students.add(new Student()));
+		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
+		when(studentDao.findByPhone(any(String.class))).thenReturn(null);
+		when(studentDao.findByAddress(any(String.class))).thenReturn(null);
+		when(studentDao.findByGroupId(anyLong())).thenReturn(students);
+
+		studentService.update(student);
+
+		verify(studentDao, never()).update(student);
+	}
+	
+	@Test
+	void givenExpectedStudentWithGroupNoMoreThenThirtyStudentIn_whenCreate_thenDaoCreateMethodIsCallExpectedCount() {
+		Student student = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				"358769341", Gender.FEMALE);
+		List<Student> students = new ArrayList<>();
+		when(studentDao.findByEmail(any(String.class))).thenReturn(null);
+		when(studentDao.findByPhone(any(String.class))).thenReturn(null);
+		when(studentDao.findByAddress(any(String.class))).thenReturn(null);
+		when(studentDao.findByGroupId(anyLong())).thenReturn(students);
+
+		studentService.create(student);
+
+		verify(studentDao, times(1)).create(student);
 	}
 }

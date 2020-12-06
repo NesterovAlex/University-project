@@ -15,7 +15,8 @@ public class StudentService {
 	}
 
 	public void create(Student student) {
-		if (!hasEmail(student.getEmail()) && !hasPhone(student.getPhone()) && !hasAddress(student.getAddress())) {
+		if (isUniqueEmail(student.getEmail()) && isUniquePhone(student.getPhone())
+				&& isUniqueAddress(student.getAddress()) && findByGroupId(student.getGroupId()).size() <= 30) {
 			studentDao.create(student);
 		}
 	}
@@ -29,7 +30,8 @@ public class StudentService {
 	}
 
 	public void update(Student student) {
-		if (!hasEmail(student.getEmail()) && !hasPhone(student.getPhone()) && !hasAddress(student.getAddress())) {
+		if (isUniqueEmail(student.getEmail()) && isUniquePhone(student.getPhone())
+				&& isUniqueAddress(student.getAddress()) && findByGroupId(student.getGroupId()).size() <= 30) {
 			studentDao.update(student);
 		}
 	}
@@ -42,27 +44,15 @@ public class StudentService {
 		return studentDao.findByGroupId(id);
 	}
 
-	private boolean hasEmail(String email) {
-		boolean hasName = false;
-		if (studentDao.findByEmail(email) != null) {
-			hasName = true;
-		}
-		return hasName;
+	private boolean isUniqueEmail(String email) {
+		return studentDao.findByEmail(email) == null;
 	}
 
-	private boolean hasPhone(String phone) {
-		boolean hasPhone = false;
-		if (studentDao.findByPhone(phone) != null) {
-			hasPhone = true;
-		}
-		return hasPhone;
+	private boolean isUniquePhone(String phone) {
+		return studentDao.findByPhone(phone) == null;
 	}
 
-	private boolean hasAddress(String address) {
-		boolean hasAddress = false;
-		if (studentDao.findByAddress(address) != null) {
-			hasAddress = true;
-		}
-		return hasAddress;
+	private boolean isUniqueAddress(String address) {
+		return studentDao.findByAddress(address) == null;
 	}
 }

@@ -1,17 +1,12 @@
 package com.nesterov.university.dao;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -141,19 +136,46 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenNonExistingLessonWIthExpectedDate_whenFindByDate_thenListLessonsWithNullSizeReturned() {
-		int expected = 0;
+	void givenExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 1;
 
-		List<Lesson> actual = lessonDao.findByDate(LocalDate.of(1999, 9, 9));
+		List<Lesson> actual = lessonDao.findByDateAndAudience(LocalDate.of(2020, 11, 24), 1, 3);
 
 		assertEquals(expected, actual.size());
 	}
 
 	@Test
-	void givenExistingLessonWIthExpectedDate_whenFindByDate_thenListLessonsWithExpectedSizeReturned() {
-		int expected = 4;
+	void givenNonExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 0;
 
-		List<Lesson> actual = lessonDao.findByDate(LocalDate.of(2020, 11, 24));
+		List<Lesson> actual = lessonDao.findByDateAndAudience(LocalDate.of(2020, 11, 24), 1, 1);
+
+		assertEquals(expected, actual.size());
+	}
+
+	@Test
+	void givenNonExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndGroup_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 2;
+
+		List<Lesson> actual = lessonDao.findByDateAndGroup(LocalDate.of(2020, 11, 24), 4, 2);
+
+		assertEquals(expected, actual.size());
+	}
+
+	@Test
+	void givenExistingLessonWIthExpectedDateAndTeacher_whenFindByDateAndTeacher_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 3;
+
+		List<Lesson> actual = lessonDao.findByDateAndTeacher(LocalDate.of(2020, 11, 24), 4, 2);
+
+		assertEquals(expected, actual.size());
+	}
+
+	@Test
+	void givenNonExistingLessonWIthExpectedDateAndTeacher_whenFindByDateAndTeacher_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 0;
+
+		List<Lesson> actual = lessonDao.findByDateAndGroup(LocalDate.of(2020, 11, 24), 4, 4);
 
 		assertEquals(expected, actual.size());
 	}

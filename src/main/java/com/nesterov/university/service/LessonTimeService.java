@@ -15,7 +15,7 @@ public class LessonTimeService {
 	}
 
 	public void create(LessonTime lessonTime) {
-		if (lessonTime.getStart().isBefore(lessonTime.getEnd())) {
+		if (isRightTime(lessonTime)) {
 			lessonTimeDao.create(lessonTime);
 		}
 	}
@@ -29,12 +29,16 @@ public class LessonTimeService {
 	}
 
 	public void update(LessonTime lessonTime) {
-		if (lessonTime.getStart().isBefore(lessonTime.getEnd())) {
+		if (isRightTime(lessonTime)) {
 			lessonTimeDao.update(lessonTime);
 		}
 	}
 
 	public List<LessonTime> getAll() {
 		return lessonTimeDao.findAll();
+	}
+	
+	private boolean isRightTime(LessonTime lessonTime) {
+		return lessonTime.getStart().isBefore(lessonTime.getEnd());
 	}
 }

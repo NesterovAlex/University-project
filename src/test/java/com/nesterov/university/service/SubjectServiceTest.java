@@ -68,14 +68,27 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
+	void givenExpectedNameOfExistingSubject_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
 		int expected = 2;
 		Subject subject = new Subject(8, "Literature");
-
+		when(subjectDao.findByName(anyString())).thenReturn(subject);
+		
 		subjectService.update(subject);
 		subjectService.update(subject);
 
 		verify(subjectDao, times(expected)).update(subject);
+	}
+	
+	@Test
+	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
+		int expected = 2;
+		Subject subject = new Subject(8, "Literature");
+		when(subjectDao.findByName(anyString())).thenReturn(null);
+		
+		subjectService.update(subject);
+		subjectService.update(subject);
+
+		verify(subjectDao, never()).update(subject);
 	}
 
 	@Test

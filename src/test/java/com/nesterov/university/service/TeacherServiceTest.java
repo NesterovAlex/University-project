@@ -75,14 +75,30 @@ class TeacherServiceTest {
 		int expected = 2;
 		Teacher teacher = new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov",
 				"123456789", Gender.MALE);
-		when(teacherDao.findByEmail(any(String.class))).thenReturn(null);
-		when(teacherDao.findByPhone(any(String.class))).thenReturn(null);
-		when(teacherDao.findByAddress(any(String.class))).thenReturn(null);
+		List<Teacher> teachers = new ArrayList<>();
+		teachers.add(teacher);
+		when(teacherDao.findByEmail(any(String.class))).thenReturn(teachers);
+		when(teacherDao.findByPhone(any(String.class))).thenReturn(teachers);
+		when(teacherDao.findByAddress(any(String.class))).thenReturn(teachers);
 
 		teacherService.update(teacher);
 		teacherService.update(teacher);
 
 		verify(teacherDao, times(expected)).update(teacher);
+	}
+
+	@Test
+	void givenNonExistingTeacher_whenUpdate_thenDaoUpdateMethodDontCall() {
+		Teacher teacher = new Teacher("Petro", "Petrov", LocalDate.of(1999, 9, 9), "Petrovka", "Petro@Petrov",
+				"123456789", Gender.MALE);
+		List<Teacher> teachers = new ArrayList<>();
+		teachers.add(teacher);
+		when(teacherDao.findByEmail(any(String.class))).thenReturn(null);
+
+		teacherService.update(teacher);
+		teacherService.update(teacher);
+
+		verify(teacherDao, never()).update(teacher);
 	}
 
 	@Test

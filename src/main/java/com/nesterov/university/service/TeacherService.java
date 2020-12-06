@@ -15,7 +15,8 @@ public class TeacherService {
 	}
 
 	public void create(Teacher teacher) {
-		if (!hasEmail(teacher.getEmail()) && !hasPhone(teacher.getPhone()) && !hasAddress(teacher.getAddress())) {
+		if (!isUniqueEmail(teacher.getEmail()) && !isUniquePhone(teacher.getPhone())
+				&& !isUniqueAddress(teacher.getAddress())) {
 			teacherDao.create(teacher);
 		}
 	}
@@ -29,7 +30,8 @@ public class TeacherService {
 	}
 
 	public void update(Teacher teacher) {
-		if (!hasEmail(teacher.getEmail()) && !hasPhone(teacher.getPhone()) && !hasAddress(teacher.getAddress())) {
+		if (isUniqueEmail(teacher.getEmail()) && isUniquePhone(teacher.getPhone())
+				&& isUniqueAddress(teacher.getAddress())) {
 			teacherDao.update(teacher);
 		}
 	}
@@ -42,27 +44,15 @@ public class TeacherService {
 		return teacherDao.findBySubjectId(id);
 	}
 
-	private boolean hasEmail(String email) {
-		boolean hasName = false;
-		if (teacherDao.findByEmail(email) != null) {
-			hasName = true;
-		}
-		return hasName;
+	private boolean isUniqueEmail(String email) {
+		return teacherDao.findByEmail(email) != null;
 	}
 
-	private boolean hasPhone(String phone) {
-		boolean hasPhone = false;
-		if (teacherDao.findByPhone(phone) != null) {
-			hasPhone = true;
-		}
-		return hasPhone;
+	private boolean isUniquePhone(String phone) {
+		return teacherDao.findByPhone(phone) != null;
 	}
 
-	private boolean hasAddress(String address) {
-		boolean hasAddress = false;
-		if (teacherDao.findByAddress(address) != null) {
-			hasAddress = true;
-		}
-		return hasAddress;
+	private boolean isUniqueAddress(String address) {
+		return teacherDao.findByAddress(address) != null;
 	}
 }
