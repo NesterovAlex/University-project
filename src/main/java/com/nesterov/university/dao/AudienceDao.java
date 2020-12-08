@@ -22,7 +22,7 @@ public class AudienceDao {
 	private static final String DELETE = "DELETE FROM audiences WHERE id = ?";
 	private static final String SELECT = "SELECT * FROM audiences";
 
-	private AudienceRowMapper audienceRowMapper;	
+	private AudienceRowMapper audienceRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
 	public AudienceDao(JdbcTemplate template, AudienceRowMapper audienceRowMapper) {
@@ -45,7 +45,6 @@ public class AudienceDao {
 		return jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
 	}
 
-	
 	public void delete(long id) {
 		jdbcTemplate.update(DELETE, id);
 	}
@@ -57,11 +56,12 @@ public class AudienceDao {
 	public List<Audience> findAll() {
 		return jdbcTemplate.query(SELECT, audienceRowMapper);
 	}
-	
+
 	public Audience findByRoomNumber(long roomNumber) {
 		Audience audience = null;
 		try {
-			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber }, audienceRowMapper);
+			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber },
+					audienceRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}

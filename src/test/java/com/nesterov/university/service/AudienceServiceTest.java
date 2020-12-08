@@ -50,31 +50,30 @@ class AudienceServiceTest {
 
 	@Test
 	void givenExpectedAudience_whenGet_thenRelevantAudienceReturned() {
-		final Audience expected = new Audience(1, 2, 40);
+		Audience expected = new Audience(1, 2, 40);
 		given(audienceDao.get(anyLong())).willReturn(expected);
 
-		final Audience actual = audienceService.get(anyLong());
+		Audience actual = audienceService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(audienceDao, times(1)).get(anyLong());
+		verify(audienceDao, times(1)).get(expected.getId());
 	}
 
 	@Test
 	void givenExpectedCountOfDaodeleteMethodCall_whenDelete_thenEqualOfDaodeleteMethodCallReturned() {
 		int expected = 1;
 
-		audienceService.delete(anyLong());
+		audienceService.delete(expected);
 
-		verify(audienceDao, times(expected)).delete(anyLong());
+		verify(audienceDao, times(expected)).delete(expected);
 	}
 
 	@Test
 	void givenExpectedRoomNumberOfExistingAudience_whenUpdate_thenEqualCountOfDaoUpdateMethodCallReturned() {
-		int expected = 2;
-		Audience audience = new Audience(5, 14, 3);
-		when(audienceDao.findByRoomNumber(anyLong())).thenReturn(audience);
+		int expected = 1;
+		Audience audience = new Audience(3, 7, 24);
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
-		audienceService.update(audience);
 		audienceService.update(audience);
 
 		verify(audienceDao, times(expected)).update(audience);
@@ -82,8 +81,8 @@ class AudienceServiceTest {
 
 	@Test
 	void givenNonExistingAudience_whenUpdate_thenthenDontCallDaoUpdateMethod() {
-		Audience audience = new Audience(5, 14, 3);
-		when(audienceDao.findByRoomNumber(anyLong())).thenReturn(null);
+		Audience audience = new Audience(5, 14, 23);
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
 		audienceService.update(audience);
 
@@ -92,7 +91,7 @@ class AudienceServiceTest {
 
 	@Test
 	void givenNonExistingAudience_whenCreate_thenDontCallDaoCreateMethod() {
-		Audience audience = new Audience(5, 14, 3);
+		Audience audience = new Audience(1, 4, 33);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
 		audienceService.create(audience);
@@ -102,11 +101,12 @@ class AudienceServiceTest {
 
 	@Test
 	void givenExpectedRommNumberExistingAudience_whenCreate_thenExpectedCallDaoCreateMethodReturned() {
-		Audience audience = new Audience(5, 14, 3);
+		int expected = 1;
+		Audience audience = new Audience(6, 1, 36);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
 		audienceService.create(audience);
 
-		verify(audienceDao, times(1)).create(audience);
+		verify(audienceDao, times(expected)).create(audience);
 	}
 }

@@ -35,7 +35,7 @@ class LessonTimeServiceTest {
 
 	@Test
 	void givenExpectedListOfExistsLessonTimes_whenGetAll_thenRelevantListOfLessonTimesReturned() {
-		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(10, 45));
 		List<LessonTime> expected = new ArrayList<>();
 		expected.add(lessonTime);
 		given(lessonTimeDao.findAll()).willReturn(expected);
@@ -48,30 +48,29 @@ class LessonTimeServiceTest {
 
 	@Test
 	void givenExpectedLessonTime_whenGet_thenRelevantLessonTimeReturned() {
-		LessonTime expected = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
-		given(lessonTimeDao.get(anyLong())).willReturn(expected);
+		LessonTime expected = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
+		given(lessonTimeDao.get(expected.getId())).willReturn(expected);
 
-		final LessonTime actual = lessonTimeService.get(anyLong());
+		final LessonTime actual = lessonTimeService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(lessonTimeDao, times(1)).get(anyLong());
+		verify(lessonTimeDao, times(1)).get(expected.getId());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
 		int expected = 1;
 
-		lessonTimeService.delete(anyLong());
+		lessonTimeService.delete(expected);
 
-		verify(lessonTimeDao, times(expected)).delete(anyLong());
+		verify(lessonTimeDao, times(expected)).delete(expected);
 	}
 
 	@Test
 	void givenExpectedCountOfDaoGetMethodCall_whenUpdate_thenEqualCountOfDaoGetMethodCallReturned() {
-		int expected = 2;
-		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
+		int expected = 1;
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(14, 15), LocalTime.of(15, 45));
 
-		lessonTimeService.update(lessonTime);
 		lessonTimeService.update(lessonTime);
 
 		verify(lessonTimeDao, times(expected)).update(lessonTime);
@@ -80,25 +79,25 @@ class LessonTimeServiceTest {
 	@Test
 	void givenExpectedCountOfDaoGetMethodCall_whenCreate_thenEqualOfDaoGetMethodCallReturned() {
 		int expected = 1;
-		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(8, 15), LocalTime.of(9, 45));
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(17, 45), LocalTime.of(18, 45));
 
 		lessonTimeService.create(lessonTime);
 
 		verify(lessonTimeDao, times(expected)).create(lessonTime);
 	}
-	
+
 	@Test
 	void givenExpectedLessonTimeWithWrongStartAndEndTime_whenCreate_thenDontCallOfDaoCreateMethod() {
-		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(8, 45));
+		LessonTime lessonTime = new LessonTime(1, 13, LocalTime.of(9, 15), LocalTime.of(8, 45));
 
 		lessonTimeService.create(lessonTime);
 
 		verify(lessonTimeDao, never()).create(lessonTime);
 	}
-	
+
 	@Test
 	void givenExpectedLessonTimeWithWrongStartAndEndTime_whenUpdate_thenDontCallOfDaoCreateMethod() {
-		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(8, 45));
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(10, 35), LocalTime.of(9, 15));
 
 		lessonTimeService.update(lessonTime);
 

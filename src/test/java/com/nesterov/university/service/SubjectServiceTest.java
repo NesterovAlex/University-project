@@ -49,43 +49,40 @@ class SubjectServiceTest {
 
 	@Test
 	void givenExpectedSubject_whenGet_thenEqualSubjectReturned() {
-		Subject expected = new Subject(1, "Literature");
-		given(subjectDao.get(anyLong())).willReturn(expected);
+		Subject expected = new Subject(1, "Technology");
+		given(subjectDao.get(expected.getId())).willReturn(expected);
 
-		Subject actual = subjectService.get(anyLong());
+		Subject actual = subjectService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(subjectDao, times(1)).get(anyLong());
+		verify(subjectDao, times(1)).get(expected.getId());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
 		int expected = 1;
 
-		subjectService.delete(anyLong());
+		subjectService.delete(expected);
 
-		verify(subjectDao, times(expected)).delete(anyLong());
+		verify(subjectDao, times(expected)).delete(expected);
 	}
 
 	@Test
 	void givenExpectedNameOfExistingSubject_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
-		int expected = 2;
-		Subject subject = new Subject(8, "Literature");
-		when(subjectDao.findByName(anyString())).thenReturn(subject);
-		
-		subjectService.update(subject);
+		int expected = 1;
+		Subject subject = new Subject(8, "Psychology");
+		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
+
 		subjectService.update(subject);
 
 		verify(subjectDao, times(expected)).update(subject);
 	}
-	
+
 	@Test
 	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
-		int expected = 2;
-		Subject subject = new Subject(8, "Literature");
-		when(subjectDao.findByName(anyString())).thenReturn(null);
-		
-		subjectService.update(subject);
+		Subject subject = new Subject(8, "Nursing");
+		when(subjectDao.findByName(subject.getName())).thenReturn(null);
+
 		subjectService.update(subject);
 
 		verify(subjectDao, never()).update(subject);
@@ -93,22 +90,23 @@ class SubjectServiceTest {
 
 	@Test
 	void givenExpectedListOfExistsSubjects_whenFindByTeacherId_thenRelevantListOfSubjectsReturned() {
-		List<Subject> expected = new ArrayList<>();
-		expected.add(new Subject(1, "Literature"));
-		expected.add(new Subject(2, "Geography"));
-		expected.add(new Subject(1, "Mathematic"));
-		given(subjectDao.findByTeacherId(anyLong())).willReturn(expected);
+		int expected = 1;
+		List<Subject> subjects = new ArrayList<>();
+		subjects.add(new Subject(1, "Literature"));
+		subjects.add(new Subject(2, "Geography"));
+		subjects.add(new Subject(1, "Mathematic"));
+		given(subjectDao.findByTeacherId(expected)).willReturn(subjects);
 
-		List<Subject> actual = subjectService.findByTeacherId(anyLong());
+		List<Subject> actual = subjectService.findByTeacherId(expected);
 
-		assertEquals(expected, actual);
-		verify(subjectDao, times(1)).findByTeacherId(anyLong());
+		assertEquals(subjects, actual);
+		verify(subjectDao, times(expected)).findByTeacherId(expected);
 	}
 
 	@Test
 	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
 		int expected = 1;
-		Subject subject = new Subject(1, "Literature");
+		Subject subject = new Subject(1, "Languages");
 
 		subjectService.create(subject);
 
@@ -117,7 +115,7 @@ class SubjectServiceTest {
 
 	@Test
 	void givenExistingSubject_whenCreate_thenDontCallDaoCreateMethod() {
-		Subject subject = new Subject(1, "Literature");
+		Subject subject = new Subject(1, "Statistics");
 		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
 
 		subjectService.create(subject);

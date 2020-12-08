@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,45 +37,46 @@ class GroupServiceTest {
 
 	@Test
 	void givenExpectedListOfExistsGroups_whenGetAll_thenRelevantListOfGroupsReturned() {
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "G-12"));
-		expected.add(new Group(2, "G-12"));
-		expected.add(new Group(3, "G-12"));
-		given(groupDao.findAll()).willReturn(expected);
+		int expected = 1;
+		List<Group> groups = new ArrayList<>();
+		groups.add(new Group(1, "G-12"));
+		groups.add(new Group(2, "G-12"));
+		groups.add(new Group(3, "G-12"));
+		given(groupDao.findAll()).willReturn(groups);
 
 		List<Group> actual = groupService.getAll();
 
-		assertEquals(expected, actual);
-		verify(groupDao, times(1)).findAll();
+		assertEquals(groups, actual);
+		verify(groupDao, times(expected)).findAll();
 	}
 
 	@Test
 	void givenExpectedGroup_whenGet_thenEqualGroupReturned() {
-		final Group expected = new Group(5, "G-12");
-		given(groupDao.get(anyLong())).willReturn(expected);
+		int expected = 1;
+		Group group = new Group(5, "G-12");
+		given(groupDao.get(group.getId())).willReturn(group);
 
-		final Group actual = groupService.get(anyLong());
+		final Group actual = groupService.get(group.getId());
 
-		assertEquals(expected, actual);
-		verify(groupDao, times(1)).get(anyLong());
+		assertEquals(group, actual);
+		verify(groupDao, times(expected)).get(group.getId());
 	}
 
 	@Test
 	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
 		int expected = 1;
 
-		groupService.delete(anyLong());
+		groupService.delete(expected);
 
-		verify(groupDao, times(expected)).delete(anyLong());
+		verify(groupDao, times(expected)).delete(expected);
 	}
 
 	@Test
 	void givenExpectedNameOfExistingGroup_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
-		int expected = 2;
+		int expected = 1;
 		Group group = new Group(5, "G-12");
-		when(groupDao.findByName(any(String.class))).thenReturn(group);
+		when(groupDao.findByName(group.getName())).thenReturn(group);
 
-		groupService.update(group);
 		groupService.update(group);
 
 		verify(groupDao, times(expected)).update(group);
@@ -85,7 +85,7 @@ class GroupServiceTest {
 	@Test
 	void givenNonExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
 		Group group = new Group(5, "G-12");
-		when(groupDao.findByName(any(String.class))).thenReturn(null);
+		when(groupDao.findByName(group.getName())).thenReturn(null);
 
 		groupService.update(group);
 

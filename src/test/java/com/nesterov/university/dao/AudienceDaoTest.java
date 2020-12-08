@@ -57,22 +57,22 @@ class AudienceDaoTest {
 	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned() {
 		assertEquals(countRowsInTable(jdbcTemplate, "audiences"), audienceDao.findAll().size());
 	}
-	
+
 	@Test
 	void givenExpectedRoomNumberOfExistingAudience_whenfindByRoomNumber_thenAudienceWithRelevantRoomNumberReturned() {
 		int expected = 343;
-		
+
 		Audience actual = audienceDao.findByRoomNumber(expected);
-		
+
 		assertEquals(expected, actual.getRoomNumber());
 	}
-	
+
 	@Test
 	void givenNameOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned() {
 		int roomNumber = 99;
-		
+
 		Audience nonExisting = audienceDao.findByRoomNumber(roomNumber);
-		
+
 		assertNull(nonExisting);
 	}
 }

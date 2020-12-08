@@ -45,14 +45,14 @@ class GroupDaoTest {
 		student.setCourse("Biology");
 		student.setId(1);
 		student.setGroupId(1);
-		
+
 		assertEquals(expected, groupDao.get(1));
 	}
 
 	@Test
 	void givenNameOfExistingGroup_whenUpdate_thenExpectedNameOfGroupReturned() {
 		Group group = new Group(3, "B-12");
-		
+
 		groupDao.update(group);
 
 		String actual = jdbcTemplate.queryForObject("SELECT name FROM groups WHERE id=3", String.class);
@@ -67,7 +67,7 @@ class GroupDaoTest {
 	@Test
 	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned() {
 		int expected = 2;
-		
+
 		assertEquals(expected, groupDao.findByLessonId(3).size());
 	}
 
@@ -84,18 +84,18 @@ class GroupDaoTest {
 	@Test
 	void givenExpectedNameOfExistingGroup_whenFindByName_thenGroupWithRelevantNameReturned() {
 		String expected = "T-56";
-		
+
 		Group actual = groupDao.findByName(expected);
-		
+
 		assertEquals(expected, actual.getName());
 	}
-	
+
 	@Test
 	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() {
 		String name = "T-5";
-		
+
 		Group nonExisting = groupDao.findByName(name);
-		
+
 		assertNull(nonExisting);
 	}
 }

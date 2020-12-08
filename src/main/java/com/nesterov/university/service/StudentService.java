@@ -1,13 +1,21 @@
 package com.nesterov.university.service;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.StudentDao;
 import com.nesterov.university.model.Student;
 
 @Component
+@Configuration
+@PropertySource(value = "classpath:config.properties", encoding="UTF-8")
 public class StudentService {
 
+	@Value(value = "${maxValue}")
+	int maxValue;
 	private StudentDao studentDao;
 
 	public StudentService(StudentDao studentDao) {
@@ -16,7 +24,7 @@ public class StudentService {
 
 	public void create(Student student) {
 		if (isUniqueEmail(student.getEmail()) && isUniquePhone(student.getPhone())
-				&& isUniqueAddress(student.getAddress()) && findByGroupId(student.getGroupId()).size() <= 30) {
+				&& isUniqueAddress(student.getAddress()) && findByGroupId(student.getGroupId()).size() <= maxValue) {
 			studentDao.create(student);
 		}
 	}
