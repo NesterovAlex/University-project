@@ -15,7 +15,7 @@ public class GroupService {
 	}
 
 	public void create(Group group) {
-		if (!isUniqueName(group.getName())) {
+		if (isUniqueName(group.getName())) {
 			groupDao.create(group);
 		}
 	}
@@ -29,7 +29,7 @@ public class GroupService {
 	}
 
 	public void update(Group group) {
-		if (isUniqueName(group.getName())) {
+		if (!isUniqueName(group.getName()) && groupDao.findByName(group.getName()).getName().equals(group.getName())) {
 			groupDao.update(group);
 		}
 	}
@@ -39,6 +39,6 @@ public class GroupService {
 	}
 
 	private boolean isUniqueName(String name) {
-		return groupDao.findByName(name) != null;
+		return groupDao.findByName(name).getName() == null;
 	}
 }

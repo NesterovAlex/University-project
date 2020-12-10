@@ -82,7 +82,7 @@ class AudienceServiceTest {
 	@Test
 	void givenNonExistingAudience_whenUpdate_thenthenDontCallDaoUpdateMethod() {
 		Audience audience = new Audience(5, 14, 23);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(new Audience());
 
 		audienceService.update(audience);
 
@@ -103,7 +103,7 @@ class AudienceServiceTest {
 	void givenExpectedRommNumberExistingAudience_whenCreate_thenExpectedCallDaoCreateMethodReturned() {
 		int expected = 1;
 		Audience audience = new Audience(6, 1, 36);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(new Audience());
 
 		audienceService.create(audience);
 

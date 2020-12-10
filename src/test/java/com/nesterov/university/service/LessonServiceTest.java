@@ -111,7 +111,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
@@ -149,7 +149,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
 		lessonService.update(lesson);
 
@@ -182,7 +182,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
 		lessonService.create(lesson);
 
@@ -215,7 +215,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
@@ -252,7 +252,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
@@ -288,7 +288,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(lessons);
 
@@ -325,7 +325,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
@@ -362,7 +362,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
 		lessonService.create(lesson);
 
@@ -394,7 +394,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
 		lessonService.update(lesson);
 
@@ -426,7 +426,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(lessons);
 
@@ -522,7 +522,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(new ArrayList<>());
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(new ArrayList<>());
 
@@ -557,7 +557,7 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 
@@ -595,7 +595,7 @@ class LessonServiceTest {
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
 
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
@@ -635,7 +635,7 @@ class LessonServiceTest {
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
 
-		when(lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))

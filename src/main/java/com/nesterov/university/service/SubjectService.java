@@ -15,7 +15,7 @@ public class SubjectService {
 	}
 
 	public void create(Subject subject) {
-		if (!isUniqueName(subject.getName())) {
+		if (isUniqueName(subject.getName())) {
 			subjectDao.create(subject);
 		}
 	}
@@ -29,7 +29,8 @@ public class SubjectService {
 	}
 
 	public void update(Subject subject) {
-		if (isUniqueName(subject.getName())) {
+		if (!isUniqueName(subject.getName())
+				&& subjectDao.findByName(subject.getName()).getName().equals(subject.getName())) {
 			subjectDao.update(subject);
 		}
 	}
@@ -43,6 +44,6 @@ public class SubjectService {
 	}
 
 	private boolean isUniqueName(String name) {
-		return subjectDao.findByName(name) != null;
+		return subjectDao.findByName(name).getName() == null;
 	}
 }

@@ -91,11 +91,11 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() {
+	void givenNameOfNonExistingGroup_whenFindByName_thenGroupWithNameEqualNullReturned() {
 		String name = "T-5";
 
 		Group nonExisting = groupDao.findByName(name);
 
-		assertNull(nonExisting);
+		assertNull(nonExisting.getName());
 	}
 }

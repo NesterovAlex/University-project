@@ -1,8 +1,6 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -85,7 +83,7 @@ class GroupServiceTest {
 	@Test
 	void givenNonExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
 		Group group = new Group(5, "G-12");
-		when(groupDao.findByName(group.getName())).thenReturn(null);
+		when(groupDao.findByName(group.getName())).thenReturn(new Group());
 
 		groupService.update(group);
 
@@ -96,7 +94,8 @@ class GroupServiceTest {
 	void givenExpectedCountOfCreateDaoMethodCall_whenCreate_thenEqualOfDaoCreateMethodCallReturned() {
 		int expected = 1;
 		Group group = new Group(expected, "G-12");
-
+		when(groupDao.findByName(group.getName())).thenReturn(new Group());
+		
 		groupService.create(group);
 
 		verify(groupDao, times(expected)).create(group);

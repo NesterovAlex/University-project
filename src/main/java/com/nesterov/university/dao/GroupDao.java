@@ -68,7 +68,7 @@ public class GroupDao {
 	}
 
 	public Group findByName(String name) {
-		Group group = null;
+		Group group = new Group();
 		try {
 			group = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper);
 		} catch (EmptyResultDataAccessException e) {

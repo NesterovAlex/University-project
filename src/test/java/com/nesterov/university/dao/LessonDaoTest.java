@@ -157,7 +157,7 @@ class LessonDaoTest {
 	void givenNonExistingLessonWIthExpectedDateTime_whenFindByDateTime_thenListLessonsWithExpectedSizeReturned() {
 		int expected = 0;
 
-		List<Lesson> actual = lessonDao.findByDateTime(LocalDate.of(2020, 11, 24), 6);
+		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 6);
 
 		assertEquals(expected, actual.size());
 	}
@@ -172,10 +172,19 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExistingLessonWIthExpectedDateTime_whenFindByDateTime_thenListLessonsWithExpectedSizeReturned() {
+	void givenExistingLessonWIthExpectedDateTimeAndGroups_whenFindByDateTimeAndGroups_thenListLessonsWithExpectedSizeReturned() {
 		int expected = 1;
 
-		List<Lesson> actual = lessonDao.findByDateTime(LocalDate.of(2020, 11, 24), 4);
+		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 4);
+
+		assertEquals(expected, actual.size());
+	}
+	
+	@Test
+	void givenNonExistingLessonWIthExpectedDateTimeAndGroups_whenFindByDateTimeAndGroups_thenListLessonsWithExpectedSizeReturned() {
+		int expected = 0;
+
+		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 1);
 
 		assertEquals(expected, actual.size());
 	}

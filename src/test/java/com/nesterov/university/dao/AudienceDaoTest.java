@@ -68,11 +68,12 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenNameOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned() {
-		int roomNumber = 99;
+	void givenRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenRoomNumberEqualZeroReturned() {
+		int unexpected = 99;
+        int expected = 0;
+        
+		Audience audience = audienceDao.findByRoomNumber(unexpected);
 
-		Audience nonExisting = audienceDao.findByRoomNumber(roomNumber);
-
-		assertNull(nonExisting);
+		assertEquals(expected, audience.getRoomNumber());
 	}
 }

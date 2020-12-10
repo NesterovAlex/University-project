@@ -1,7 +1,6 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -80,8 +79,8 @@ class SubjectServiceTest {
 
 	@Test
 	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
-		Subject subject = new Subject(8, "Nursing");
-		when(subjectDao.findByName(subject.getName())).thenReturn(null);
+		Subject subject = new Subject(7, "Nursing");
+		when(subjectDao.findByName(subject.getName())).thenReturn(new Subject());
 
 		subjectService.update(subject);
 
@@ -107,6 +106,7 @@ class SubjectServiceTest {
 	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
 		int expected = 1;
 		Subject subject = new Subject(1, "Languages");
+		when(subjectDao.findByName(subject.getName())).thenReturn(new Subject());
 
 		subjectService.create(subject);
 

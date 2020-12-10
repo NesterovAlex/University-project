@@ -1,8 +1,5 @@
 package com.nesterov.university.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections4.CollectionUtils.containsAny;
-
 import java.time.DayOfWeek;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -45,8 +42,7 @@ public class LessonService {
 	}
 
 	private boolean hasLessonsWithSameGroups(Lesson lesson) {
-		return !lessonDao.findByDateTime(lesson.getDate(), lesson.getTime().getId()).stream()
-				.filter(l -> containsAny(l.getGroups(), lesson.getGroups())).collect(toList()).isEmpty();
+		return !lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId()).isEmpty();
 	}
 
 	private boolean hasLessonsWithSameTeacher(Lesson lesson) {
@@ -68,7 +64,7 @@ public class LessonService {
 	}
 
 	private long countStudentsOfLesson(Lesson lesson) {
-		return lesson.getGroups().stream().mapToLong(g -> g.getStudents().stream().count()).sum();
+		return lesson.getGroups().stream().mapToLong(g -> g.getStudents().size()).sum();
 	}
 
 	private boolean isWeekend(Lesson lesson) {

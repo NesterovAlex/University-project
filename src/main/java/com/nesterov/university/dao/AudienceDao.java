@@ -58,7 +58,7 @@ public class AudienceDao {
 	}
 
 	public Audience findByRoomNumber(long roomNumber) {
-		Audience audience = null;
+		Audience audience = new Audience();
 		try {
 			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber },
 					audienceRowMapper);

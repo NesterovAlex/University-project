@@ -17,7 +17,7 @@ import com.nesterov.university.model.Lesson;
 public class LessonDao {
 
 	private static final String SELECT_BY_DATE_TEACHER = "SELECT * FROM lessons WHERE lesson_date = ? AND lesson_time_id = ? AND teacher_id = ?";
-	private static final String SELECT_BY_DATE_TIME = "SELECT * FROM lessons WHERE lesson_date = ? AND lesson_time_id = ?";
+	private static final String SELECT_BY_DATE_GROUPS = "SELECT * FROM lessons INNER JOIN lessons_groups ON lessons.id = lessons_groups.lesson_id WHERE lessons.lesson_date = ? AND lessons.lesson_time_id = ?";
 	private static final String SELECT_BY_DATE_AUDIENCE = "SELECT * FROM lessons WHERE lesson_date = ? AND lesson_time_id = ? AND audience_id = ?";
 	private static final String DELETE_FROM_LESSONS_GROUPS = "DELETE FROM lessons_groups WHERE lesson_id = ? AND group_id = ?";
 	private static final String INSERT_INTO_LESSONS_GROUPS = "INSERT INTO lessons_groups SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT FROM lessons_groups WHERE lesson_id = ? AND group_id = ?);";
@@ -85,8 +85,8 @@ public class LessonDao {
 
 	}
 
-	public List<Lesson> findByDateTime(LocalDate date, long lessonTimeId) {
-		return jdbcTemplate.query(SELECT_BY_DATE_TIME, new Object[] { date, lessonTimeId }, lessonRowMapper);
+	public List<Lesson> findByDateAndGroups(LocalDate date, long lessonTimeId) {
+		return jdbcTemplate.query(SELECT_BY_DATE_GROUPS, new Object[] { date, lessonTimeId }, lessonRowMapper);
 	}
 
 	public List<Lesson> findByDateAndTeacher(LocalDate date, long lessonTimeId, long teacherId) {
