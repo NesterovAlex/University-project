@@ -80,7 +80,7 @@ class SubjectServiceTest {
 	@Test
 	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
 		Subject subject = new Subject(7, "Nursing");
-		when(subjectDao.findByName(subject.getName())).thenReturn(new Subject());
+		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 
 		subjectService.update(subject);
 
@@ -106,7 +106,7 @@ class SubjectServiceTest {
 	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
 		int expected = 1;
 		Subject subject = new Subject(1, "Languages");
-		when(subjectDao.findByName(subject.getName())).thenReturn(new Subject());
+		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 
 		subjectService.create(subject);
 

@@ -78,7 +78,7 @@ public class SubjectDao {
 	}
 
 	public Subject findByName(String name) {
-		Subject subject = new Subject();
+		Subject subject = null;
 		try {
 			subject = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, subjectRowMapper);
 		} catch (EmptyResultDataAccessException e) {

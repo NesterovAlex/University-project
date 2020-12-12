@@ -118,4 +118,22 @@ class SubjectDaoTest {
 		int actual = countRowsInTable(jdbcTemplate, "subjects");
 		assertEquals(expected, actual);
 	}
+	
+	@Test
+	void givenExistingSubject_whenFindByName_thenRelevantSubjectReturned() {
+		Subject expected = new Subject(9, "Design");
+
+		Subject actual = subjectDao.findByName(expected.getName());
+
+		assertEquals(expected, actual);
+	}
+	
+	@Test
+	void givenNonExistingSubject_whenFindByName_thenNullReturned() {
+		Subject expected = new Subject(10, "Health");
+
+		Subject actual = subjectDao.findByName(expected.getName());
+
+		assertNull(actual);
+	}
 }

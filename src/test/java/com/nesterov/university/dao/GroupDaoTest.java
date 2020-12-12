@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,20 +80,20 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenExpectedNameOfExistingGroup_whenFindByName_thenGroupWithRelevantNameReturned() {
-		String expected = "T-56";
+	void givenExistingGroup_whenFindByName_thenRelevantGroupReturned() {
+		Group expected = new Group(4, "E-34");
 
-		Group actual = groupDao.findByName(expected);
+		Group actual = groupDao.findByName(expected.getName());
 
-		assertEquals(expected, actual.getName());
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenNameOfNonExistingGroup_whenFindByName_thenGroupWithNameEqualNullReturned() {
-		String name = "T-5";
+	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() {
+		Group expected = new Group(3, "T-5");
 
-		Group nonExisting = groupDao.findByName(name);
+		Group actual = groupDao.findByName(expected.getName());
 
-		assertNull(nonExisting.getName());
+		assertNull(actual);
 	}
 }

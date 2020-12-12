@@ -16,6 +16,7 @@ INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Mathematic');
 INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Geography');
 INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Geometry');
 INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Physic');
+INSERT INTO subjects (id, name) VALUES (DEFAULT, 'Design');
 
 INSERT INTO lesson_times (id, order_number, start_lesson, end_lesson) VALUES (DEFAULT, 12, '13:30', '14:20');
 INSERT INTO lesson_times (id, order_number, start_lesson, end_lesson) VALUES (DEFAULT, 14, '14:45', '15:45');

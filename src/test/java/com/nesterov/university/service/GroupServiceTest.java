@@ -83,7 +83,7 @@ class GroupServiceTest {
 	@Test
 	void givenNonExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
 		Group group = new Group(5, "G-12");
-		when(groupDao.findByName(group.getName())).thenReturn(new Group());
+		when(groupDao.findByName(group.getName())).thenReturn(null);
 
 		groupService.update(group);
 
@@ -94,7 +94,7 @@ class GroupServiceTest {
 	void givenExpectedCountOfCreateDaoMethodCall_whenCreate_thenEqualOfDaoCreateMethodCallReturned() {
 		int expected = 1;
 		Group group = new Group(expected, "G-12");
-		when(groupDao.findByName(group.getName())).thenReturn(new Group());
+		when(groupDao.findByName(group.getName())).thenReturn(null);
 		
 		groupService.create(group);
 

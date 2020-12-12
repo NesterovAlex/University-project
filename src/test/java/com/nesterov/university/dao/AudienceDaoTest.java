@@ -59,21 +59,20 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExpectedRoomNumberOfExistingAudience_whenfindByRoomNumber_thenAudienceWithRelevantRoomNumberReturned() {
-		int expected = 343;
+	void givenExistingAudience_whenfindByRoomNumber_thenRelevantAudienceReturned() {
+        Audience expected = new Audience(2, 343, 187);
 
-		Audience actual = audienceDao.findByRoomNumber(expected);
+		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber());
 
-		assertEquals(expected, actual.getRoomNumber());
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenRoomNumberEqualZeroReturned() {
-		int unexpected = 99;
-        int expected = 0;
+	void givenExpectedRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned() {
+		int expected = 99;
         
-		Audience audience = audienceDao.findByRoomNumber(unexpected);
+		Audience actual = audienceDao.findByRoomNumber(expected);
 
-		assertEquals(expected, audience.getRoomNumber());
+		assertNull(actual);
 	}
 }
