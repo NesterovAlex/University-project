@@ -67,7 +67,7 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExpectedNameOfExistingSubject_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
+	void givenExpectedNameOfExistingSubject_whenUpdate_thenExpectedCountDaoUpdateMethodCall() {
 		int expected = 1;
 		Subject subject = new Subject(8, "Psychology");
 		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
@@ -78,13 +78,25 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
+	void givenExistingSubject_whenUpdate_thenExpectedCountDaoUpdateMethodCall() {
+		int expected = 1;
 		Subject subject = new Subject(7, "Nursing");
 		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 
 		subjectService.update(subject);
 
-		verify(subjectDao, never()).update(subject);
+		verify(subjectDao, timeout(expected)).update(subject);
+	}
+	
+	@Test
+	void givenNonExistingSubject_whenUpdate_thenDontCallDaoUpdateMethod() {
+		Subject expected = new Subject(6, "Nursing");
+		Subject actual = new Subject(7, "Nursing");
+		when(subjectDao.findByName(actual.getName())).thenReturn(actual);
+
+		subjectService.update(expected);
+
+		verify(subjectDao, never()).update(expected);
 	}
 
 	@Test
@@ -114,12 +126,24 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExistingSubject_whenCreate_thenDontCallDaoCreateMethod() {
+	void givenNonExistingSubject_whenCreate_thenDontCallDaoCreateMethod() {
+		int expected = 1;
 		Subject subject = new Subject(1, "Statistics");
 		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
 
 		subjectService.create(subject);
 
-		verify(subjectDao, never()).create(subject);
+		verify(subjectDao, timeout(expected)).create(subject);
+	}
+	
+	@Test
+	void givenExistingSubject_whenCreate_thenDontCallDaoCreateMethod() {
+		Subject expected = new Subject(2, "Statistics");
+		Subject actual = new Subject(1, "Statistics");
+		when(subjectDao.findByName(actual.getName())).thenReturn(actual);
+
+		subjectService.create(expected);
+
+		verify(subjectDao, never()).create(expected);
 	}
 }

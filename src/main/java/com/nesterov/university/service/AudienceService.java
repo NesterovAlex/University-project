@@ -15,7 +15,7 @@ public class AudienceService {
 	}
 
 	public void create(Audience audience) {
-		if (isUniqueRoomNumber(audience.getRoomNumber())) {
+		if (isUniqueRoomNumber(audience)) {
 			audienceDao.create(audience);
 		}
 	}
@@ -29,8 +29,7 @@ public class AudienceService {
 	}
 
 	public void update(Audience audience) {
-		if (!isUniqueRoomNumber(audience.getRoomNumber())
-				&& audienceDao.findByRoomNumber(audience.getRoomNumber()).getId() == audience.getId()) {
+		if (isUniqueRoomNumber(audience)) {
 			audienceDao.update(audience);
 		}
 	}
@@ -39,7 +38,8 @@ public class AudienceService {
 		return audienceDao.findAll();
 	}
 
-	private boolean isUniqueRoomNumber(int roomNumber) {
-		return audienceDao.findByRoomNumber(roomNumber) == null;
+	private boolean isUniqueRoomNumber(Audience audience) {
+		Audience founded = audienceDao.findByRoomNumber(audience.getRoomNumber());
+		return founded == null || founded.getId() == audience.getId();
 	}
 }

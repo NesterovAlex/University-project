@@ -81,13 +81,25 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenNonExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
+	void givenNonExistingGroup_whenUpdate_thenExpectedCountDaoUpdateMethodCall() {
+		int expected = 1;
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
 
 		groupService.update(group);
 
-		verify(groupDao, never()).update(group);
+		verify(groupDao, times(expected)).update(group);
+	}
+
+	@Test
+	void givenExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
+		Group actual = new Group(5, "G-12");
+		Group expected = new Group(4, "G-12");
+		when(groupDao.findByName(actual.getName())).thenReturn(actual);
+
+		groupService.update(expected);
+
+		verify(groupDao, never()).update(expected);
 	}
 
 	@Test
@@ -95,20 +107,20 @@ class GroupServiceTest {
 		int expected = 1;
 		Group group = new Group(expected, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
-		
+
 		groupService.create(group);
 
 		verify(groupDao, times(expected)).create(group);
 	}
 
 	@Test
-	void givenExistingGroup_whenCreate_thenDontCallDaoCreateMethod() {
-		int expected = 5;
-		Group group = new Group(expected, "G-12");
-		when(groupDao.findByName(group.getName())).thenReturn(group);
+	void givenNonExistingGroup_whenCreate_thenDontCallDaoCreateMethod() {
+		Group expected = new Group(2, "G-12");
+		Group actual = new Group(3, "G-12");
+		when(groupDao.findByName(actual.getName())).thenReturn(actual);
 
-		groupService.create(group);
+		groupService.create(expected);
 
-		verify(groupDao, never()).create(group);
+		verify(groupDao, never()).create(expected);
 	}
 }

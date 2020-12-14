@@ -15,7 +15,7 @@ public class SubjectService {
 	}
 
 	public void create(Subject subject) {
-		if (isUniqueName(subject.getName())) {
+		if (isUniqueName(subject)) {
 			subjectDao.create(subject);
 		}
 	}
@@ -29,7 +29,7 @@ public class SubjectService {
 	}
 
 	public void update(Subject subject) {
-		if (!isUniqueName(subject.getName()) && subjectDao.findByName(subject.getName()).getId() == subject.getId()) {
+		if (isUniqueName(subject)) {
 			subjectDao.update(subject);
 		}
 	}
@@ -42,7 +42,8 @@ public class SubjectService {
 		return subjectDao.findByTeacherId(id);
 	}
 
-	private boolean isUniqueName(String name) {
-		return subjectDao.findByName(name) == null;
+	private boolean isUniqueName(Subject subject) {
+		Subject founded = subjectDao.findByName(subject.getName());  
+		return founded == null || founded.getId() == subject.getId();
 	}
 }

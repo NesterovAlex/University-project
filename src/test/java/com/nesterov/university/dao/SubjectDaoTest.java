@@ -118,7 +118,7 @@ class SubjectDaoTest {
 		int actual = countRowsInTable(jdbcTemplate, "subjects");
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	void givenExistingSubject_whenFindByName_thenRelevantSubjectReturned() {
 		Subject expected = new Subject(9, "Design");
@@ -127,7 +127,7 @@ class SubjectDaoTest {
 
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	void givenNonExistingSubject_whenFindByName_thenNullReturned() {
 		Subject expected = new Subject(10, "Health");
