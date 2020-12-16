@@ -79,33 +79,33 @@ public class StudentDao {
 		return jdbcTemplate.query(SELECT_BY_GROUP, new Object[] { id }, studentRowMapper);
 	}
 
-	public List<Student> findByEmail(String email) {
-		List<Student> students = null;
+	public Student findByEmail(String email) {
+		Student student = null;
 		try {
-			students = jdbcTemplate.query(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper);
+			student = jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return students;
+		return student;
 	}
 
-	public List<Student> findByPhone(String phone) {
-		List<Student> students = null;
+	public Student findByPhone(String phone) {
+		Student student = null;
 		try {
-			students = jdbcTemplate.query(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper);
+			student = jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return students;
+		return student;
 	}
 
-	public List<Student> findByAddress(String address) {
-		List<Student> students = null;
+	public Student findByAddress(String address) {
+		Student student = null;
 		try {
-			students = jdbcTemplate.query(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper);
+			student = jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return students;
+		return student;
 	}
 }

@@ -179,7 +179,7 @@ class LessonDaoTest {
 
 		assertEquals(expected, actual.size());
 	}
-	
+
 	@Test
 	void givenNonExistingLessonWIthExpectedDateTimeAndGroups_whenFindByDateTimeAndGroups_thenListLessonsWithExpectedSizeReturned() {
 		int expected = 0;

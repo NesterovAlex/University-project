@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Gender;
-import com.nesterov.university.model.Student;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
 
@@ -159,13 +158,11 @@ class TeacherDaoTest {
 	@Test
 	void givenExpectedEmailOfExistingTeacher_whenFindByEmail_thenRelevantListOfTeachersReturned() {
 		String email = "Michael@Fisher";
-		Teacher teacher = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
-				"3947852847", Gender.MALE);
-		teacher.setId(11);
-		List<Teacher> expected = new ArrayList<>();
-		expected.add(teacher);
-		
-		List<Teacher> actual = teacherDao.findByEmail(email);
+		Teacher expected = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", email, "3947852847",
+				Gender.MALE);
+		expected.setId(11);
+
+		Teacher actual = teacherDao.findByEmail(email);
 
 		assertEquals(expected, actual);
 	}
@@ -173,13 +170,11 @@ class TeacherDaoTest {
 	@Test
 	void givenExpectedPhoneOfExistingTeacher_whenFindByPhone_thenRelevantListOfTeachersReturned() {
 		String phone = "3847562903";
-		Teacher teacher = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor",
-				"3847562903", Gender.MALE);
-		teacher.setId(9);
-		List<Teacher> expected = new ArrayList<>();
-		expected.add(teacher);
-		
-		List<Teacher> actual = teacherDao.findByPhone(phone);
+		Teacher expected = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor", phone,
+				Gender.MALE);
+		expected.setId(9);
+
+		Teacher actual = teacherDao.findByPhone(phone);
 
 		assertEquals(expected, actual);
 	}
@@ -187,13 +182,11 @@ class TeacherDaoTest {
 	@Test
 	void givenExpectedPhoneOfExistingTeacher_whenFindByAddress_thenRelevantListOfTeachersReturned() {
 		String address = "Garlem";
-		Teacher teacher = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
-				"6439037583", Gender.MALE);
-		teacher.setId(10);
-		List<Teacher> expected = new ArrayList<>();
-		expected.add(teacher);
-		
-		List<Teacher> actual = teacherDao.findByAddress(address);
+		Teacher expected = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), address, "Hank@Moody", "6439037583",
+				Gender.MALE);
+		expected.setId(10);
+
+		Teacher actual = teacherDao.findByAddress(address);
 
 		assertEquals(expected, actual);
 	}

@@ -1,8 +1,6 @@
 package com.nesterov.university.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -47,7 +45,6 @@ class LessonServiceTest {
 
 	@Test
 	void givenExpectedListOfExistsLessons_whenGetAll_thenRelevantListOfLessonsReturned() {
-		int expected = 1;
 		Lesson lesson = new Lesson(1, new Subject(8, "Statistics"), new Audience(1, 14, 30), LocalDate.of(2019, 11, 30),
 				new LessonTime(3, 3, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Nicholas", "Owen",
 						LocalDate.of(1995, 10, 19), "Owens", "Nicholas@Owen", "495873485", Gender.MALE));
@@ -58,12 +55,11 @@ class LessonServiceTest {
 		List<Lesson> actual = lessonService.getAll();
 
 		assertEquals(lessons, actual);
-		verify(lessonDao, times(expected)).findAll();
+		verify(lessonDao).findAll();
 	}
 
 	@Test
 	void givenExpectedLesson_whenGet_thenRelevantLessonReturned() {
-		int expected = 1;
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
@@ -72,21 +68,20 @@ class LessonServiceTest {
 		Lesson actual = lessonService.get(lesson.getId());
 
 		assertEquals(lesson, actual);
-		verify(lessonDao, times(expected)).get(lesson.getId());
+		verify(lessonDao).get(lesson.getId());
 	}
 
 	@Test
-	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
+	void givenExpectedIdOfLesson_whenDelete_thenDeleted() {
 		int expected = 1;
 
 		lessonService.delete(expected);
 
-		verify(lessonDao, times(expected)).delete(expected);
+		verify(lessonDao).delete(expected);
 	}
 
 	@Test
-	void givenExpectedCountOfDaoGetMethodCall_whenUpdate_thenEqualCountOfDaoUpdateMethodCallReturned() {
-		int expected = 1;
+	void givenExpectedLesson_whenUpdate_thenUpdated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(9, "Technology");
@@ -119,11 +114,11 @@ class LessonServiceTest {
 
 		lessonService.update(lesson);
 
-		verify(lessonDao, times(expected)).update(lesson);
+		verify(lessonDao).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(8, "Engineering");
 		List<Subject> subjects = new ArrayList<>();
@@ -157,7 +152,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Philosophy");
 		List<Subject> subjects = new ArrayList<>();
@@ -190,7 +185,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithNotEmptyAudience_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(3, "Geometry");
@@ -227,7 +222,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithNotEmptyAudience_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithNotEmptyAudience_whenCreate_thenNotCreated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Literature");
@@ -264,7 +259,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithBusyTeacher_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithBusyTeacher_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -298,8 +293,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExistingLesson_whenCreate_thenEqualOfDaoCreateMethodCallReturned() {
-		int expected = 1;
+	void givenExistingLesson_whenCreate_thenCreated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, " Development");
@@ -333,11 +327,11 @@ class LessonServiceTest {
 
 		lessonService.create(lesson);
 
-		verify(lessonDao, times(expected)).create(lesson);
+		verify(lessonDao).create(lesson);
 	}
 
 	@Test
-	void givenExpectedLessonWithSameGroupInThisTime_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithSameGroupInThisTime_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Environment");
 		List<Subject> subjects = new ArrayList<>();
@@ -370,7 +364,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithSameGroupInThisTime_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithSameGroupInThisTime_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, "Building");
 		List<Subject> subjects = new ArrayList<>();
@@ -402,7 +396,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithBusyTeacher_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithBusyTeacher_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Humanities");
 		List<Subject> subjects = new ArrayList<>();
@@ -436,7 +430,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithWeekendDate_whenCreate_thenthenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithWeekendDate_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Arts");
 		List<Subject> subjects = new ArrayList<>();
@@ -467,7 +461,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithWeekendDate_whenUpdate_thenthenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithWeekendDate_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -498,7 +492,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Design");
 		List<Subject> subjects = new ArrayList<>();
@@ -532,7 +526,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Planning");
@@ -567,7 +561,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenDaoCreateMethodDontCall() {
+	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Business");
@@ -607,7 +601,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenDaoUpdateMethodDontCall() {
+	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Technology");

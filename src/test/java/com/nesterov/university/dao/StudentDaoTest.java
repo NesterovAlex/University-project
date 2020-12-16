@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,52 +97,46 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenExpectedEmailOfExistingStudent_whenFindByEmail_thenRelevantListOfStudentsReturned() {
+	void givenExpectedEmailOfExistingStudent_whenFindByEmail_thenRelevantStudentsReturned() {
 		String email = "Michael@Fisher";
-		Student student = new Student("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
-				"3947852847", Gender.MALE);
-		student.setCourse("Literature");
-		student.setFaculty("Literature");
-		student.setId(5);
-		student.setGroupId(5);
-		List<Student> expected = new ArrayList<>();
-		expected.add(student);
-
-		List<Student> actual = studentDao.findByEmail(email);
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenExpectedPhoneOfExistingStudent_whenFindByPhone_thenRelevantListOfStudentsReturned() {
-		String phone = "358769341";
-		Student student = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
-				"358769341", Gender.FEMALE);
-		student.setCourse("Biology");
-		student.setFaculty("Biology");
-		student.setId(4);
-		student.setGroupId(4);
-		List<Student> expected = new ArrayList<>();
-		expected.add(student);
-
-		List<Student> actual = studentDao.findByPhone(phone);
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenExpectedPhoneOfExistingStudent_whenFindByAddress_thenRelevantListOfStudentsReturned() {
-		String address = "Garlem";
-		Student student = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody", "6439037583",
+		Student expected = new Student("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", email, "3947852847",
 				Gender.MALE);
-		student.setCourse("History");
-		student.setFaculty("History");
-		student.setId(6);
-		student.setGroupId(6);
-		List<Student> expected = new ArrayList<>();
-		expected.add(student);
+		expected.setCourse("Literature");
+		expected.setFaculty("Literature");
+		expected.setId(5);
+		expected.setGroupId(5);
 
-		List<Student> actual = studentDao.findByAddress(address);
+		Student actual = studentDao.findByEmail(email);
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingStudent_whenFindByPhone_thenRelevantStudentsReturned() {
+		String phone = "358769341";
+		Student expected = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
+				phone, Gender.FEMALE);
+		expected.setCourse("Biology");
+		expected.setFaculty("Biology");
+		expected.setId(4);
+		expected.setGroupId(4);
+
+		Student actual = studentDao.findByPhone(phone);
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenExpectedPhoneOfExistingStudent_whenFindByAddress_thenRelevantStudentsReturned() {
+		String address = "Garlem";
+		Student expected = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), address, "Hank@Moody", "6439037583",
+				Gender.MALE);
+		expected.setCourse("History");
+		expected.setFaculty("History");
+		expected.setId(6);
+		expected.setGroupId(6);
+
+		Student actual = studentDao.findByAddress(address);
 
 		assertEquals(expected, actual);
 	}

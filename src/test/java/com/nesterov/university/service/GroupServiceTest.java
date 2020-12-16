@@ -3,7 +3,6 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +34,6 @@ class GroupServiceTest {
 
 	@Test
 	void givenExpectedListOfExistsGroups_whenGetAll_thenRelevantListOfGroupsReturned() {
-		int expected = 1;
 		List<Group> groups = new ArrayList<>();
 		groups.add(new Group(1, "G-12"));
 		groups.add(new Group(2, "G-12"));
@@ -45,54 +43,51 @@ class GroupServiceTest {
 		List<Group> actual = groupService.getAll();
 
 		assertEquals(groups, actual);
-		verify(groupDao, times(expected)).findAll();
+		verify(groupDao).findAll();
 	}
 
 	@Test
 	void givenExpectedGroup_whenGet_thenEqualGroupReturned() {
-		int expected = 1;
 		Group group = new Group(5, "G-12");
 		given(groupDao.get(group.getId())).willReturn(group);
 
 		final Group actual = groupService.get(group.getId());
 
 		assertEquals(group, actual);
-		verify(groupDao, times(expected)).get(group.getId());
+		verify(groupDao).get(group.getId());
 	}
 
 	@Test
-	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
+	void givenExpectedIdOfGroup_whenDelete_thenDeleted() {
 		int expected = 1;
 
 		groupService.delete(expected);
 
-		verify(groupDao, times(expected)).delete(expected);
+		verify(groupDao).delete(expected);
 	}
 
 	@Test
-	void givenExpectedNameOfExistingGroup_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
-		int expected = 1;
+	void givenExpectedNameOfExistingGroup_whenUpdate_thenUpdated() {
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(group);
 
 		groupService.update(group);
 
-		verify(groupDao, times(expected)).update(group);
+		verify(groupDao).update(group);
 	}
 
 	@Test
-	void givenNonExistingGroup_whenUpdate_thenExpectedCountDaoUpdateMethodCall() {
-		int expected = 1;
+	void givenNameOfNonExistingGroup_whenUpdate_thenUpdated() {
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
 
 		groupService.update(group);
 
-		verify(groupDao, times(expected)).update(group);
+		verify(groupDao).update(group);
 	}
 
 	@Test
-	void givenExistingGroup_whenUpdate_thenDontCallDaoUpdateMethod() {
+	void givenExistingGroup_whenUpdate_thenNotCreated() {
 		Group actual = new Group(5, "G-12");
 		Group expected = new Group(4, "G-12");
 		when(groupDao.findByName(actual.getName())).thenReturn(actual);
@@ -103,18 +98,17 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfCreateDaoMethodCall_whenCreate_thenEqualOfDaoCreateMethodCallReturned() {
-		int expected = 1;
-		Group group = new Group(expected, "G-12");
+	void givenNonExistingGroup_whenCreate_thenCreated() {
+		Group group = new Group(1, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
 
 		groupService.create(group);
 
-		verify(groupDao, times(expected)).create(group);
+		verify(groupDao).create(group);
 	}
 
 	@Test
-	void givenNonExistingGroup_whenCreate_thenDontCallDaoCreateMethod() {
+	void givenGroupWithDuplicatedName_whenCreate_thenNotCreated() {
 		Group expected = new Group(2, "G-12");
 		Group actual = new Group(3, "G-12");
 		when(groupDao.findByName(actual.getName())).thenReturn(actual);

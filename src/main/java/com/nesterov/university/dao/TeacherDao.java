@@ -93,33 +93,33 @@ public class TeacherDao {
 		return jdbcTemplate.query(SELECT_BY_SUBJECT, new Object[] { id }, teacherSimpleRowMapper);
 	}
 
-	public List<Teacher> findByEmail(String email) {
-		List<Teacher> teachers = null;
+	public Teacher findByEmail(String email) {
+		Teacher teacher = null;
 		try {
-			teachers = jdbcTemplate.query(SELECT_BY_EMAIL, new Object[] { email }, teacherRowMapper);
+			teacher = jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, teacherRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return teachers;
+		return teacher;
 	}
 
-	public List<Teacher> findByPhone(String phone) {
-		List<Teacher> teachers = null;
+	public Teacher findByPhone(String phone) {
+		Teacher teacher = null;
 		try {
-			teachers = jdbcTemplate.query(SELECT_BY_PHONE, new Object[] { phone }, teacherRowMapper);
+			teacher = jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, teacherRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return teachers;
+		return teacher;
 	}
 
-	public List<Teacher> findByAddress(String address) {
-		List<Teacher> teachers = null;
+	public Teacher findByAddress(String address) {
+		Teacher teacher = null;
 		try {
-			teachers = jdbcTemplate.query(SELECT_BY_ADDRESS, new Object[] { address }, teacherRowMapper);
+			teacher = jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, teacherRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			e.getMessage();
 		}
-		return teachers;
+		return teacher;
 	}
 }

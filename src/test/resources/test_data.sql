@@ -52,6 +52,7 @@ INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (3, 2);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (2, 1);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (2, 2);
 INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (1, 2);
+INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (1, 3);
 
 INSERT INTO lessons_groups (lesson_id, group_id) VALUES (3, 1);
 INSERT INTO lessons_groups (lesson_id, group_id) VALUES (3, 2);

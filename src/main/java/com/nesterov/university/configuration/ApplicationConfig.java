@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan(basePackages = "com.nesterov.university")
-@PropertySource(value = "classpath:config.properties", encoding="UTF-8")
+@PropertySource(value = "classpath:config.properties")
 @EnableTransactionManagement
 public class ApplicationConfig {
 
@@ -23,7 +23,7 @@ public class ApplicationConfig {
 	@Value("${url}")
 	private String url;
 
-	@Value("${username}")
+	@Value("${user}")
 	private String username;
 	
 	@Value("${password}")

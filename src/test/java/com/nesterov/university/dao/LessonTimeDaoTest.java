@@ -52,7 +52,7 @@ class LessonTimeDaoTest {
 	@Test
 	void givenOrderNumberOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenOrderNumberReturned() {
 		LessonTime expected = new LessonTime(4, 12, LocalTime.of(15, 25), LocalTime.of(17, 35));
-		
+
 		lessonTimeDao.update(expected);
 
 		long actual = jdbcTemplate.queryForObject("SELECT order_number FROM lesson_times WHERE id=4", Long.class);
@@ -62,7 +62,7 @@ class LessonTimeDaoTest {
 	@Test
 	void givenStartLessonOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenLessonStartReturned() {
 		LessonTime expected = new LessonTime(4, 12, LocalTime.of(18, 25), LocalTime.of(16, 50));
-		
+
 		lessonTimeDao.update(expected);
 
 		Time actual = jdbcTemplate.queryForObject("SELECT start_lesson FROM lesson_times WHERE id=4", Time.class);
@@ -71,7 +71,7 @@ class LessonTimeDaoTest {
 
 	@Test
 	void givenEndLessonOfExistingLessonTime_whenUpdate_henLessonTimeWithGivenLessonEndReturned() {
-		LessonTime expected = new LessonTime(4, 12, LocalTime.of(13, 25), LocalTime.of(17, 45)); 
+		LessonTime expected = new LessonTime(4, 12, LocalTime.of(13, 25), LocalTime.of(17, 45));
 		lessonTimeDao.update(expected);
 
 		Time actual = jdbcTemplate.queryForObject("SELECT end_lesson FROM lesson_times WHERE id=4", Time.class);

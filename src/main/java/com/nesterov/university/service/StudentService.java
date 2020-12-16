@@ -9,8 +9,8 @@ import com.nesterov.university.model.Student;
 @Component
 public class StudentService {
 
-	@Value(value = "${groupCapacity}")
-	private int groupCapacity;
+	@Value(value = "${maxGroupSize}")
+	private int maxGroupSize;
 	private StudentDao studentDao;
 
 	public StudentService(StudentDao studentDao) {
@@ -18,9 +18,8 @@ public class StudentService {
 	}
 
 	public void create(Student student) {
-		if (isUniqueEmail(student.getEmail()) && isUniquePhone(student.getPhone())
-				&& isUniqueAddress(student.getAddress())
-				&& findByGroupId(student.getGroupId()).size() <= groupCapacity) {
+		if (isUniqueEmail(student) && isUniquePhone(student) && isUniqueAddress(student)
+				&& findByGroupId(student.getGroupId()).size() <= maxGroupSize) {
 			studentDao.create(student);
 		}
 	}
@@ -34,8 +33,8 @@ public class StudentService {
 	}
 
 	public void update(Student student) {
-		if (isUniqueEmail(student.getEmail()) && isUniquePhone(student.getPhone())
-				&& isUniqueAddress(student.getAddress()) && findByGroupId(student.getGroupId()).size() <= 30) {
+		if (isUniqueEmail(student) && isUniquePhone(student) && isUniqueAddress(student)
+				&& findByGroupId(student.getGroupId()).size() <= maxGroupSize) {
 			studentDao.update(student);
 		}
 	}
@@ -48,15 +47,18 @@ public class StudentService {
 		return studentDao.findByGroupId(id);
 	}
 
-	private boolean isUniqueEmail(String email) {
-		return studentDao.findByEmail(email) == null;
+	private boolean isUniqueEmail(Student student) {
+		Student founded = studentDao.findByEmail(student.getEmail());
+		return founded == null || founded.getId() == student.getId();
 	}
 
-	private boolean isUniquePhone(String phone) {
-		return studentDao.findByPhone(phone) == null;
+	private boolean isUniquePhone(Student student) {
+		Student founded = studentDao.findByPhone(student.getPhone());
+		return founded == null || founded.getId() == student.getId();
 	}
 
-	private boolean isUniqueAddress(String address) {
-		return studentDao.findByAddress(address) == null;
+	private boolean isUniqueAddress(Student student) {
+		Student founded = studentDao.findByAddress(student.getAddress());
+		return founded == null || founded.getId() == student.getId();
 	}
 }

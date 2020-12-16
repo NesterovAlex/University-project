@@ -3,7 +3,6 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,55 +59,50 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExpectedCountOfDaoDeleteMethodCall_whenDelete_thenEqualOfDaoDeleteMethodCallReturned() {
+	void givenExpectedIdOfTeacher_whenDelete_thenDeleted() {
 		int expected = 1;
 
 		teacherService.delete(expected);
 
-		verify(teacherDao, times(expected)).delete(expected);
+		verify(teacherDao).delete(expected);
 	}
 
 	@Test
-	void givenExpectedCountOfDaoUpdateMethodCall_whenUpdate_thenEqualOfDaoUpdateMethodCallReturned() {
-		int expected = 1;
+	void givenExpectedTeacher_whenUpdate_thenUpdated() {
 		Teacher teacher = new Teacher("Quinn", "Angelo", LocalDate.of(1993, 3, 3), "Holden", "Quinn@Angelo",
 				"3948572395", Gender.MALE);
-		List<Teacher> teachers = new ArrayList<>();
-		teachers.add(teacher);
-		when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(teachers);
-		when(teacherDao.findByPhone(teacher.getPhone())).thenReturn(teachers);
-		when(teacherDao.findByAddress(teacher.getAddress())).thenReturn(teachers);
 
 		teacherService.update(teacher);
 
-		verify(teacherDao, times(expected)).update(teacher);
+		verify(teacherDao).update(teacher);
 	}
 
 	@Test
-	void givenNonExistingTeacher_whenUpdate_thenDaoUpdateMethodDontCall() {
-		Teacher teacher = new Teacher("Cruz", "Derrick", LocalDate.of(1995, 5, 5), "Finn", "Cruz@Derrick", "492034857",
-				Gender.MALE);
-		List<Teacher> teachers = new ArrayList<>();
-		teachers.add(teacher);
-		when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(null);
+	void givenNonExistingTeacher_whenUpdate_thenNotUpdated() {
+		Teacher existingTeacher = new Teacher("Cruz", "Derrick", LocalDate.of(1995, 5, 5), "Finn", "Cruz@Derrick",
+				"492034857", Gender.MALE);
+		existingTeacher.setId(6);
+		Teacher newTeacher = new Teacher("Cruz", "Derrick", LocalDate.of(1995, 5, 5), "Finn", "Cruz@Derrick",
+				"492034857", Gender.MALE);
+		existingTeacher.setId(7);
+		when(teacherDao.findByEmail(newTeacher.getEmail())).thenReturn(existingTeacher);
 
-		teacherService.update(teacher);
+		teacherService.update(newTeacher);
 
-		verify(teacherDao, never()).update(teacher);
+		verify(teacherDao, never()).update(newTeacher);
 	}
 
 	@Test
-	void givenExpectedCountCallsOfFindBySubjectMethod_whenFindBySubjectId_thenCountReturned() {
+	void givenExpectedsubjectId_whenFindBySubjectId_thenFindTeachers() {
 		int expected = 1;
 
 		teacherService.findBySubjectId(expected);
 
-		verify(teacherDao, times(expected)).findBySubjectId(expected);
+		verify(teacherDao).findBySubjectId(expected);
 	}
 
 	@Test
-	void givenExpectedCountOfDaoMethodCall_whenCreate_EqualOfDaoMethodCallReturned() {
-		int expected = 1;
+	void givenExpectedTeacher_whenCreate_thenCreated() {
 		Teacher teacher = new Teacher("Pedro", "Amari", LocalDate.of(2014, 4, 14), "Lorenzo", "Pedro@Amari",
 				"358769341", Gender.FEMALE);
 		when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(null);
@@ -117,16 +111,21 @@ class TeacherServiceTest {
 
 		teacherService.create(teacher);
 
-		verify(teacherDao, times(expected)).create(teacher);
+		verify(teacherDao).create(teacher);
 	}
 
 	@Test
-	void givenExistingTeacher_whenCreate_thenDaoCreateMethodDontCall() {
-		Teacher teacher = new Teacher("Felix", "Corey", LocalDate.of(2013, 3, 12), "Dakota", "Felix@Corey", "358769341",
-				Gender.FEMALE);
+	void givenExistingTeacher_whenCreate_thenNotCreated() {
+		Teacher existingTeacher = new Teacher("Felix", "Corey", LocalDate.of(2013, 3, 12), "Dakota", "Felix@Corey",
+				"358769341", Gender.FEMALE);
+		existingTeacher.setId(6);
+		Teacher newTeacher = new Teacher("Felix", "Corey", LocalDate.of(2013, 3, 12), "Dakota", "Felix@Corey",
+				"358769341", Gender.FEMALE);
+		newTeacher.setId(7);
+		when(teacherDao.findByEmail(newTeacher.getEmail())).thenReturn(existingTeacher);
 
-		teacherService.create(teacher);
+		teacherService.create(newTeacher);
 
-		verify(teacherDao, never()).create(teacher);
+		verify(teacherDao, never()).create(newTeacher);
 	}
 }

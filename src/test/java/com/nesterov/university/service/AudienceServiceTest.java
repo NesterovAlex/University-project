@@ -45,60 +45,58 @@ class AudienceServiceTest {
 		List<Audience> actual = audienceService.getAll();
 
 		assertEquals(expected, actual);
-		verify(audienceDao, times(1)).findAll();
+		verify(audienceDao).findAll();
 	}
 
 	@Test
 	void givenExpectedAudience_whenGet_thenRelevantAudienceReturned() {
 		Audience expected = new Audience(1, 2, 40);
-		given(audienceDao.get(anyLong())).willReturn(expected);
+		given(audienceDao.get(expected.getId())).willReturn(expected);
 
 		Audience actual = audienceService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(audienceDao, times(1)).get(expected.getId());
+		verify(audienceDao).get(expected.getId());
 	}
 
 	@Test
-	void givenExpectedCountOfDaodeleteMethodCall_whenDelete_thenEqualOfDaodeleteMethodCallReturned() {
+	void givenExpectedId_whenDelete_thenDeleted() {
 		int expected = 1;
 
 		audienceService.delete(expected);
 
-		verify(audienceDao, times(expected)).delete(expected);
+		verify(audienceDao).delete(expected);
 	}
 
 	@Test
-	void givenExpectedRoomNumberOfExistingAudience_whenUpdate_thenExpectedCountOfDaoUpdateMethodCallReturned() {
-		int expected = 1;
+	void givenExpectedRoomNumberOfExistingAudience_whenUpdate_thenUpdated() {
 		Audience audience = new Audience(3, 7, 24);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
 		audienceService.update(audience);
 
-		verify(audienceDao, times(expected)).update(audience);
+		verify(audienceDao).update(audience);
 	}
 
 	@Test
-	void givenExistingAudience_whenUpdate_thenExpectedCountOfDaoUpdateMethodCallReturned() {
-		int expected = 1;
+	void givenExistingAudience_whenUpdate_thenUpdated() {
 		Audience audience = new Audience(5, 14, 23);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
 		audienceService.update(audience);
 
-		verify(audienceDao, times(expected)).update(audience);
+		verify(audienceDao).update(audience);
 	}
-	
+
 	@Test
-	void givenNonExistingAudience_whenUpdate_thenDontCallDaoUpdateMethod() {
-		Audience expected = new Audience(4, 14, 23);
-		Audience actual = new Audience(5, 14, 23);
-		when(audienceDao.findByRoomNumber(actual.getRoomNumber())).thenReturn(actual);
+	void givenNonExistingAudience_whenUpdate_thenNotUpdated() {
+		Audience existingAudience = new Audience(4, 14, 23);
+		Audience newAudience = new Audience(5, 14, 23);
+		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(existingAudience);
 
-		audienceService.update(expected);
+		audienceService.update(newAudience);
 
-		verify(audienceDao, never()).update(expected);
+		verify(audienceDao, never()).update(newAudience);
 	}
 
 	@Test
@@ -111,7 +109,7 @@ class AudienceServiceTest {
 
 		verify(audienceDao, times(expected)).create(audience);
 	}
-	
+
 	@Test
 	void givenNonExistingAudience_whenCreate_thenDontCallDaoCreateMethod() {
 		Audience expected = new Audience(1, 4, 33);
@@ -124,13 +122,12 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExpectedRommNumberExistingAudience_whenCreate_thenExpectedCallDaoCreateMethodReturned() {
-		int expected = 1;
+	void givenExpectedRoomNumberExistingAudience_whenCreate_thenCreated() {
 		Audience audience = new Audience(6, 1, 36);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
 		audienceService.create(audience);
 
-		verify(audienceDao, times(expected)).create(audience);
+		verify(audienceDao).create(audience);
 	}
 }
