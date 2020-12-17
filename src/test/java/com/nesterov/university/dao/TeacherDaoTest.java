@@ -97,7 +97,7 @@ class TeacherDaoTest {
 	@Test
 	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned() {
 		List<Subject> subjects = new ArrayList<>();
-		subjects.add(new Subject(1, "Mathematic"));
+		subjects.add(new Subject(3, "Geometry"));
 		subjects.add(new Subject(2, "Geography"));
 
 		assertTrue(containsAll(subjects, teacherDao.get(1).getSubjects()));
@@ -148,7 +148,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingSubject_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
+	void givenSubjectId_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
 		Subject actual = new Subject(2, "Geography");
 		int expected = 3;
 
@@ -156,37 +156,34 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedEmailOfExistingTeacher_whenFindByEmail_thenRelevantListOfTeachersReturned() {
-		String email = "Michael@Fisher";
-		Teacher expected = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", email, "3947852847",
-				Gender.MALE);
+	void givenTeacherEmail_whenFindByEmail_thenExpectedTeacherReturned() {
+		Teacher expected = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
+				"3947852847", Gender.MALE);
 		expected.setId(11);
 
-		Teacher actual = teacherDao.findByEmail(email);
+		Teacher actual = teacherDao.findByEmail(expected.getEmail());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedPhoneOfExistingTeacher_whenFindByPhone_thenRelevantListOfTeachersReturned() {
-		String phone = "3847562903";
-		Teacher expected = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor", phone,
-				Gender.MALE);
+	void givenTeacherPhone_whenFindByPhone_thenExpectedTeacherReturned() {
+		Teacher expected = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor",
+				"3847562903", Gender.MALE);
 		expected.setId(9);
 
-		Teacher actual = teacherDao.findByPhone(phone);
+		Teacher actual = teacherDao.findByPhone(expected.getPhone());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedPhoneOfExistingTeacher_whenFindByAddress_thenRelevantListOfTeachersReturned() {
-		String address = "Garlem";
-		Teacher expected = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), address, "Hank@Moody", "6439037583",
-				Gender.MALE);
+	void givenTeacherAddress_whenFindByAddress_thenExpectedTeacherReturned() {
+		Teacher expected = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
+				"6439037583", Gender.MALE);
 		expected.setId(10);
 
-		Teacher actual = teacherDao.findByAddress(address);
+		Teacher actual = teacherDao.findByAddress(expected.getAddress());
 
 		assertEquals(expected, actual);
 	}

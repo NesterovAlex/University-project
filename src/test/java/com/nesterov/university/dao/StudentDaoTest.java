@@ -97,46 +97,43 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenExpectedEmailOfExistingStudent_whenFindByEmail_thenRelevantStudentsReturned() {
-		String email = "Michael@Fisher";
-		Student expected = new Student("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", email, "3947852847",
-				Gender.MALE);
+	void givenStudentEmail_whenFindByEmail_thenExpectedStudentReturned() {
+		Student expected = new Student("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
+				"3947852847", Gender.MALE);
 		expected.setCourse("Literature");
 		expected.setFaculty("Literature");
 		expected.setId(5);
 		expected.setGroupId(5);
 
-		Student actual = studentDao.findByEmail(email);
+		Student actual = studentDao.findByEmail(expected.getEmail());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedPhoneOfExistingStudent_whenFindByPhone_thenRelevantStudentsReturned() {
-		String phone = "358769341";
+	void givenStudentPhone_whenFindByPhone_thenExpectedStudentReturned() {
 		Student expected = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
-				phone, Gender.FEMALE);
+				"358769341", Gender.FEMALE);
 		expected.setCourse("Biology");
 		expected.setFaculty("Biology");
 		expected.setId(4);
 		expected.setGroupId(4);
 
-		Student actual = studentDao.findByPhone(phone);
+		Student actual = studentDao.findByPhone(expected.getPhone());
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedPhoneOfExistingStudent_whenFindByAddress_thenRelevantStudentsReturned() {
-		String address = "Garlem";
-		Student expected = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), address, "Hank@Moody", "6439037583",
-				Gender.MALE);
+	void givenStudentPhone_whenFindByAddress_thenExpectedStudentReturned() {
+		Student expected = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
+				"6439037583", Gender.MALE);
 		expected.setCourse("History");
 		expected.setFaculty("History");
 		expected.setId(6);
 		expected.setGroupId(6);
 
-		Student actual = studentDao.findByAddress(address);
+		Student actual = studentDao.findByAddress(expected.getAddress());
 
 		assertEquals(expected, actual);
 	}

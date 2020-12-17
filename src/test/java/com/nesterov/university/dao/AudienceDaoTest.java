@@ -59,7 +59,7 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenfindByRoomNumber_thenRelevantAudienceReturned() {
+	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned() {
 		Audience expected = new Audience(2, 343, 187);
 
 		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber());

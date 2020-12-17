@@ -8,12 +8,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.model.Subject;
@@ -27,13 +25,8 @@ class SubjectServiceTest {
 	@InjectMocks
 	private SubjectService subjectService;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-
 	@Test
-	void givenExpectedListOfExistsSubjects_whenGetAll_thenRelevantListOfSubjectsReturned() {
+	void givenListOfExistsSubjects_whenGetAll_thenExpectedListOfSubjectsReturned() {
 		List<Subject> expected = new ArrayList<>();
 		expected.add(new Subject(1, "Literature"));
 		expected.add(new Subject(2, "Geography"));
@@ -43,7 +36,6 @@ class SubjectServiceTest {
 		List<Subject> actual = subjectService.getAll();
 
 		assertEquals(expected, actual);
-		verify(subjectDao).findAll();
 	}
 
 	@Test
@@ -54,20 +46,19 @@ class SubjectServiceTest {
 		Subject actual = subjectService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(subjectDao).get(expected.getId());
 	}
 
 	@Test
-	void givenExpectedIdOfSubject_whenDelete_thenDeleted() {
-		int expected = 1;
+	void givenSubjectId_whenDelete_thenDeleted() {
+		int subjectId = 1;
 
-		subjectService.delete(expected);
+		subjectService.delete(subjectId);
 
-		verify(subjectDao).delete(expected);
+		verify(subjectDao).delete(subjectId);
 	}
 
 	@Test
-	void givenExpectedSubject_whenUpdate_thenUpdated() {
+	void givenSubject_whenUpdate_thenUpdated() {
 		Subject subject = new Subject(8, "Psychology");
 		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
 
@@ -98,7 +89,7 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExpectedListOfExistsSubjects_whenFindByTeacherId_thenRelevantListOfSubjectsReturned() {
+	void givenListOfExistsSubjects_whenFindByTeacherId_thenExpectedListOfSubjectsReturned() {
 		int expected = 1;
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(1, "Literature"));
@@ -109,11 +100,10 @@ class SubjectServiceTest {
 		List<Subject> actual = subjectService.findByTeacherId(expected);
 
 		assertEquals(subjects, actual);
-		verify(subjectDao).findByTeacherId(expected);
 	}
 
 	@Test
-	void givenExpectedSubject_whenCreate_thenCreated() {
+	void givenSubject_whenCreate_thenCreated() {
 		Subject subject = new Subject(1, "Languages");
 		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 

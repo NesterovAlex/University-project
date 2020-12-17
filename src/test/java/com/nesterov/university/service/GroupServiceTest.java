@@ -8,12 +8,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.GroupDao;
 import com.nesterov.university.model.Group;
@@ -27,13 +25,8 @@ class GroupServiceTest {
 	@InjectMocks
 	private GroupService groupService;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-
 	@Test
-	void givenExpectedListOfExistsGroups_whenGetAll_thenRelevantListOfGroupsReturned() {
+	void givenListOfExistsGroups_whenGetAll_thenExpectedListOfGroupsReturned() {
 		List<Group> groups = new ArrayList<>();
 		groups.add(new Group(1, "G-12"));
 		groups.add(new Group(2, "G-12"));
@@ -43,31 +36,29 @@ class GroupServiceTest {
 		List<Group> actual = groupService.getAll();
 
 		assertEquals(groups, actual);
-		verify(groupDao).findAll();
 	}
 
 	@Test
-	void givenExpectedGroup_whenGet_thenEqualGroupReturned() {
+	void givenGroup_whenGet_thenEqualGroupReturned() {
 		Group group = new Group(5, "G-12");
 		given(groupDao.get(group.getId())).willReturn(group);
 
-		final Group actual = groupService.get(group.getId());
+		Group actual = groupService.get(group.getId());
 
 		assertEquals(group, actual);
-		verify(groupDao).get(group.getId());
 	}
 
 	@Test
-	void givenExpectedIdOfGroup_whenDelete_thenDeleted() {
-		int expected = 1;
+	void givenGroupId_whenDelete_thenDeleted() {
+		int groupId = 1;
 
-		groupService.delete(expected);
+		groupService.delete(groupId);
 
-		verify(groupDao).delete(expected);
+		verify(groupDao).delete(groupId);
 	}
 
 	@Test
-	void givenExpectedNameOfExistingGroup_whenUpdate_thenUpdated() {
+	void givenNameGroup_whenUpdate_thenUpdated() {
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(group);
 

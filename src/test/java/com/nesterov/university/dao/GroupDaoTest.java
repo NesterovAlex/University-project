@@ -80,7 +80,7 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenExistingGroup_whenFindByName_thenRelevantGroupReturned() {
+	void givenExistingGroup_whenFindByName_thenExpectedGroupReturned() {
 		Group expected = new Group(4, "E-34");
 
 		Group actual = groupDao.findByName(expected.getName());

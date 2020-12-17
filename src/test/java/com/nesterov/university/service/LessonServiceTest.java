@@ -3,7 +3,6 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,12 +11,10 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonDao;
 import com.nesterov.university.model.Audience;
@@ -38,13 +35,8 @@ class LessonServiceTest {
 	@InjectMocks
 	private LessonService lessonService;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-
 	@Test
-	void givenExpectedListOfExistsLessons_whenGetAll_thenRelevantListOfLessonsReturned() {
+	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() {
 		Lesson lesson = new Lesson(1, new Subject(8, "Statistics"), new Audience(1, 14, 30), LocalDate.of(2019, 11, 30),
 				new LessonTime(3, 3, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Nicholas", "Owen",
 						LocalDate.of(1995, 10, 19), "Owens", "Nicholas@Owen", "495873485", Gender.MALE));
@@ -55,11 +47,10 @@ class LessonServiceTest {
 		List<Lesson> actual = lessonService.getAll();
 
 		assertEquals(lessons, actual);
-		verify(lessonDao).findAll();
 	}
 
 	@Test
-	void givenExpectedLesson_whenGet_thenRelevantLessonReturned() {
+	void givenLesson_whenGet_thenExpectedLessonReturned() {
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
@@ -68,20 +59,19 @@ class LessonServiceTest {
 		Lesson actual = lessonService.get(lesson.getId());
 
 		assertEquals(lesson, actual);
-		verify(lessonDao).get(lesson.getId());
 	}
 
 	@Test
-	void givenExpectedIdOfLesson_whenDelete_thenDeleted() {
-		int expected = 1;
+	void givenLessonId_whenDelete_thenDeleted() {
+		int lessonId = 1;
 
-		lessonService.delete(expected);
+		lessonService.delete(lessonId);
 
-		verify(lessonDao).delete(expected);
+		verify(lessonDao).delete(lessonId);
 	}
 
 	@Test
-	void givenExpectedLesson_whenUpdate_thenUpdated() {
+	void givenLesson_whenUpdate_thenUpdated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(9, "Technology");
@@ -185,7 +175,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated() {
+	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(3, "Geometry");
@@ -222,7 +212,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithNotEmptyAudience_whenCreate_thenNotCreated() {
+	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Literature");
@@ -259,7 +249,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithBusyTeacher_whenUpdate_thenNotUpdated() {
+	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -331,7 +321,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithSameGroupInThisTime_whenCreate_thenNotCreated() {
+	void givenLessonWithSameGroup_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Environment");
 		List<Subject> subjects = new ArrayList<>();
@@ -364,7 +354,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithSameGroupInThisTime_whenUpdate_thenNotUpdated() {
+	void givenLessonWithSameGroup_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, "Building");
 		List<Subject> subjects = new ArrayList<>();
@@ -396,7 +386,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithBusyTeacher_whenCreate_thenNotCreated() {
+	void givenLessonWithBusyTeacher_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Humanities");
 		List<Subject> subjects = new ArrayList<>();
@@ -430,7 +420,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithWeekendDate_whenCreate_thenNotCreated() {
+	void givenLessonWithWeekendDate_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Arts");
 		List<Subject> subjects = new ArrayList<>();
@@ -461,7 +451,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithWeekendDate_whenUpdate_thenNotUpdated() {
+	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -492,7 +482,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated() {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Design");
 		List<Subject> subjects = new ArrayList<>();
@@ -526,7 +516,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated() {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Planning");
@@ -561,7 +551,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated() {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Business");
@@ -601,7 +591,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExpectedLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated() {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Technology");

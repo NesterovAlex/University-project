@@ -3,7 +3,6 @@ package com.nesterov.university.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,12 +10,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.StudentDao;
 import com.nesterov.university.model.Gender;
@@ -31,14 +28,8 @@ class StudentServiceTest {
 	@InjectMocks
 	private StudentService studentService;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-
-	}
-
 	@Test
-	void givenExpectedListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned() {
+	void giveListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned() {
 		Student student = new Student("Jeffrey", "Hector", LocalDate.of(1995, 3, 13), "Shawn", "Jeffrey@Hector",
 				"293847563", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -48,11 +39,10 @@ class StudentServiceTest {
 		List<Student> actual = studentService.getAll();
 
 		assertEquals(expected, actual);
-		verify(studentDao).findAll();
 	}
 
 	@Test
-	void givenExpectedStudent_whenGet_thenEqualStudentReturned() {
+	void givenStudent_whenGet_thenExpectedStudentReturned() {
 		Student expected = new Student("Lukas", "Amir", LocalDate.of(1994, 4, 11), "Keegan", "Lukas@Amir", "348576983",
 				Gender.MALE);
 		given(studentDao.get(expected.getId())).willReturn(expected);
@@ -60,16 +50,15 @@ class StudentServiceTest {
 		Student actual = studentService.get(expected.getId());
 
 		assertEquals(expected, actual);
-		verify(studentDao).get(expected.getId());
 	}
 
 	@Test
-	void givenExpectedIdOfStudent_whenDelete_thenDeleted() {
-		int expected = 1;
+	void givenStudentId_whenDelete_thenDeleted() {
+		int studentId = 1;
 
-		studentService.delete(expected);
+		studentService.delete(studentId);
 
-		verify(studentDao).delete(expected);
+		verify(studentDao).delete(studentId);
 	}
 
 	@Test
@@ -100,7 +89,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenExpectedListOfExistsStudents_whenFindByGroupId_thenRelevantListOfStudentsReturned() {
+	void givenListOfExistsStudents_whenFindByGroupId_thenExpectedListOfStudentsReturned() {
 		Student student = new Student("Clayton", "Braden", LocalDate.of(1999, 6, 14), "Brendan", "Clayton@Braden",
 				"3948576238", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -110,11 +99,10 @@ class StudentServiceTest {
 		List<Student> actual = studentService.findByGroupId(student.getId());
 
 		assertEquals(expected, actual);
-		verify(studentDao).findByGroupId(student.getId());
 	}
 
 	@Test
-	void givenExpectedStudent_whenCreate_thenCreated() {
+	void givenStudent_whenCreate_thenCreated() {
 		Student student = new Student("Zander", "Jared", LocalDate.of(2019, 02, 15), "Ivanovo", "Zander@Jared",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();

@@ -120,7 +120,7 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExistingSubject_whenFindByName_thenRelevantSubjectReturned() {
+	void givenExistingSubject_whenFindByName_thenExpectedSubjectReturned() {
 		Subject expected = new Subject(9, "Design");
 
 		Subject actual = subjectDao.findByName(expected.getName());

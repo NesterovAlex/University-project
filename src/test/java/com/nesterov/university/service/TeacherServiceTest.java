@@ -9,12 +9,10 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.TeacherDao;
 import com.nesterov.university.model.Gender;
@@ -29,13 +27,8 @@ class TeacherServiceTest {
 	@InjectMocks
 	private TeacherService teacherService;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-
 	@Test
-	void givenExpectedListOfExistsTeachers_whenGetAll_thenRelevantListOfTeachersReturned() {
+	void givenListOfExistsTeachers_whenGetAll_thenExpectedListOfTeachersReturned() {
 		Teacher teacher = new Teacher("Fabian", "Zayden", LocalDate.of(1992, 4, 3), "Brennan", "Fabian@Zayde",
 				"594857632", Gender.MALE);
 		List<Teacher> expected = new ArrayList<>();
@@ -59,16 +52,16 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExpectedIdOfTeacher_whenDelete_thenDeleted() {
-		int expected = 1;
+	void givenTeacherId_whenDelete_thenDeleted() {
+		int teacherId = 1;
 
-		teacherService.delete(expected);
+		teacherService.delete(teacherId);
 
-		verify(teacherDao).delete(expected);
+		verify(teacherDao).delete(teacherId);
 	}
 
 	@Test
-	void givenExpectedTeacher_whenUpdate_thenUpdated() {
+	void givenTeacher_whenUpdate_thenUpdated() {
 		Teacher teacher = new Teacher("Quinn", "Angelo", LocalDate.of(1993, 3, 3), "Holden", "Quinn@Angelo",
 				"3948572395", Gender.MALE);
 
@@ -93,16 +86,16 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExpectedsubjectId_whenFindBySubjectId_thenFindTeachers() {
-		int expected = 1;
+	void givenSubjectId_whenFindBySubjectId_thenFindTeachers() {
+		int subjectId = 1;
 
-		teacherService.findBySubjectId(expected);
+		teacherService.findBySubjectId(subjectId);
 
-		verify(teacherDao).findBySubjectId(expected);
+		verify(teacherDao).findBySubjectId(subjectId);
 	}
 
 	@Test
-	void givenExpectedTeacher_whenCreate_thenCreated() {
+	void givenTeacher_whenCreate_thenCreated() {
 		Teacher teacher = new Teacher("Pedro", "Amari", LocalDate.of(2014, 4, 14), "Lorenzo", "Pedro@Amari",
 				"358769341", Gender.FEMALE);
 		when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(null);
