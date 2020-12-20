@@ -21,7 +21,7 @@ import com.nesterov.university.model.Lesson;
 public class LessonRowMapper implements RowMapper<Lesson> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LessonRowMapper.class);
-	
+
 	private AudienceDao audienceDao;
 	private SubjectDao subjectDao;
 	private TeacherDao teacherDao;
@@ -44,14 +44,14 @@ public class LessonRowMapper implements RowMapper<Lesson> {
 		lesson.setId(rs.getLong("id"));
 		try {
 			lesson.setAudience(audienceDao.get(rs.getLong("audience_id")));
+			lesson.setGroups(groupDao.findByLessonId(rs.getLong("id")));
 		} catch (EntityNotFoundException | QueryNotExecuteException | SQLException e) {
-			LOGGER.error("Audience not found");
+			LOGGER.error(e.getMessage());
 		}
 		lesson.setSubject(subjectDao.get(rs.getLong("subject_id")));
 		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));
 		lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")));
 		lesson.setDate(rs.getObject("lesson_date", LocalDate.class));
-		lesson.setGroups(groupDao.findByLessonId(rs.getLong("id")));
 		return lesson;
 	}
 }

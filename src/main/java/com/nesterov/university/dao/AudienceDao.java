@@ -54,11 +54,12 @@ public class AudienceDao {
 			String message = format("Audience '%s' not created ", audience);
 			throw new NotCreateException(message);
 		} else {
-			LOGGER.trace("Successful creating '{}'", audience);
+			LOGGER.trace("Successfully created '{}'", audience);
 		}
 	}
 
 	public Audience get(long id) throws EntityNotFoundException, QueryNotExecuteException {
+		LOGGER.debug("Getting adience by id = '{}'", id);
 		Audience audience = new Audience();
 		try {
 			audience = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
@@ -71,39 +72,42 @@ public class AudienceDao {
 			String message = format("Unable to get Audience with id '%s'", id);
 			throw new QueryNotExecuteException(message, e);
 		}
-		LOGGER.trace("Found '{}'", audience);
+		LOGGER.trace("Founded '{}'", audience);
 		return audience;
 	}
 
 	public void delete(long id) throws NotExistException {
+		LOGGER.debug("Deleting adience by id = '{}'", id);
 		int affectedRows = jdbcTemplate.update(DELETE, id);
 		if (affectedRows == 0) {
-			LOGGER.error("Audience was not created");
+			LOGGER.error("Audience was not deleted");
 			String message = format("Audience with id = '%s' not exist ", id);
 			throw new NotExistException(message);
 		} else {
-			LOGGER.trace("Delete audience with id = '{}'", id);
+			LOGGER.trace("Deleted audience with id = '{}'", id);
 		}
 	}
 
 	public void update(Audience audience) throws NotCreateException {
+		LOGGER.debug("Updating adience '{}'", audience);
 		int affectedRows = jdbcTemplate.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(),
 				audience.getId());
 		if (affectedRows == 0) {
-			LOGGER.error("Audience was not created");
+			LOGGER.error("Audience was not updated");
 			String message = format("Audience '%s' not updated", audience);
 			throw new NotCreateException(message);
 		} else {
-			LOGGER.trace("Update '{}'", audience);
+			LOGGER.trace("Updated '{}'", audience);
 		}
 	}
 
 	public List<Audience> findAll() throws EntityNotFoundException, QueryNotExecuteException {
+		LOGGER.debug("Getting all audiences");
 		List<Audience> audiences = null;
 		try {
 			audiences = jdbcTemplate.query(SELECT, audienceRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			String message = "Audiences not found";
+			String message = "No Audiences";
 			LOGGER.error(message);
 			throw new EntityNotFoundException(message);
 		} catch (DataAccessException e) {
@@ -111,23 +115,26 @@ public class AudienceDao {
 			LOGGER.error(message);
 			throw new QueryNotExecuteException(message, e);
 		}
+		LOGGER.trace("Finded all audiences");
 		return audiences;
 	}
 
 	public Audience findByRoomNumber(long roomNumber) throws EntityNotFoundException, QueryNotExecuteException {
+		LOGGER.debug("Getting adience by rommNumber = '{}'", roomNumber);
 		Audience audience = null;
 		try {
 			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber },
 					audienceRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			LOGGER.error("Audience not found");
 			String message = format("Audience with room number '%s' not found", roomNumber);
+			LOGGER.error(message);
 			throw new EntityNotFoundException(message);
 		} catch (DataAccessException e) {
 			LOGGER.error("Audience not found");
 			String message = format("Unable to get Audience with id '%s'", roomNumber);
 			throw new QueryNotExecuteException(message, e);
 		}
+		LOGGER.trace("Finded all audiences by room number");
 		return audience;
 	}
 }

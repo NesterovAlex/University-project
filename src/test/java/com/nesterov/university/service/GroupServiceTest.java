@@ -14,6 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.GroupDao;
+import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.NotCreateException;
+import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Group;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +30,8 @@ class GroupServiceTest {
 	private GroupService groupService;
 
 	@Test
-	void givenListOfExistsGroups_whenGetAll_thenExpectedListOfGroupsReturned() {
+	void givenListOfExistsGroups_whenGetAll_thenExpectedListOfGroupsReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		List<Group> groups = new ArrayList<>();
 		groups.add(new Group(1, "G-12"));
 		groups.add(new Group(2, "G-12"));
@@ -39,7 +44,7 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenGroup_whenGet_thenEqualGroupReturned() {
+	void givenGroup_whenGet_thenEqualGroupReturned() throws EntityNotFoundException, QueryNotExecuteException {
 		Group group = new Group(5, "G-12");
 		given(groupDao.get(group.getId())).willReturn(group);
 
@@ -49,7 +54,7 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenGroupId_whenDelete_thenDeleted() {
+	void givenGroupId_whenDelete_thenDeleted() throws NotExistException {
 		int groupId = 1;
 
 		groupService.delete(groupId);
@@ -58,7 +63,8 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenNameGroup_whenUpdate_thenUpdated() {
+	void givenNameGroup_whenUpdate_thenUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(group);
 
@@ -68,7 +74,8 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenNameOfNonExistingGroup_whenUpdate_thenUpdated() {
+	void givenNameOfNonExistingGroup_whenUpdate_thenUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Group group = new Group(5, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
 
@@ -78,7 +85,8 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenExistingGroup_whenUpdate_thenNotCreated() {
+	void givenExistingGroup_whenUpdate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Group actual = new Group(5, "G-12");
 		Group expected = new Group(4, "G-12");
 		when(groupDao.findByName(actual.getName())).thenReturn(actual);
@@ -89,7 +97,8 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenNonExistingGroup_whenCreate_thenCreated() {
+	void givenNonExistingGroup_whenCreate_thenCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Group group = new Group(1, "G-12");
 		when(groupDao.findByName(group.getName())).thenReturn(null);
 
@@ -99,7 +108,8 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenGroupWithDuplicatedName_whenCreate_thenNotCreated() {
+	void givenGroupWithDuplicatedName_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Group expected = new Group(2, "G-12");
 		Group actual = new Group(3, "G-12");
 		when(groupDao.findByName(actual.getName())).thenReturn(actual);

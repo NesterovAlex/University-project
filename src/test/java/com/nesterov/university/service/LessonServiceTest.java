@@ -17,6 +17,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonDao;
+import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.NotCreateException;
+import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
@@ -36,7 +40,8 @@ class LessonServiceTest {
 	private LessonService lessonService;
 
 	@Test
-	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() {
+	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		Lesson lesson = new Lesson(1, new Subject(8, "Statistics"), new Audience(1, 14, 30), LocalDate.of(2019, 11, 30),
 				new LessonTime(3, 3, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Nicholas", "Owen",
 						LocalDate.of(1995, 10, 19), "Owens", "Nicholas@Owen", "495873485", Gender.MALE));
@@ -50,7 +55,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLesson_whenGet_thenExpectedLessonReturned() {
+	void givenLesson_whenGet_thenExpectedLessonReturned() throws EntityNotFoundException, QueryNotExecuteException {
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
@@ -62,7 +67,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonId_whenDelete_thenDeleted() {
+	void givenLessonId_whenDelete_thenDeleted() throws NotExistException {
 		int lessonId = 1;
 
 		lessonService.delete(lessonId);
@@ -71,7 +76,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLesson_whenUpdate_thenUpdated() {
+	void givenLesson_whenUpdate_thenUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(9, "Technology");
@@ -108,7 +114,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdated() {
+	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(8, "Engineering");
 		List<Subject> subjects = new ArrayList<>();
@@ -142,7 +149,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreated() {
+	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Philosophy");
 		List<Subject> subjects = new ArrayList<>();
@@ -175,7 +183,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated() {
+	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(3, "Geometry");
@@ -212,7 +221,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreated() {
+	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Literature");
@@ -249,7 +259,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdated() {
+	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -283,7 +294,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExistingLesson_whenCreate_thenCreated() {
+	void givenExistingLesson_whenCreate_thenCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, " Development");
@@ -321,7 +333,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenCreate_thenNotCreated() {
+	void givenLessonWithSameGroup_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Environment");
 		List<Subject> subjects = new ArrayList<>();
@@ -354,7 +367,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenUpdate_thenNotUpdated() {
+	void givenLessonWithSameGroup_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, "Building");
 		List<Subject> subjects = new ArrayList<>();
@@ -386,7 +400,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenCreate_thenNotCreated() {
+	void givenLessonWithBusyTeacher_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Humanities");
 		List<Subject> subjects = new ArrayList<>();
@@ -420,7 +435,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenCreate_thenNotCreated() {
+	void givenLessonWithWeekendDate_whenCreate_thenNotCreated()
+			throws NotCreateException, EntityNotFoundException, QueryNotExecuteException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Arts");
 		List<Subject> subjects = new ArrayList<>();
@@ -451,7 +467,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdated() {
+	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -482,7 +499,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated() {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Design");
 		List<Subject> subjects = new ArrayList<>();
@@ -516,7 +534,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated() {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Planning");
@@ -551,7 +570,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated() {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Business");
@@ -591,7 +611,8 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated() {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Technology");
