@@ -5,8 +5,9 @@ public class Audience {
 	private long id;
 	private int roomNumber;
 	private int capacity;
-	
-	public Audience() {}
+
+	public Audience() {
+	}
 
 	public Audience(int roomNumber, int capacity) {
 		this.roomNumber = roomNumber;
@@ -22,19 +23,19 @@ public class Audience {
 	public int getRoomNumber() {
 		return roomNumber;
 	}
-	
+
 	public void setRoomNumber(int roomNumber) {
 		this.roomNumber = roomNumber;
 	}
-	
+
 	public int getCapacity() {
 		return capacity;
 	}
-	
+
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
 	}
-	
+
 	public long getId() {
 		return id;
 	}
@@ -42,7 +43,6 @@ public class Audience {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -70,5 +70,10 @@ public class Audience {
 		if (roomNumber != other.roomNumber)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Audience [id=" + id + ", roomNumber=" + roomNumber + ", capacity=" + capacity + "]";
 	}
 }
