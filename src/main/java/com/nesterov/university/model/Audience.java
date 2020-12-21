@@ -67,9 +67,9 @@ public class Audience {
 			return false;
 		if (id != other.id)
 			return false;
-		if (roomNumber != other.roomNumber)
-			return false;
-		return true;
+		else {
+			return roomNumber == other.roomNumber;
+		}
 	}
 
 	@Override

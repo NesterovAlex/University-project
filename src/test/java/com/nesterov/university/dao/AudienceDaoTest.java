@@ -5,6 +5,8 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -19,6 +21,8 @@ import com.nesterov.university.model.Audience;
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class AudienceDaoTest {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AudienceDaoTest.class);
 
 	@Autowired
 	private AudienceDao audienceDao;
@@ -84,7 +88,7 @@ class AudienceDaoTest {
 		try {
 			actual = audienceDao.findByRoomNumber(expected);
 		} catch (EntityNotFoundException e) {
-
+			LOGGER.error("Not found audience with roomNumber = '{}'", expected, e);
 		}
 		assertNull(actual);
 	}

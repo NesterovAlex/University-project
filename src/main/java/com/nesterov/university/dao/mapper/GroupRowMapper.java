@@ -15,7 +15,7 @@ import com.nesterov.university.model.Group;
 @Component
 public class GroupRowMapper implements RowMapper<Group> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(StudentDao.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GroupRowMapper.class);
 
 	private StudentDao studentDao;
 

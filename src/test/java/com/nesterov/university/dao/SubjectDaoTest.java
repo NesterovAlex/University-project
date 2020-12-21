@@ -153,7 +153,7 @@ class SubjectDaoTest {
 		try {
 			actual = subjectDao.findByName(expected.getName());
 		} catch (EntityNotFoundException e) {
-			LOGGER.error("Not found subject by name = '{}'", expected.getName());
+			LOGGER.error("Not found subject by name = '{}'", expected.getName(), e);
 		}
 		assertNull(actual);
 	}

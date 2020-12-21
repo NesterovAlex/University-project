@@ -6,6 +6,8 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,6 +24,8 @@ import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class GroupDaoTest {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(GroupDaoTest.class);
 
 	@Autowired
 	private GroupDao groupDao;
@@ -100,9 +104,12 @@ class GroupDaoTest {
 	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned()
 			throws EntityNotFoundException, QueryNotExecuteException {
 		Group expected = new Group(3, "T-5");
-
-		Group actual = groupDao.findByName(expected.getName());
-
+		Group actual = null;
+		try {
+			actual = groupDao.findByName(expected.getName());
+		} catch (EntityNotFoundException e) {
+			LOGGER.error("Not found group by name = '{}'", expected.getName(), e);
+		}
 		assertNull(actual);
 	}
 }
