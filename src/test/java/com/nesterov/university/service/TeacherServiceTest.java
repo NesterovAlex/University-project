@@ -15,6 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.TeacherDao;
+import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.NotCreateException;
+import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Teacher;
 
@@ -28,7 +32,8 @@ class TeacherServiceTest {
 	private TeacherService teacherService;
 
 	@Test
-	void givenListOfExistsTeachers_whenGetAll_thenExpectedListOfTeachersReturned() {
+	void givenListOfExistsTeachers_whenGetAll_thenExpectedListOfTeachersReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		Teacher teacher = new Teacher("Fabian", "Zayden", LocalDate.of(1992, 4, 3), "Brennan", "Fabian@Zayde",
 				"594857632", Gender.MALE);
 		List<Teacher> expected = new ArrayList<>();
@@ -41,7 +46,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExpectedTeacher_whenGet_thenEqualTeacherReturned() {
+	void givenExpectedTeacher_whenGet_thenEqualTeacherReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		Teacher expected = new Teacher("Anderson", "Roberto", LocalDate.of(1991, 11, 10), "Reid", "Anderson@Roberto",
 				"938472634", Gender.MALE);
 		given(teacherDao.get(expected.getId())).willReturn(expected);
@@ -52,7 +58,7 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenTeacherId_whenDelete_thenDeleted() {
+	void givenTeacherId_whenDelete_thenDeleted() throws NotExistException {
 		int teacherId = 1;
 
 		teacherService.delete(teacherId);
@@ -61,7 +67,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenTeacher_whenUpdate_thenUpdated() {
+	void givenTeacher_whenUpdate_thenUpdated()
+			throws NotCreateException, EntityNotFoundException, QueryNotExecuteException {
 		Teacher teacher = new Teacher("Quinn", "Angelo", LocalDate.of(1993, 3, 3), "Holden", "Quinn@Angelo",
 				"3948572395", Gender.MALE);
 
@@ -71,7 +78,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenNonExistingTeacher_whenUpdate_thenNotUpdated() {
+	void givenNonExistingTeacher_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Teacher existingTeacher = new Teacher("Cruz", "Derrick", LocalDate.of(1995, 5, 5), "Finn", "Cruz@Derrick",
 				"492034857", Gender.MALE);
 		existingTeacher.setId(6);
@@ -86,7 +94,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenSubjectId_whenFindBySubjectId_thenFindTeachers() {
+	void givenSubjectId_whenFindBySubjectId_thenFindTeachers()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		int subjectId = 1;
 
 		teacherService.findBySubjectId(subjectId);
@@ -95,7 +104,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenTeacher_whenCreate_thenCreated() {
+	void givenTeacher_whenCreate_thenCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Teacher teacher = new Teacher("Pedro", "Amari", LocalDate.of(2014, 4, 14), "Lorenzo", "Pedro@Amari",
 				"358769341", Gender.FEMALE);
 		when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(null);
@@ -108,7 +118,8 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenExistingTeacher_whenCreate_thenNotCreated() {
+	void givenExistingTeacher_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Teacher existingTeacher = new Teacher("Felix", "Corey", LocalDate.of(2013, 3, 12), "Dakota", "Felix@Corey",
 				"358769341", Gender.FEMALE);
 		existingTeacher.setId(6);

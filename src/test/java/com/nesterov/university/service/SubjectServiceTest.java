@@ -14,6 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.SubjectDao;
+import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.NotCreateException;
+import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Subject;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +30,8 @@ class SubjectServiceTest {
 	private SubjectService subjectService;
 
 	@Test
-	void givenListOfExistsSubjects_whenGetAll_thenExpectedListOfSubjectsReturned() {
+	void givenListOfExistsSubjects_whenGetAll_thenExpectedListOfSubjectsReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		List<Subject> expected = new ArrayList<>();
 		expected.add(new Subject(1, "Literature"));
 		expected.add(new Subject(2, "Geography"));
@@ -39,7 +44,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExpectedSubject_whenGet_thenEqualSubjectReturned() {
+	void givenExpectedSubject_whenGet_thenEqualSubjectReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		Subject expected = new Subject(1, "Technology");
 		given(subjectDao.get(expected.getId())).willReturn(expected);
 
@@ -49,7 +55,7 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenSubjectId_whenDelete_thenDeleted() {
+	void givenSubjectId_whenDelete_thenDeleted() throws NotExistException {
 		int subjectId = 1;
 
 		subjectService.delete(subjectId);
@@ -58,7 +64,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenSubject_whenUpdate_thenUpdated() {
+	void givenSubject_whenUpdate_thenUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject subject = new Subject(8, "Psychology");
 		when(subjectDao.findByName(subject.getName())).thenReturn(subject);
 
@@ -68,7 +75,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExistingSubject_whenUpdate_thenUpdated() {
+	void givenExistingSubject_whenUpdate_thenUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject subject = new Subject(7, "Nursing");
 		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 
@@ -78,7 +86,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenUpdate_thenNotUpdated() {
+	void givenNonExistingSubject_whenUpdate_thenNotUpdated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject expected = new Subject(6, "Nursing");
 		Subject actual = new Subject(7, "Nursing");
 		when(subjectDao.findByName(actual.getName())).thenReturn(actual);
@@ -89,7 +98,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenListOfExistsSubjects_whenFindByTeacherId_thenExpectedListOfSubjectsReturned() {
+	void givenListOfExistsSubjects_whenFindByTeacherId_thenExpectedListOfSubjectsReturned()
+			throws QueryNotExecuteException, EntityNotFoundException {
 		int expected = 1;
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(1, "Literature"));
@@ -103,7 +113,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenSubject_whenCreate_thenCreated() {
+	void givenSubject_whenCreate_thenCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject subject = new Subject(1, "Languages");
 		when(subjectDao.findByName(subject.getName())).thenReturn(null);
 
@@ -113,7 +124,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenCreate_thenCreated() {
+	void givenNonExistingSubject_whenCreate_thenCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject existingSubject = new Subject(1, "Statistics");
 		Subject newSubject = new Subject(1, "Statistics");
 		when(subjectDao.findByName(newSubject.getName())).thenReturn(existingSubject);
@@ -124,7 +136,8 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenDuplicateNames_whenCreate_thenNotCreated() {
+	void givenDuplicateNames_whenCreate_thenNotCreated()
+			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
 		Subject expected = new Subject(2, "Statistics");
 		Subject actual = new Subject(1, "Statistics");
 		when(subjectDao.findByName(actual.getName())).thenReturn(actual);

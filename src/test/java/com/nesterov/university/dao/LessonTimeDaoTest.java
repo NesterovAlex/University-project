@@ -11,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.NotCreateException;
+import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.LessonTime;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -23,7 +28,7 @@ class LessonTimeDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	public void givenExpectedCountRowsInTable_whenCreate_thenEqualCountInTableReturned() {
+	public void givenExpectedCountRowsInTable_whenCreate_thenEqualCountInTableReturned() throws NotCreateException {
 		LessonTime lessonTime = new LessonTime(12, LocalTime.of(8, 40), LocalTime.of(9, 50));
 		int expected = countRowsInTable(jdbcTemplate, "lesson_times") + 1;
 
@@ -34,13 +39,14 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenIdOfExistingLessonTime_whenGet_thenLessonTimeWithGivenIdReturned() {
+	void givenIdOfExistingLessonTime_whenGet_thenLessonTimeWithGivenIdReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		LessonTime expected = new LessonTime(1, 12, LocalTime.of(13, 30), LocalTime.of(14, 20));
 		assertEquals(expected, lessonTimeDao.get(expected.getId()));
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountInTableReturned() {
+	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountInTableReturned() throws NotExistException {
 		int expected = countRowsInTable(jdbcTemplate, "lesson_times") - 1;
 
 		lessonTimeDao.delete(3);
@@ -50,7 +56,8 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenOrderNumberOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenOrderNumberReturned() {
+	void givenOrderNumberOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenOrderNumberReturned()
+			throws NotCreateException {
 		LessonTime expected = new LessonTime(4, 12, LocalTime.of(15, 25), LocalTime.of(17, 35));
 
 		lessonTimeDao.update(expected);
@@ -60,7 +67,8 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenStartLessonOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenLessonStartReturned() {
+	void givenStartLessonOfExistingLessonTime_whenUpdate_thenLessonTimeWithGivenLessonStartReturned()
+			throws NotCreateException {
 		LessonTime expected = new LessonTime(4, 12, LocalTime.of(18, 25), LocalTime.of(16, 50));
 
 		lessonTimeDao.update(expected);
@@ -70,7 +78,8 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenEndLessonOfExistingLessonTime_whenUpdate_henLessonTimeWithGivenLessonEndReturned() {
+	void givenEndLessonOfExistingLessonTime_whenUpdate_henLessonTimeWithGivenLessonEndReturned()
+			throws NotCreateException {
 		LessonTime expected = new LessonTime(4, 12, LocalTime.of(13, 25), LocalTime.of(17, 45));
 		lessonTimeDao.update(expected);
 
@@ -79,7 +88,8 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsinTable_whenFindAll_thenEqualCountRowsinTableReturned() {
+	void givenExpectedCountRowsinTable_whenFindAll_thenEqualCountRowsinTableReturned()
+			throws EntityNotFoundException, QueryNotExecuteException {
 		assertEquals(countRowsInTable(jdbcTemplate, "lesson_times"), lessonTimeDao.findAll().size());
 	}
 }

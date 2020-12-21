@@ -50,8 +50,8 @@ public class AudienceDao {
 		}, holder);
 		audience.setId(holder.getKey().longValue());
 		if (affectedRows == 0) {
-			LOGGER.error("Audience not created");
 			String message = format("Audience '%s' not created ", audience);
+			LOGGER.error(message);
 			throw new NotCreateException(message);
 		} else {
 			LOGGER.trace("Successfully created '{}'", audience);

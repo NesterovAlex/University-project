@@ -45,12 +45,12 @@ public class LessonRowMapper implements RowMapper<Lesson> {
 		try {
 			lesson.setAudience(audienceDao.get(rs.getLong("audience_id")));
 			lesson.setGroups(groupDao.findByLessonId(rs.getLong("id")));
+			lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")));
+			lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));
+			lesson.setSubject(subjectDao.get(rs.getLong("subject_id")));
 		} catch (EntityNotFoundException | QueryNotExecuteException | SQLException e) {
 			LOGGER.error(e.getMessage());
 		}
-		lesson.setSubject(subjectDao.get(rs.getLong("subject_id")));
-		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")));
-		lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")));
 		lesson.setDate(rs.getObject("lesson_date", LocalDate.class));
 		return lesson;
 	}
