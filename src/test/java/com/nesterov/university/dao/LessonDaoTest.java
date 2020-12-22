@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
@@ -93,7 +91,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedCountRowInTableLessons_Groups_whenUpdate_thenEqualCountRowsInTableReturnedReturned()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+			throws EntityNotFoundException, NotCreateException {
 		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") + 1;
 
 		lessonDao.update(lesson);
@@ -104,7 +102,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTableLessons_whenUpdate_thenEqualCountRowsInTableReturned()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+			throws EntityNotFoundException, NotCreateException {
 		int expected = countRowsInTable(jdbcTemplate, "lessons");
 
 		lessonDao.update(lesson);
@@ -115,14 +113,14 @@ class LessonDaoTest {
 
 	@Test
 	void givenExpectedTeacherNameOfExistingLesson_whenGet_thenRelevantNameOfTeacherReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		String expected = "Vasin";
 		assertEquals(expected, lessonDao.get(4).getTeacher().getLastName());
 	}
 
 	@Test
 	void givenDataSetAndExpectedLesson_whenFindAll_thenReturnedLessonContainedExpectedTeacher()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "lessons"), lessonDao.findAll().size());
 	}
 
@@ -149,7 +147,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 1;
 
 		List<Lesson> actual = lessonDao.findByDateAndAudience(LocalDate.of(2020, 11, 24), 1, 3);
@@ -159,7 +157,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenNonExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 0;
 
 		List<Lesson> actual = lessonDao.findByDateAndAudience(LocalDate.of(2020, 11, 24), 1, 1);
@@ -169,7 +167,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenNonExistingLessonWIthExpectedDateTime_whenFindByDateTime_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 0;
 
 		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 6);
@@ -179,7 +177,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExistingLessonWIthExpectedDateAndTeacher_whenFindByDateAndTeacher_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 3;
 
 		List<Lesson> actual = lessonDao.findByDateAndTeacher(LocalDate.of(2020, 11, 24), 4, 2);
@@ -189,7 +187,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenExistingLessonWIthExpectedDateTimeAndGroups_whenFindByDateTimeAndGroups_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 1;
 
 		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 4);
@@ -199,7 +197,7 @@ class LessonDaoTest {
 
 	@Test
 	void givenNonExistingLessonWIthExpectedDateTimeAndGroups_whenFindByDateTimeAndGroups_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		int expected = 0;
 
 		List<Lesson> actual = lessonDao.findByDateAndGroups(LocalDate.of(2020, 11, 24), 1);

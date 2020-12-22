@@ -17,14 +17,13 @@ import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.dao.mapper.StudentRowMapper;
 import com.nesterov.university.model.Student;
 
 @Component
 public class StudentDao {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(StudentDao.class);
+	private static final Logger log = LoggerFactory.getLogger(StudentDao.class);
 
 	private static final String SELECT_BY_GROUP = "SELECT * FROM students WHERE group_id = ?";
 	private static final String SELECT_BY_ID = "SELECT *  FROM students WHERE id = ?";
@@ -45,163 +44,120 @@ public class StudentDao {
 	}
 
 	public void create(Student student) throws NotCreateException {
-		LOGGER.debug("Creating '{}'", student);
+		log.debug("Create {}", student);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		int affectedRows = jdbcTemplate.update(connection -> {
-			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-			statement.setLong(1, student.getGroupId());
-			statement.setString(2, student.getFirstName());
-			statement.setString(3, student.getLastName());
-			statement.setObject(4, student.getBithDate());
-			statement.setString(5, student.getAddress());
-			statement.setString(6, student.getEmail());
-			statement.setString(7, student.getPhone());
-			statement.setString(8, student.getGender().name());
-			statement.setString(9, student.getFaculty());
-			statement.setString(10, student.getCourse());
-			return statement;
-		}, holder);
-		student.setId(holder.getKey().longValue());
-		if (affectedRows == 0) {
+		try {
+			jdbcTemplate.update(connection -> {
+				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+				statement.setLong(1, student.getGroupId());
+				statement.setString(2, student.getFirstName());
+				statement.setString(3, student.getLastName());
+				statement.setObject(4, student.getBithDate());
+				statement.setString(5, student.getAddress());
+				statement.setString(6, student.getEmail());
+				statement.setString(7, student.getPhone());
+				statement.setString(8, student.getGender().name());
+				statement.setString(9, student.getFaculty());
+				statement.setString(10, student.getCourse());
+				return statement;
+			}, holder);
+			student.setId(holder.getKey().longValue());
+		} catch (DataAccessException e) {
 			String message = format("Student '%s' not created ", student);
-			LOGGER.error(message);
-			throw new NotCreateException(message);
-		} else {
-			LOGGER.trace("Successfully created '{}'", student);
+			throw new NotCreateException(message, e);
 		}
 	}
 
-	public Student get(long id) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting student by id = '{}'", id);
-		Student student = new Student();
+	public Student get(long id) throws EntityNotFoundException {
+		log.debug("Get student by id={}", id);
+		Student student = null;
 		try {
 			student = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			LOGGER.error(student.toString());
 			String message = format("Student with id '%s' not found", id);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Student with id '%s'", id);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Founded '{}'", student);
 		return student;
 	}
 
 	public void delete(long id) throws NotExistException {
-		LOGGER.debug("Deleting student by id = '{}'", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			LOGGER.error("Student was not deleted");
+		log.debug("Delete student by id = {}", id);
+		try {
+			jdbcTemplate.update(DELETE, id);
+		} catch (DataAccessException e) {
 			String message = format("Student with id = '%s' not exist ", id);
-			throw new NotExistException(message);
-		} else {
-			LOGGER.trace("Deleted student with id = '{}'", id);
+			throw new NotExistException(message, e);
 		}
 	}
 
 	public void update(Student student) throws NotCreateException {
-		LOGGER.debug("Updating student '{}'", student);
-		int affectedRows = jdbcTemplate.update(UPDATE, student.getFirstName(), student.getLastName(),
-				student.getBithDate(), student.getAddress(), student.getEmail(), student.getPhone(),
-				student.getGender().name(), student.getId());
-		if (affectedRows == 0) {
-			LOGGER.error("Student was not updated");
+		log.debug("Update student {}", student);
+		try {
+			jdbcTemplate.update(UPDATE, student.getFirstName(), student.getLastName(), student.getBithDate(),
+					student.getAddress(), student.getEmail(), student.getPhone(), student.getGender().name(),
+					student.getId());
+		} catch (DataAccessException e) {
 			String message = format("Student '%s' not updated", student);
-			throw new NotCreateException(message);
-		} else {
-			LOGGER.trace("Updated '{}'", student);
+			throw new NotCreateException(message, e);
 		}
 	}
 
-	public List<Student> findAll() throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting all students");
+	public List<Student> findAll() throws EntityNotFoundException {
+		log.debug("Get all students");
 		List<Student> students = null;
 		try {
 			students = jdbcTemplate.query(SELECT, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			String message = "No Students";
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = "Unable to get students";
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException("No Students", e);
 		}
-		LOGGER.trace("Finded all students");
 		return students;
 	}
 
-	public List<Student> findByGroupId(long id) throws QueryNotExecuteException, EntityNotFoundException {
-		LOGGER.debug("Getting adience by groupId = '{}'", id);
+	public List<Student> findByGroupId(long id) throws EntityNotFoundException {
+		log.debug("Get students by groupId={}", id);
 		List<Student> students = null;
 		try {
 			students = jdbcTemplate.query(SELECT_BY_GROUP, new Object[] { id }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Students with groupId = '%s' not found", id);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Students with groupId '%s'", id);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded students by groupId = '{}'", id);
 		return students;
 	}
 
-	public Student findByEmail(String email) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting student by email = '{}'", email);
+	public Student findByEmail(String email) throws EntityNotFoundException {
+		log.debug("Find student by email={}", email);
 		Student student = null;
 		try {
 			student = jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Student with email = '%s' not found", email);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Student by email = '%s'", email);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded student by email = '{}'", email);
 		return student;
 	}
 
-	public Student findByPhone(String phone) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting student by phone = '{}'", phone);
+	public Student findByPhone(String phone) throws EntityNotFoundException {
+		log.debug("Find student by phone={}", phone);
 		Student student = null;
 		try {
 			student = jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Student with phone = '%s' not found", phone);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Student with phone = '%s'", phone);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded student by phone = '{}'", phone);
 		return student;
 	}
 
-	public Student findByAddress(String address) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting student by address = '{}'", address);
+	public Student findByAddress(String address) throws EntityNotFoundException {
+		log.debug("Find student by address={}", address);
 		Student student = null;
 		try {
 			student = jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Student with address = '%s' not found", address);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Student with address = '%s'", address);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded student by address = '{}'", address);
 		return student;
 	}
 }

@@ -16,7 +16,6 @@ import com.nesterov.university.dao.LessonTimeDao;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.LessonTime;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,7 +29,7 @@ class LessonTimeServiceTest {
 
 	@Test
 	void givenListOfExistsLessonTimes_whenGetAll_thenExpectedListOfLessonTimesReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(10, 45));
 		List<LessonTime> expected = new ArrayList<>();
 		expected.add(lessonTime);
@@ -42,8 +41,7 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenLessonTime_whenGet_thenExpectedLessonTimeReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenLessonTime_whenGet_thenExpectedLessonTimeReturned() throws EntityNotFoundException {
 		LessonTime expected = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
 		given(lessonTimeDao.get(expected.getId())).willReturn(expected);
 

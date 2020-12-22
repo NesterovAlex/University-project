@@ -15,14 +15,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class AudienceDaoTest {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AudienceDaoTest.class);
+	private static final Logger log = LoggerFactory.getLogger(AudienceDaoTest.class);
 
 	@Autowired
 	private AudienceDao audienceDao;
@@ -41,7 +40,7 @@ class AudienceDaoTest {
 
 	@Test
 	public void givenExpectedCountOfRowsInTable_whenCreate_thenDifferentCountOfRowsAfterAndBeforeCreatingReturned()
-			throws QueryNotExecuteException, NotCreateException {
+			throws NotCreateException {
 		int expected = countRowsInTable(jdbcTemplate, "audiences") + 1;
 
 		audienceDao.create(new Audience(14, 87));
@@ -51,8 +50,7 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenIdOfExistingAudience_whenGet_thenAudinceWithGivenIdReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenIdOfExistingAudience_whenGet_thenAudinceWithGivenIdReturned() throws EntityNotFoundException {
 		assertEquals(new Audience(2, 343, 187), audienceDao.get(2));
 	}
 
@@ -65,14 +63,12 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "audiences"), audienceDao.findAll().size());
 	}
 
 	@Test
-	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned() throws EntityNotFoundException {
 		Audience expected = new Audience(2, 343, 187);
 
 		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber());
@@ -82,13 +78,13 @@ class AudienceDaoTest {
 
 	@Test
 	void givenExpectedRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		Audience actual = null;
 		int expected = 99;
 		try {
 			actual = audienceDao.findByRoomNumber(expected);
 		} catch (EntityNotFoundException e) {
-			LOGGER.error("Not found audience with roomNumber = '{}'", expected, e);
+			log.error("Not found audience with roomNumber={}", expected, e);
 		}
 		assertNull(actual);
 	}

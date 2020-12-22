@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -94,8 +92,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantTeacherReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantTeacherReturned() throws EntityNotFoundException {
 		Teacher expected = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov",
 				"55r2346254", Gender.MALE);
 		expected.setId(7);
@@ -104,8 +101,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned() throws EntityNotFoundException {
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(3, "Geometry"));
 		subjects.add(new Subject(2, "Geography"));
@@ -115,7 +111,7 @@ class TeacherDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTableTeachers_Subjects_whenUpdate_thenEqualCountRowsReturned()
-			throws NotCreateException, QueryNotExecuteException, EntityNotFoundException {
+			throws NotCreateException, EntityNotFoundException {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -137,7 +133,7 @@ class TeacherDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenEqualCountRowsReturned()
-			throws NotCreateException, QueryNotExecuteException, EntityNotFoundException {
+			throws NotCreateException, EntityNotFoundException {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -156,13 +152,12 @@ class TeacherDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+			throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.findAll().size());
 	}
 
 	@Test
-	void givenSubjectId_whenGetAllBySubject_thenExpectedCountOfTeachersReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenSubjectId_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() throws EntityNotFoundException {
 		Subject actual = new Subject(2, "Geography");
 		int expected = 3;
 
@@ -170,8 +165,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenTeacherEmail_whenFindByEmail_thenExpectedTeacherReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenTeacherEmail_whenFindByEmail_thenExpectedTeacherReturned() throws EntityNotFoundException {
 		Teacher expected = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
 				"3947852847", Gender.MALE);
 		expected.setId(11);
@@ -182,8 +176,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenTeacherPhone_whenFindByPhone_thenExpectedTeacherReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenTeacherPhone_whenFindByPhone_thenExpectedTeacherReturned() throws EntityNotFoundException {
 		Teacher expected = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor",
 				"3847562903", Gender.MALE);
 		expected.setId(9);
@@ -194,8 +187,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenTeacherAddress_whenFindByAddress_thenExpectedTeacherReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenTeacherAddress_whenFindByAddress_thenExpectedTeacherReturned() throws EntityNotFoundException {
 		Teacher expected = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
 				"6439037583", Gender.MALE);
 		expected.setId(10);

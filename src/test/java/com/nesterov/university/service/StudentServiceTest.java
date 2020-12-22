@@ -20,7 +20,6 @@ import com.nesterov.university.dao.StudentDao;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -34,8 +33,7 @@ class StudentServiceTest {
 	private StudentService studentService;
 
 	@Test
-	void giveListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void giveListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned() throws EntityNotFoundException {
 		Student student = new Student("Jeffrey", "Hector", LocalDate.of(1995, 3, 13), "Shawn", "Jeffrey@Hector",
 				"293847563", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -48,7 +46,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudent_whenGet_thenExpectedStudentReturned() throws EntityNotFoundException, QueryNotExecuteException {
+	void givenStudent_whenGet_thenExpectedStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Lukas", "Amir", LocalDate.of(1994, 4, 11), "Keegan", "Lukas@Amir", "348576983",
 				Gender.MALE);
 		given(studentDao.get(expected.getId())).willReturn(expected);
@@ -68,8 +66,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenExistingStudent_whenUpdate_thenUpdated()
-			throws NotCreateException, EntityNotFoundException, QueryNotExecuteException {
+	void givenExistingStudent_whenUpdate_thenUpdated() throws NotCreateException, EntityNotFoundException {
 		Student student = new Student("Kyler", "Donovan", LocalDate.of(1995, 5, 15), "Kiev", "Kyler@Donova",
 				"483746578", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -81,8 +78,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenNonExistingStudent_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenNonExistingStudent_whenUpdate_thenNotUpdated() throws EntityNotFoundException, NotCreateException {
 		Student existingStudent = new Student("Graham", "Simon", LocalDate.of(1997, 7, 17), "Everett", "Graham@Simon",
 				"293847563", Gender.MALE);
 		existingStudent.setId(9);
@@ -98,7 +94,7 @@ class StudentServiceTest {
 
 	@Test
 	void givenListOfExistsStudents_whenFindByGroupId_thenExpectedListOfStudentsReturned()
-			throws QueryNotExecuteException, EntityNotFoundException {
+			throws EntityNotFoundException {
 		Student student = new Student("Clayton", "Braden", LocalDate.of(1999, 6, 14), "Brendan", "Clayton@Braden",
 				"3948576238", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -111,8 +107,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudent_whenCreate_thenCreated()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenStudent_whenCreate_thenCreated() throws EntityNotFoundException, NotCreateException {
 		Student student = new Student("Zander", "Jared", LocalDate.of(2019, 02, 15), "Ivanovo", "Zander@Jared",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();
@@ -127,8 +122,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithNotUniquePhone_whenCreate_thenNotCreate()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenStudentWithNotUniquePhone_whenCreate_thenNotCreate() throws EntityNotFoundException, NotCreateException {
 		Student existingStudent = new Student("Losy", "Dunk", LocalDate.of(2011, 3, 13), "Losevile", "Losy@Dunk",
 				"839472834", Gender.FEMALE);
 		existingStudent.setId(5);
@@ -145,7 +139,7 @@ class StudentServiceTest {
 
 	@Test
 	void givenStudentWithNotUniqueAddress_whenCreate_thenNotCreate()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+			throws EntityNotFoundException, NotCreateException {
 		Student existingStudent = new Student("Shane", "Groov", LocalDate.of(2010, 7, 19), "kenwood", "Shane@Groov",
 				"784392856", Gender.FEMALE);
 		existingStudent.setId(4);
@@ -162,8 +156,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithNotUniqueEmail_whenCreate_thenNotCreate()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenStudentWithNotUniqueEmail_whenCreate_thenNotCreate() throws EntityNotFoundException, NotCreateException {
 		Student existingStudent = new Student("Ryker", "Dante", LocalDate.of(2019, 02, 15), "Lane", "Ryker@Dante",
 				"358769341", Gender.FEMALE);
 		existingStudent.setId(6);
@@ -179,7 +172,7 @@ class StudentServiceTest {
 
 	@Test
 	void givenStudentWithGroupMoreThenThirtyStudentIn_whenCreate_thenNotCreate()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+			throws EntityNotFoundException, NotCreateException {
 		Student student = new Student("Kameron", "Elliot", LocalDate.of(2013, 3, 13), "Paxton", "Kameron@Elliot",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();
@@ -196,7 +189,7 @@ class StudentServiceTest {
 
 	@Test
 	void givenStudentWithGroupMoreThenThirtyStudentIn_whenUpdate_thenNotUpdate()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+			throws EntityNotFoundException, NotCreateException {
 		Student student = new Student("Rafael", "Dalton", LocalDate.of(2014, 4, 11), "Caiden", "Rafael@Dalton",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();

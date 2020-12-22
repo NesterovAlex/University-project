@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -51,8 +49,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenExpectedOfExistingStudent_whenGet_thenEqualStudentReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedOfExistingStudent_whenGet_thenEqualStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
 				"358769341", Gender.FEMALE);
 		expected.setId(4);
@@ -92,22 +89,20 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenDataSetExpectedStudent_whenFindAll_thenExpectedCountOfStudentReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenDataSetExpectedStudent_whenFindAll_thenExpectedCountOfStudentReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "students"), studentDao.findAll().size());
 	}
 
 	@Test
 	void givenExpectedIdOfExistingGroup_whenFindByGroupId_thenExpectedCountOfStudentReturned()
-			throws QueryNotExecuteException, EntityNotFoundException {
+			throws EntityNotFoundException {
 		int expected = 4;
 
 		assertEquals(1, studentDao.findByGroupId(expected).size());
 	}
 
 	@Test
-	void givenStudentEmail_whenFindByEmail_thenExpectedStudentReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenStudentEmail_whenFindByEmail_thenExpectedStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
 				"3947852847", Gender.MALE);
 		expected.setCourse("Literature");
@@ -121,8 +116,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenStudentPhone_whenFindByPhone_thenExpectedStudentReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenStudentPhone_whenFindByPhone_thenExpectedStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Ivanka", "Ivanova", LocalDate.of(2019, 02, 15), "Ivanovo", "ivanka@ivanova",
 				"358769341", Gender.FEMALE);
 		expected.setCourse("Biology");
@@ -136,8 +130,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenStudentPhone_whenFindByAddress_thenExpectedStudentReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenStudentPhone_whenFindByAddress_thenExpectedStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
 				"6439037583", Gender.MALE);
 		expected.setCourse("History");

@@ -19,13 +19,12 @@ import com.nesterov.university.dao.TestConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class GroupDaoTest {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GroupDaoTest.class);
+	private static final Logger log = LoggerFactory.getLogger(GroupDaoTest.class);
 
 	@Autowired
 	private GroupDao groupDao;
@@ -43,8 +42,7 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenExpectedGroup_whenGet_thenRelevantGroupReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedGroup_whenGet_thenRelevantGroupReturned() throws EntityNotFoundException {
 		Group expected = new Group(1, "G-45");
 		Student student = new Student("Bob", "Sincler", LocalDate.of(2012, 9, 17), "Toronto", "bob@sincler",
 				"987654321", Gender.MALE);
@@ -67,14 +65,12 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.findAll().size());
 	}
 
 	@Test
-	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned() throws EntityNotFoundException {
 		int expected = 2;
 
 		assertEquals(expected, groupDao.findByLessonId(3).size());
@@ -91,8 +87,7 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenExistingGroup_whenFindByName_thenExpectedGroupReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExistingGroup_whenFindByName_thenExpectedGroupReturned() throws EntityNotFoundException {
 		Group expected = new Group(4, "E-34");
 
 		Group actual = groupDao.findByName(expected.getName());
@@ -101,14 +96,13 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() throws EntityNotFoundException {
 		Group expected = new Group(3, "T-5");
 		Group actual = null;
 		try {
 			actual = groupDao.findByName(expected.getName());
 		} catch (EntityNotFoundException e) {
-			LOGGER.error("Not found group by name = '{}'", expected.getName(), e);
+			log.error("Not found group by name={}", expected.getName(), e);
 		}
 		assertNull(actual);
 	}

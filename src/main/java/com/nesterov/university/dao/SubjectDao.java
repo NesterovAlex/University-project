@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.dao.mapper.SubjectRowMapper;
 import com.nesterov.university.dao.mapper.SubjectSimpleRowMapper;
 import com.nesterov.university.model.Subject;
@@ -26,7 +25,7 @@ import com.nesterov.university.model.Teacher;
 @Component
 public class SubjectDao {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SubjectDao.class);
+	private static final Logger log = LoggerFactory.getLogger(SubjectDao.class);
 
 	private static final String INSERT_INTO_TEACHERS_SUBJECTS = "INSERT INTO teachers_subjects SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?);";
 	private static final String DELETE_FROM_TEACHERS_SUBJECTS = "DELETE FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?";
@@ -52,124 +51,96 @@ public class SubjectDao {
 	}
 
 	public void create(Subject subject) throws NotCreateException {
-		LOGGER.debug("Creating '{}'", subject);
+		log.debug("Create {}", subject);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		int affectedRows = jdbcTemplate.update(connection -> {
-			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-			statement.setString(1, subject.getName());
-			return statement;
-		}, holder);
-		long id = holder.getKey().longValue();
-		subject.setId(id);
-		if (affectedRows == 0) {
-			String message = format("Subject '%s' not created ", subject);
-			LOGGER.error(message);
-			throw new NotCreateException(message);
-		} else {
+		try {
+			jdbcTemplate.update(connection -> {
+				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+				statement.setString(1, subject.getName());
+				return statement;
+			}, holder);
+			long id = holder.getKey().longValue();
+			subject.setId(id);
 			subject.getTeachers().stream()
 					.forEach(t -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, t.getId(), id, t.getId(), id));
-			LOGGER.trace("Successfully created '{}'", subject);
+		} catch (DataAccessException e) {
+			String message = format("Subject '%s' not created ", subject);
+			throw new NotCreateException(message, e);
 		}
 	}
 
-	public Subject get(long id) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting subject by id = '{}'", id);
-		Subject subject = new Subject();
+	public Subject get(long id) throws EntityNotFoundException {
+		log.debug("Get subject by id={}", id);
+		Subject subject = null;
 		try {
 			subject = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, subjectRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			LOGGER.error(subject.toString());
 			String message = format("Subject with id '%s' not found", id);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get Subject with id '%s'", id);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Founded '{}'", subject);
 		return subject;
 	}
 
 	public void delete(long id) throws NotExistException {
-		LOGGER.debug("Deleting subject by id = '{}'", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			LOGGER.error("Subject was not deleted");
+		log.debug("Delete subject by id={}", id);
+		try {
+			jdbcTemplate.update(DELETE, id);
+		} catch (DataAccessException e) {
 			String message = format("Subject with id = '%s' not exist ", id);
-			throw new NotExistException(message);
-		} else {
-			LOGGER.trace("Deleted subject with id = '{}'", id);
+			throw new NotExistException(message, e);
 		}
 	}
 
-	public void update(Subject subject) throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
-		LOGGER.debug("Updating subject '{}'", subject);
-		int affectedRows = jdbcTemplate.update(UPDATE, subject.getName(), subject.getId());
-		if (affectedRows == 0) {
-			LOGGER.error("Subject was not updated");
-			String message = format("Subject '%s' not updated", subject);
-			throw new NotCreateException(message);
-		} else {
+	public void update(Subject subject) throws EntityNotFoundException, NotCreateException {
+		log.debug("Update subject {}", subject);
+		try {
+			jdbcTemplate.update(UPDATE, subject.getName(), subject.getId());
 			List<Teacher> teachers = teacherDao.findBySubjectId(subject.getId());
 			teachers.stream().filter(t -> !subject.getTeachers().contains(t))
 					.forEach(t -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, t.getId(), subject.getId()));
 			subject.getTeachers().stream().filter(t -> !teachers.contains(t)).forEach(s -> jdbcTemplate
 					.update(INSERT_INTO_TEACHERS_SUBJECTS, s.getId(), subject.getId(), s.getId(), subject.getId()));
-			LOGGER.trace("Updated '{}'", subject);
+		} catch (DataAccessException e) {
+			String message = format("Subject '%s' not updated", subject);
+			throw new NotCreateException(message, e);
 		}
 	}
 
-	public List<Subject> findAll() throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting all subjects");
+	public List<Subject> findAll() throws EntityNotFoundException {
+		log.debug("Find all subjects");
 		List<Subject> subjects = null;
 		try {
 			subjects = jdbcTemplate.query(SELECT, subjectRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = "No Subjects";
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = "Unable to get subjects";
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			log.error(message);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded all subjects");
 		return subjects;
 	}
 
-	public List<Subject> findByTeacherId(long id) throws QueryNotExecuteException, EntityNotFoundException {
-		LOGGER.debug("Getting subjects by teacherId = '{}'", id);
+	public List<Subject> findByTeacherId(long id) throws EntityNotFoundException {
+		log.debug("Find subjects by teacherId={}", id);
 		List<Subject> subjects = null;
 		try {
 			subjects = jdbcTemplate.query(SELECT_BY_TEACHER, new Object[] { id }, subjectSimpleRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Subjects with teacherId = '%s' not found", id);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get subjects by teacherId '%s'", id);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			log.error(message);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded subjects by teacherId = '{}'", id);
 		return subjects;
 	}
 
-	public Subject findByName(String name) throws EntityNotFoundException, QueryNotExecuteException {
-		LOGGER.debug("Getting subject by name = '{}'", name);
+	public Subject findByName(String name) throws EntityNotFoundException {
+		log.debug("Find subject by name={}", name);
 		Subject subject = null;
 		try {
 			subject = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, subjectRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Subject with name = '%s' not found", name);
-			LOGGER.error(message);
-			throw new EntityNotFoundException(message);
-		} catch (DataAccessException e) {
-			String message = format("Unable to get subject by name = '%s'", name);
-			LOGGER.error(message);
-			throw new QueryNotExecuteException(message, e);
+			throw new EntityNotFoundException(message, e);
 		}
-		LOGGER.trace("Finded subject by name = '{}'", name);
 		return subject;
 	}
 }

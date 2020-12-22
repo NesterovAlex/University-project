@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.LessonTime;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -39,8 +37,7 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenIdOfExistingLessonTime_whenGet_thenLessonTimeWithGivenIdReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenIdOfExistingLessonTime_whenGet_thenLessonTimeWithGivenIdReturned() throws EntityNotFoundException {
 		LessonTime expected = new LessonTime(1, 12, LocalTime.of(13, 30), LocalTime.of(14, 20));
 		assertEquals(expected, lessonTimeDao.get(expected.getId()));
 	}
@@ -88,8 +85,7 @@ class LessonTimeDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsinTable_whenFindAll_thenEqualCountRowsinTableReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenExpectedCountRowsinTable_whenFindAll_thenEqualCountRowsinTableReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "lesson_times"), lessonTimeDao.findAll().size());
 	}
 }

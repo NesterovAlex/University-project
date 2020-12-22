@@ -17,7 +17,6 @@ import com.nesterov.university.dao.AudienceDao;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
-import com.nesterov.university.dao.exceptions.QueryNotExecuteException;
 import com.nesterov.university.model.Audience;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,8 +29,7 @@ class AudienceServiceTest {
 	private AudienceService audienceService;
 
 	@Test
-	void givenListOfExistsAudiences_whenGetAll_thenExpectedListOfAudiencesReturned()
-			throws EntityNotFoundException, QueryNotExecuteException {
+	void givenListOfExistsAudiences_whenGetAll_thenExpectedListOfAudiencesReturned() throws EntityNotFoundException {
 		List<Audience> expected = new ArrayList<>();
 		expected.add(new Audience(1, 12, 20));
 		expected.add(new Audience(2, 10, 23));
@@ -44,7 +42,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenAudience_whenGet_thenExpectedAudienceReturned() throws EntityNotFoundException, QueryNotExecuteException {
+	void givenAudience_whenGet_thenExpectedAudienceReturned() throws EntityNotFoundException {
 		Audience expected = new Audience(1, 2, 40);
 		given(audienceDao.get(expected.getId())).willReturn(expected);
 
@@ -63,8 +61,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenRoomNumberAudience_whenUpdate_thenUpdated()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenRoomNumberAudience_whenUpdate_thenUpdated() throws EntityNotFoundException, NotCreateException {
 		Audience audience = new Audience(3, 7, 24);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
@@ -74,8 +71,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenUpdate_thenUpdated()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenExistingAudience_whenUpdate_thenUpdated() throws EntityNotFoundException, NotCreateException {
 		Audience audience = new Audience(5, 14, 23);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
@@ -85,8 +81,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenNonExistingAudience_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, QueryNotExecuteException, NotCreateException {
+	void givenNonExistingAudience_whenUpdate_thenNotUpdated() throws EntityNotFoundException, NotCreateException {
 		Audience existingAudience = new Audience(4, 14, 23);
 		Audience newAudience = new Audience(5, 14, 23);
 		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(existingAudience);
@@ -97,8 +92,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenCreate_thenCreated()
-			throws QueryNotExecuteException, EntityNotFoundException, NotCreateException {
+	void givenExistingAudience_whenCreate_thenCreated() throws EntityNotFoundException, NotCreateException {
 		Audience audience = new Audience(1, 4, 33);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(audience);
 
@@ -108,13 +102,12 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenNonExistingAudience_whenCreate_thenNotCreated()
-			throws QueryNotExecuteException, EntityNotFoundException, NotCreateException {
+	void givenNonExistingAudience_whenCreate_thenNotCreated() throws EntityNotFoundException, NotCreateException {
 		Audience expected = new Audience(1, 4, 33);
 		Audience actual = new Audience(2, 4, 33);
 		try {
 			when(audienceDao.findByRoomNumber(expected.getRoomNumber())).thenReturn(actual);
-		} catch (EntityNotFoundException | QueryNotExecuteException e) {
+		} catch (EntityNotFoundException e) {
 			e.printStackTrace();
 		}
 
@@ -128,8 +121,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenRoomNumberAudience_whenCreate_thenCreated()
-			throws QueryNotExecuteException, EntityNotFoundException, NotCreateException {
+	void givenRoomNumberAudience_whenCreate_thenCreated() throws EntityNotFoundException, NotCreateException {
 		Audience audience = new Audience(6, 1, 36);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(null);
 
