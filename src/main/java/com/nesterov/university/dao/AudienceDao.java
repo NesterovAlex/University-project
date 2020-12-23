@@ -4,6 +4,8 @@ import static java.lang.String.format;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.AudienceRowMapper;
 import com.nesterov.university.model.Audience;
 
@@ -55,16 +59,14 @@ public class AudienceDao {
 		}
 	}
 
-	public Audience get(long id) throws EntityNotFoundException {
+	public Audience get(long id) {
 		log.debug("Get adience by id={}", id);
-		Audience audience = null;
 		try {
-			audience = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
+			return jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, audienceRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Audience with id '%s' not found", id);
 			throw new EntityNotFoundException(message, e);
 		}
-		return audience;
 	}
 
 	public void delete(long id) throws NotExistException {
@@ -77,37 +79,30 @@ public class AudienceDao {
 		}
 	}
 
-	public void update(Audience audience) throws NotCreateException {
+	public void update(Audience audience) {
 		log.debug("Update adience {}", audience);
 		try {
 			jdbcTemplate.update(UPDATE, audience.getRoomNumber(), audience.getCapacity(), audience.getId());
 		} catch (DataAccessException e) {
-			String message = format("Audience '%s' not updated", audience);
-			throw new NotCreateException(message, e);
+			throw new NotUpdateException("Audience '%s' not updated", e);
 		}
 	}
 
-	public List<Audience> findAll() throws EntityNotFoundException {
+	public List<Audience> findAll() {
 		log.debug("Find all audiences");
-		List<Audience> audiences = null;
-		try {
-			audiences = jdbcTemplate.query(SELECT, audienceRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntityNotFoundException("No Audiences", e);
-		}
-		return audiences;
+		return jdbcTemplate.query(SELECT, audienceRowMapper);
 	}
 
-	public Audience findByRoomNumber(long roomNumber) throws EntityNotFoundException {
-		log.debug("Find adience by rommNumber={}", roomNumber);
+	public Optional<Audience> findByRoomNumber(long roomNumber) throws NotUniqueRoomNumberException {
 		Audience audience = null;
+		log.debug("Find adience by rommNumber={}", roomNumber);
 		try {
 			audience = jdbcTemplate.queryForObject(SELECT_BY_ROOM_NUMBER, new Object[] { roomNumber },
 					audienceRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			String message = format("Audience with room number '%s' not found", roomNumber);
-			throw new EntityNotFoundException(message, e);
+			throw new NotUniqueRoomNumberException(message, e);
 		}
-		return audience;
+		return Optional.ofNullable(audience);
 	}
 }

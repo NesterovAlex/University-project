@@ -60,7 +60,7 @@ public class GroupDao {
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
-	public Group get(long id) throws EntityNotFoundException {
+	public Group get(long id) {
 		log.debug("Get group by id={}", id);
 		Group group = null;
 		try {

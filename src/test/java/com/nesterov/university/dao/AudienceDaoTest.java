@@ -5,23 +5,19 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class AudienceDaoTest {
-
-	private static final Logger log = LoggerFactory.getLogger(AudienceDaoTest.class);
 
 	@Autowired
 	private AudienceDao audienceDao;
@@ -68,24 +64,21 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned() throws EntityNotFoundException {
+	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned()
+			throws EntityNotFoundException, NotUniqueRoomNumberException {
 		Audience expected = new Audience(2, 343, 187);
 
-		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber());
+		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenExpectedRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenNullReturned()
-			throws EntityNotFoundException {
-		Audience actual = null;
+	void givenExpectedRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenNotUniqueRoomNumberException() {
 		int expected = 99;
-		try {
-			actual = audienceDao.findByRoomNumber(expected);
-		} catch (EntityNotFoundException e) {
-			log.error("Not found audience with roomNumber={}", expected, e);
-		}
-		assertNull(actual);
+
+		assertThrows(NotUniqueRoomNumberException.class, () -> {
+			audienceDao.findByRoomNumber(expected);
+		});
 	}
 }

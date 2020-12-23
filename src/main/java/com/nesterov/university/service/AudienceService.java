@@ -1,7 +1,7 @@
 package com.nesterov.university.service;
 
 import java.util.List;
-
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -9,6 +9,7 @@ import com.nesterov.university.dao.AudienceDao;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
 @Component
@@ -22,7 +23,7 @@ public class AudienceService {
 		this.audienceDao = audienceDao;
 	}
 
-	public void create(Audience audience) {
+	public void create(Audience audience) throws NotUniqueRoomNumberException {
 		if (isUniqueRoomNumber(audience)) {
 			try {
 				audienceDao.create(audience);
@@ -50,33 +51,20 @@ public class AudienceService {
 		}
 	}
 
-	public void update(Audience audience) {
+	public void update(Audience audience) throws NotUniqueRoomNumberException {
 		if (isUniqueRoomNumber(audience)) {
-			try {
-				audienceDao.update(audience);
-			} catch (NotCreateException e) {
-				log.error(e.toString());
-			}
+			audienceDao.update(audience);
 		}
 	}
 
 	public List<Audience> getAll() {
 		List<Audience> audiences = null;
-		try {
-			audiences = audienceDao.findAll();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
-		}
+		audiences = audienceDao.findAll();
 		return audiences;
 	}
 
-	private boolean isUniqueRoomNumber(Audience audience) {
-		Audience founded = null;
-		try {
-			founded = audienceDao.findByRoomNumber(audience.getRoomNumber());
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
-		}
-		return founded == null || founded.getId() == audience.getId();
+	private boolean isUniqueRoomNumber(Audience audience) throws NotUniqueRoomNumberException {
+		Optional<Audience> optional = audienceDao.findByRoomNumber(audience.getRoomNumber());
+		return !optional.isPresent() || optional.orElse(new Audience()).getId() == audience.getId();
 	}
 }
