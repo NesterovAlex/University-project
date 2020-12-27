@@ -1,22 +1,22 @@
 package com.nesterov.university.dao;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static java.util.Optional.empty;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.LessonTimeRowMapper;
 import com.nesterov.university.model.LessonTime;
 
@@ -51,53 +51,42 @@ public class LessonTimeDao {
 				return statement;
 			}, holder);
 			lessonTime.setId(holder.getKey().longValue());
-		} catch (DataAccessException e) {
+		} catch (Exception e) {
 			String message = format("LessonTime '%s' not created ", lessonTime);
-			throw new NotCreateException(message, e);
+			throw new NotCreateException(message);
 		}
 	}
 
-	public LessonTime get(long id) throws EntityNotFoundException {
+	public Optional<LessonTime> get(long id) {
 		log.debug("Get lessonTime by id={}", id);
-		LessonTime lessonTime = null;
 		try {
-			lessonTime = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonTimeRowMapper);
+			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonTimeRowMapper));
 		} catch (EmptyResultDataAccessException e) {
-			String message = format("LessonTime with id '%s' not found", id);
-			throw new EntityNotFoundException(message, e);
+			return empty();
 		}
-		return lessonTime;
 	}
 
-	public void delete(long id) throws NotExistException {
+	public void delete(long id) throws NotDeleteException {
 		log.debug("Delete LessonTime by id={}", id);
-		try {
-			jdbcTemplate.update(DELETE, id);
-		} catch (DataAccessException e) {
-			String message = format("LessonTime with id = '%s' not exist ", id);
-			throw new NotExistException(message, e);
+		int affectedRows = jdbcTemplate.update(DELETE, id);
+		if (affectedRows == 0) {
+			String message = format("LessonTime with id = '%s' not deleted", id);
+			throw new NotDeleteException(message);
 		}
 	}
 
-	public void update(LessonTime lessonTime) throws NotCreateException {
+	public void update(LessonTime lessonTime) {
 		log.debug("Update LessonTime {}", lessonTime);
-		try {
-			jdbcTemplate.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(), lessonTime.getEnd(),
-					lessonTime.getId());
-		} catch (DataAccessException e) {
+		int affectedRows = jdbcTemplate.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(),
+				lessonTime.getEnd(), lessonTime.getId());
+		if (affectedRows == 0) {
 			String message = format("LessonTime '%s' not updated", lessonTime);
-			throw new NotCreateException(message, e);
+			throw new NotUpdateException(message);
 		}
 	}
 
-	public List<LessonTime> findAll() throws EntityNotFoundException {
+	public List<LessonTime> findAll() {
 		log.debug("Find all LessonTimes");
-		List<LessonTime> lessonTimes = null;
-		try {
-			lessonTimes = jdbcTemplate.query(SELECT, lessonTimeRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntityNotFoundException("No LessonTimes", e);
-		}
-		return lessonTimes;
+		return jdbcTemplate.query(SELECT, lessonTimeRowMapper);
 	}
 }

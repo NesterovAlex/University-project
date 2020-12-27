@@ -1,20 +1,20 @@
 package com.nesterov.university.service;
 
-import java.util.List;
+import static java.lang.String.format;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.GroupDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
+import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotUniqueNameException;
 import com.nesterov.university.model.Group;
 
 @Component
 public class GroupService {
-
-	private static final Logger log = LoggerFactory.getLogger(GroupService.class);
 
 	private GroupDao groupDao;
 
@@ -22,61 +22,41 @@ public class GroupService {
 		this.groupDao = groupDao;
 	}
 
-	public void create(Group group) {
+	public void create(Group group) throws NotCreateException, NotUniqueNameException {
 		if (isUniqueName(group)) {
-			try {
-				groupDao.create(group);
-			} catch (NotCreateException e) {
-				log.error(e.toString());
-			}
+			groupDao.create(group);
 		}
 	}
 
-	public void delete(long id) {
-		try {
-			groupDao.delete(id);
-		} catch (NotExistException e) {
-			log.error(e.toString());
-		}
+	public void delete(long id) throws NotDeleteException {
+		groupDao.delete(id);
 	}
 
-	public Group get(long id) {
-		Group group = null;
-		try {
-			group = groupDao.get(id);
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
-		}
-		return group;
+	public Group get(long id) throws NotPresentEntityException {
+		String message = format("Group with id = '%s' not found", id);
+		return groupDao.get(id).orElseThrow(() -> new NotPresentEntityException(message));
 	}
 
-	public void update(Group group) {
+	public void update(Group group) throws NotUniqueNameException {
 		if (isUniqueName(group)) {
-			try {
-				groupDao.update(group);
-			} catch (NotCreateException e) {
-				log.error(e.toString());
-			}
+			groupDao.update(group);
 		}
 	}
 
-	public List<Group> getAll() {
-		List<Group> groups = null;
-		try {
-			groups = groupDao.findAll();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	public List<Group> getAll() throws NotFoundEntitiesException {
+		List<Group> groups = groupDao.findAll();
+		if (groups.isEmpty()) {
+			throw new NotFoundEntitiesException("Not Found groups");
 		}
 		return groups;
 	}
 
-	private boolean isUniqueName(Group group) {
-		Group founded = null;
-		try {
-			founded = groupDao.findByName(group.getName());
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	private boolean isUniqueName(Group group) throws NotUniqueNameException {
+		Optional<Group> optionalGroup = groupDao.findByName(group.getName());
+		if (optionalGroup.isPresent() && optionalGroup.orElse(null).getId() != group.getId()) {
+			String message = String.format("Not unique groupName = '%s'", group.getName());
+			throw new NotUniqueNameException(message);
 		}
-		return founded == null || founded.getId() == group.getId();
+		return !optionalGroup.isPresent() || optionalGroup.orElse(null).getId() == group.getId();
 	}
 }

@@ -1,21 +1,20 @@
 package com.nesterov.university.service;
 
+import static java.lang.String.format;
+
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.AudienceDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
+import com.nesterov.university.dao.exceptions.NotPresentEntityException;
 import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
 @Component
 public class AudienceService {
-
-	private static final Logger log = LoggerFactory.getLogger(AudienceService.class);
 
 	private AudienceDao audienceDao;
 
@@ -23,32 +22,19 @@ public class AudienceService {
 		this.audienceDao = audienceDao;
 	}
 
-	public void create(Audience audience) throws NotUniqueRoomNumberException {
+	public void create(Audience audience) throws NotUniqueRoomNumberException, NotCreateException {
 		if (isUniqueRoomNumber(audience)) {
-			try {
-				audienceDao.create(audience);
-			} catch (NotCreateException e) {
-				log.error(e.toString());
-			}
+			audienceDao.create(audience);
 		}
 	}
 
-	public Audience get(long id) {
-		Audience audience = null;
-		try {
-			audience = audienceDao.get(id);
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
-		}
-		return audience;
+	public Audience get(long id) throws NotPresentEntityException {
+		String message = format("Audience with id = '%s' not found", id);
+		return audienceDao.get(id).orElseThrow(() -> new NotPresentEntityException(message));
 	}
 
-	public void delete(long id) {
-		try {
-			audienceDao.delete(id);
-		} catch (NotExistException e) {
-			log.error(e.toString());
-		}
+	public void delete(long id) throws NotDeleteException {
+		audienceDao.delete(id);
 	}
 
 	public void update(Audience audience) throws NotUniqueRoomNumberException {
@@ -57,14 +43,20 @@ public class AudienceService {
 		}
 	}
 
-	public List<Audience> getAll() {
-		List<Audience> audiences = null;
-		audiences = audienceDao.findAll();
+	public List<Audience> getAll() throws NotFoundEntitiesException {
+		List<Audience> audiences = audienceDao.findAll();
+		if (audiences.isEmpty()) {
+			throw new NotFoundEntitiesException("Not found audiences");
+		}
 		return audiences;
 	}
 
 	private boolean isUniqueRoomNumber(Audience audience) throws NotUniqueRoomNumberException {
-		Optional<Audience> optional = audienceDao.findByRoomNumber(audience.getRoomNumber());
-		return !optional.isPresent() || optional.orElse(new Audience()).getId() == audience.getId();
+		Optional<Audience> optionalAudience = audienceDao.findByRoomNumber(audience.getRoomNumber());
+		if (optionalAudience.isPresent() && optionalAudience.orElse(new Audience()).getId() != audience.getId()) {
+			String message = format("Not unique roomNumber = '%s'", audience.getRoomNumber());
+			throw new NotUniqueRoomNumberException(message);
+		}
+		return !optionalAudience.isPresent() || optionalAudience.orElse(new Audience()).getId() == audience.getId();
 	}
 }

@@ -6,8 +6,6 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -18,13 +16,12 @@ import com.nesterov.university.model.Student;
 import com.nesterov.university.dao.TestConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class GroupDaoTest {
-
-	private static final Logger log = LoggerFactory.getLogger(GroupDaoTest.class);
 
 	@Autowired
 	private GroupDao groupDao;
@@ -51,7 +48,7 @@ class GroupDaoTest {
 		student.setId(1);
 		student.setGroupId(1);
 
-		assertEquals(expected, groupDao.get(1));
+		assertEquals(expected, groupDao.get(1).orElse(null));
 	}
 
 	@Test
@@ -65,19 +62,24 @@ class GroupDaoTest {
 	}
 
 	@Test
+	void givenNonExistingGroup_whenUpdate_thenNotUpdateExceptionThrown() throws NotCreateException {
+		assertThrows(NotUpdateException.class, () -> groupDao.update(new Group(199, "V-22")));
+	}
+
+	@Test
 	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.findAll().size());
 	}
 
 	@Test
-	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned() throws EntityNotFoundException {
+	void givenExistingIdOfLesson_whenGetAllByLesson_thenExpectedCountOfGroupsReturned() {
 		int expected = 2;
 
 		assertEquals(expected, groupDao.findByLessonId(3).size());
 	}
 
 	@Test
-	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountRowsReturned() throws NotExistException {
+	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountRowsReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "groups") - 1;
 
 		groupDao.delete(3);
@@ -87,23 +89,26 @@ class GroupDaoTest {
 	}
 
 	@Test
+	void givenNotExistingGroupId_whenDelete_thenNotDeleteException() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> groupDao.delete(100));
+	}
+
+	@Test
 	void givenExistingGroup_whenFindByName_thenExpectedGroupReturned() throws EntityNotFoundException {
 		Group expected = new Group(4, "E-34");
 
-		Group actual = groupDao.findByName(expected.getName());
+		Group actual = groupDao.findByName(expected.getName()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() throws EntityNotFoundException {
+	void givenNameOfNonExistingGroup_whenFindByName_thenNullReturned() {
 		Group expected = new Group(3, "T-5");
 		Group actual = null;
-		try {
-			actual = groupDao.findByName(expected.getName());
-		} catch (EntityNotFoundException e) {
-			log.error("Not found group by name={}", expected.getName(), e);
-		}
+
+		actual = groupDao.findByName(expected.getName()).orElse(null);
+
 		assertNull(actual);
 	}
 }

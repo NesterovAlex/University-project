@@ -1,25 +1,27 @@
 package com.nesterov.university.dao;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.LessonRowMapper;
 import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Lesson;
@@ -68,94 +70,70 @@ public class LessonDao {
 			lesson.setId(id);
 			lesson.getGroups()
 					.forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, id, g.getId(), id, g.getId()));
-		} catch (DataAccessException e) {
+		} catch (Exception e) {
 			String message = format("Lesson '%s' not created ", lesson);
-			throw new NotCreateException(message, e);
+			throw new NotCreateException(message);
 		}
 	}
 
-	public Lesson get(long id) throws EntityNotFoundException {
+	public Optional<Lesson> get(long id) {
 		log.debug("Get lesson by id={}", id);
-		Lesson lesson = null;
 		try {
-			lesson = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonRowMapper);
+			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonRowMapper));
 		} catch (EmptyResultDataAccessException e) {
-			String message = format("Lesson with id '%s' not found", id);
-			throw new EntityNotFoundException(message, e);
+			return empty();
 		}
-		return lesson;
 	}
 
 	@Transactional
-	public void delete(long id) throws NotExistException {
+	public void delete(long id) throws NotDeleteException {
 		log.debug("Delete lesson by id={}", id);
-		try {
-			jdbcTemplate.update(DELETE, id);
-		} catch (DataAccessException e) {
-			String message = format("Lesson with id = '%s' not exist ", id);
-			throw new NotExistException(message, e);
+		int affectedrows = jdbcTemplate.update(DELETE, id);
+		if (affectedrows == 0) {
+			String message = format("Not deleted audience with id = '%s'", id);
+			throw new NotDeleteException(message);
 		}
 	}
 
 	@Transactional
-	public void update(Lesson lesson) throws EntityNotFoundException, NotCreateException {
-		log.debug("Update lesson by id={}", lesson);
+	public void update(Lesson lesson) {
 		try {
-			jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
+			log.debug("Update lesson by id={}", lesson);
+			int affectedRows = jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
 					lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
 			List<Group> groups = groupDao.findByLessonId(lesson.getId());
 			groups.stream().filter(g -> !lesson.getGroups().contains(g))
 					.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
 			lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate
 					.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(), lesson.getId(), g.getId()));
-		} catch (DataAccessException e) {
-			String message = format("Audience '%s' not updated", lesson);
-			throw new NotCreateException(message, e);
+			if (affectedRows == 0) {
+				String message = format("Lesson '%s' not updated", lesson);
+				throw new NotUpdateException(message);
+			}
+		} catch (DataIntegrityViolationException e) {
+			String message = format("Lesson '%s' not updated", lesson);
+			throw new NotUpdateException(message, e);
 		}
 	}
 
 	@Transactional
-	public List<Lesson> findAll() throws EntityNotFoundException {
+	public List<Lesson> findAll() {
 		log.debug("Find all lessons");
-		List<Lesson> lessons = null;
-		try {
-			lessons = jdbcTemplate.query(SELECT, lessonRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntityNotFoundException("No lessons", e);
-		}
-		return lessons;
+		return jdbcTemplate.query(SELECT, lessonRowMapper);
 	}
 
-	public List<Lesson> findByDateAndAudience(LocalDate date, long lessonTimeId, long audienceId)
-			throws EntityNotFoundException {
-		List<Lesson> lessons = null;
+	public List<Lesson> findByDateAndAudience(LocalDate date, long lessonTimeId, long audienceId) {
 		log.debug("Find audiences by date = {}, lessonTimeId={}, audienceId={}", date, lessonTimeId, audienceId);
-		try {
-			lessons = jdbcTemplate.query(SELECT_BY_DATE_AUDIENCE, new Object[] { date, lessonTimeId, audienceId },
-					lessonRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			String message = format("Lessons with date = '%s', lessonTimeId = '%s', audienceId = '%s' not found", date,
-					lessonTimeId, audienceId);
-			throw new EntityNotFoundException(message, e);
-		}
-		return lessons;
+		return jdbcTemplate.query(SELECT_BY_DATE_AUDIENCE, new Object[] { date, lessonTimeId, audienceId },
+				lessonRowMapper);
 	}
 
-	public List<Lesson> findByDateAndGroups(LocalDate date, long lessonTimeId) throws EntityNotFoundException {
+	public List<Lesson> findByDateAndGroups(LocalDate date, long lessonTimeId) {
 		log.debug("Find lessons by date={}, lessonTimeId={} and groups", date, lessonTimeId);
-		List<Lesson> lessons = null;
-		try {
-			lessons = jdbcTemplate.query(SELECT_BY_DATE_GROUPS, new Object[] { date, lessonTimeId }, lessonRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			String message = format("Lessons with date = '%s', lessonTimeId = '%s' and groups not found", date,
-					lessonTimeId);
-			throw new EntityNotFoundException(message, e);
-		}
-		return lessons;
+		return jdbcTemplate.query(SELECT_BY_DATE_GROUPS, new Object[] { date, lessonTimeId }, lessonRowMapper);
 	}
 
-	public List<Lesson> findByDateAndTeacher(LocalDate date, long lessonTimeId, long teacherId)
-			throws EntityNotFoundException {
+	public List<Lesson> findByDateAndTeacher(LocalDate date, long lessonTimeId, long teacherId) {
 		log.debug("Find lessons by date={}, lessonTimeId={}, teacherId={}", date, lessonTimeId, teacherId);
 		List<Lesson> lessons = null;
 		try {

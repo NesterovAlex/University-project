@@ -11,8 +11,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -25,7 +26,7 @@ class AudienceDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountOfRowsReturned() throws NotExistException {
+	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountOfRowsReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "audiences") - 1;
 
 		audienceDao.delete(3);
@@ -47,7 +48,7 @@ class AudienceDaoTest {
 
 	@Test
 	void givenIdOfExistingAudience_whenGet_thenAudinceWithGivenIdReturned() throws EntityNotFoundException {
-		assertEquals(new Audience(2, 343, 187), audienceDao.get(2));
+		assertEquals(new Audience(2, 343, 187), audienceDao.get(2).orElse(null));
 	}
 
 	@Test
@@ -74,11 +75,28 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExpectedRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenNotUniqueRoomNumberException() {
+	void givenRoomNumberOfNonExistingAudience_whenfindByRoomNumber_thenOptionalEmptyReturn() {
 		int expected = 99;
+		assertFalse(audienceDao.findByRoomNumber(expected).isPresent());
+	}
 
-		assertThrows(NotUniqueRoomNumberException.class, () -> {
-			audienceDao.findByRoomNumber(expected);
-		});
+	@Test
+	void givenIdNonExistingAudience_whenGet_thenOptionalEmptyReturned() {
+		assertFalse(audienceDao.get(100).isPresent());
+	}
+
+	@Test
+	void givenIdNonExistingAudience_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> audienceDao.delete(100));
+	}
+
+	@Test
+	void givenNonExistingAudience_whenUpdate_thenNotUpdateExceptionThrown() throws NotDeleteException {
+		assertThrows(NotUpdateException.class, () -> audienceDao.update(new Audience(100, 100, 100)));
+	}
+
+	@Test
+	void givenNull_whenCreate_thenNotCreateExceptionThrown() throws NotCreateException {
+		assertThrows(NotCreateException.class, () -> audienceDao.create(null));
 	}
 }

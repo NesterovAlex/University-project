@@ -1,21 +1,25 @@
 package com.nesterov.university.service;
 
+import static java.lang.String.format;
+
 import java.time.DayOfWeek;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.LessonDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.HasLessonsWithSameGroupsException;
+import com.nesterov.university.dao.exceptions.HasNotEnoughtPlacesException;
+import com.nesterov.university.dao.exceptions.HasNotRightToTeachException;
+import com.nesterov.university.dao.exceptions.LessonsWithSameTeacherException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotEmptyAudienceException;
+import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
+import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.WeekendDayException;
 import com.nesterov.university.model.Lesson;
 
 @Component
 public class LessonService {
-
-	private static final Logger log = LoggerFactory.getLogger(LessonService.class);
 
 	private LessonDao lessonDao;
 
@@ -23,95 +27,87 @@ public class LessonService {
 		this.lessonDao = lessonDao;
 	}
 
-	public void create(Lesson lesson) {
+	public void create(Lesson lesson)
+			throws WeekendDayException, NotCreateException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
 				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
-			try {
-				lessonDao.create(lesson);
-			} catch (NotCreateException e) {
-				log.error(e.toString());
-			}
+			lessonDao.create(lesson);
 		}
 	}
 
-	public void delete(long id) {
-		try {
-			lessonDao.delete(id);
-		} catch (NotExistException e) {
-			log.error(e.toString());
-		}
+	public void delete(long id) throws NotDeleteException {
+		lessonDao.delete(id);
 	}
 
-	public Lesson get(long id) {
-		Lesson lesson = null;
-		try {
-			return lessonDao.get(id);
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
-		}
-		return lesson;
+	public Lesson get(long id) throws NotPresentEntityException {
+		String message = format("Lesson with id = '%s' not found", id);
+		return lessonDao.get(id).orElseThrow(() -> new NotPresentEntityException(message));
 	}
 
-	public void update(Lesson lesson) {
+	public void update(Lesson lesson)
+			throws WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
 				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
-			try {
-				lessonDao.update(lesson);
-			} catch (EntityNotFoundException | NotCreateException e) {
-				log.error(e.toString());
-			}
+			lessonDao.update(lesson);
 		}
 	}
 
-	public List<Lesson> getAll() {
-		List<Lesson> lessons = null;
-		try {
-			lessons = lessonDao.findAll();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	public List<Lesson> getAll() throws NotFoundEntitiesException {
+		List<Lesson> lessons = lessonDao.findAll();
+		if (lessons.isEmpty()) {
+			throw new NotFoundEntitiesException("Not found lessons");
 		}
 		return lessons;
 	}
 
-	private boolean hasLessonsWithSameGroups(Lesson lesson) {
-		boolean result = false;
-		try {
-			result = !lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId()).isEmpty();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	private boolean hasLessonsWithSameGroups(Lesson lesson) throws HasLessonsWithSameGroupsException {
+		List<Lesson> lessons = lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId());
+		if (!lessons.isEmpty()) {
+			throw new HasLessonsWithSameGroupsException(
+					"The groups in this lesson have other lessons at this time and date");
 		}
-		return result;
+		return !lessons.isEmpty();
 	}
 
-	private boolean hasLessonsWithSameTeacher(Lesson lesson) {
-		boolean result = false;
-		try {
-			result = !lessonDao
-					.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId())
-					.isEmpty();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	private boolean hasLessonsWithSameTeacher(Lesson lesson) throws LessonsWithSameTeacherException {
+		List<Lesson> lessons = lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(),
+				lesson.getTeacher().getId());
+		if (!lessons.isEmpty()) {
+			String message = format("Teacher with id = '%s' has other lessons in this time and date",
+					lesson.getTeacher().getId());
+			throw new LessonsWithSameTeacherException(message);
 		}
-		return result;
+		return !lessons.isEmpty();
 	}
 
-	private boolean hasRightToTeach(Lesson lesson) {
+	private boolean hasRightToTeach(Lesson lesson) throws HasNotRightToTeachException {
+		if (lesson.getTeacher().getSubjects().stream().noneMatch(s -> s.equals(lesson.getSubject()))) {
+			String message = String.format("Teacher with id = '%s' has not right to teach this lesson",
+					lesson.getTeacher().getId());
+			throw new HasNotRightToTeachException(message);
+		}
 		return lesson.getTeacher().getSubjects().stream().anyMatch(s -> s.equals(lesson.getSubject()));
 	}
 
-	private boolean isEmptyAudience(Lesson lesson) {
-		boolean result = false;
-		try {
-			result = lessonDao
-					.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId())
-					.isEmpty();
-		} catch (EntityNotFoundException e) {
-			log.error(e.toString());
+	private boolean isEmptyAudience(Lesson lesson) throws NotEmptyAudienceException {
+		List<Lesson> lessons = lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(),
+				lesson.getAudience().getId());
+		if (!lessons.isEmpty()) {
+			String message = format("Audience with id='%s' not empty", lesson.getAudience().getId());
+			throw new NotEmptyAudienceException(message);
 		}
-		return result;
+		return lessons.isEmpty();
 	}
 
-	private boolean hasEnoughPlaces(Lesson lesson) {
+	private boolean hasEnoughPlaces(Lesson lesson) throws HasNotEnoughtPlacesException {
+		long countStudentsOfLesson = countStudentsOfLesson(lesson);
+		if (countStudentsOfLesson > lesson.getAudience().getCapacity()) {
+			String message = String.format("Has not enought places in audience with roomNumber = '%s'",
+					lesson.getAudience().getRoomNumber());
+			throw new HasNotEnoughtPlacesException(message);
+		}
 		return countStudentsOfLesson(lesson) <= lesson.getAudience().getCapacity();
 	}
 
@@ -119,8 +115,12 @@ public class LessonService {
 		return lesson.getGroups().stream().mapToLong(g -> g.getStudents().size()).sum();
 	}
 
-	private boolean isWeekend(Lesson lesson) {
-		return lesson.getDate().getDayOfWeek() == DayOfWeek.SATURDAY
+	private boolean isWeekend(Lesson lesson) throws WeekendDayException {
+		boolean isWeekend = lesson.getDate().getDayOfWeek() == DayOfWeek.SATURDAY
 				|| lesson.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
+		if (isWeekend) {
+			throw new WeekendDayException("This is weekend");
+		}
+		return isWeekend;
 	}
 }

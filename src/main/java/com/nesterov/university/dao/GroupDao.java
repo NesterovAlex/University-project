@@ -1,12 +1,14 @@
 package com.nesterov.university.dao;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static java.util.Optional.empty;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,10 +16,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.GroupRowMapper;
 import com.nesterov.university.model.Group;
 
@@ -53,79 +54,59 @@ public class GroupDao {
 				return statement;
 			}, holder);
 			group.setId(holder.getKey().longValue());
-		} catch (DataAccessException e) {
+		} catch (Exception e) {
 			String message = format("Group '%s' not created ", group);
-			throw new NotCreateException(message, e);
+			throw new NotCreateException(message);
 		}
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
-	public Group get(long id) {
+	public Optional<Group> get(long id) {
 		log.debug("Get group by id={}", id);
-		Group group = null;
 		try {
-			group = jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, groupRowMapper);
+			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
-			String message = format("Group with id '%s' not found", id);
-			throw new EntityNotFoundException(message, e);
+			return empty();
 		}
-		return group;
 	}
 
 	@Transactional
-	public void delete(long id) throws NotExistException {
+	public void delete(long id) throws NotDeleteException {
 		log.debug("Delete group by id={}", id);
-		try {
-			jdbcTemplate.update(DELETE, id);
-		} catch (DataAccessException e) {
-			String message = format("Group with id = '%s' not exist ", id);
-			throw new NotExistException(message, e);
+		int affectedRows = jdbcTemplate.update(DELETE, id);
+		if (affectedRows == 0) {
+			String message = format("Not deleted Group with id = '%s'", id);
+			throw new NotDeleteException(message);
 		}
 	}
 
 	@Transactional
-	public void update(Group group) throws NotCreateException {
+	public void update(Group group) {
 		log.debug("Update group by id={}", group);
-		try {
-			jdbcTemplate.update(UPDATE, group.getName(), group.getId());
-		} catch (DataAccessException e) {
+		int affectedrows = jdbcTemplate.update(UPDATE, group.getName(), group.getId());
+		if (affectedrows == 0) {
 			String message = format("Audience '%s' not updated", group);
-			throw new NotCreateException(message, e);
+			throw new NotUpdateException(message);
 		}
 	}
 
-	public List<Group> findAll() throws EntityNotFoundException {
+	public List<Group> findAll() {
 		log.debug("Find all groups");
-		List<Group> groups = null;
-		try {
-			groups = jdbcTemplate.query(SELECT, groupRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntityNotFoundException("No groups", e);
-		}
-		return groups;
+		return jdbcTemplate.query(SELECT, groupRowMapper);
 	}
 
-	public List<Group> findByLessonId(long id) throws EntityNotFoundException {
+	public List<Group> findByLessonId(long id) {
 		log.debug("Find groups by id={}", id);
-		List<Group> groups = null;
-		try {
-			groups = jdbcTemplate.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, groupRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			String message = format("Groups with lessonId '%s' not found", id);
-			throw new EntityNotFoundException(message, e);
-		}
-		return groups;
+		return jdbcTemplate.query(SELECT_FROM_LESSONS_GROUPS, new Object[] { id }, groupRowMapper);
 	}
 
-	public Group findByName(String name) throws EntityNotFoundException {
+	public Optional<Group> findByName(String name) {
 		log.debug("Find group by name={}", name);
-		Group group = null;
 		try {
-			group = jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper);
+			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
-			String message = format("group with name '%s' not found", name);
-			throw new EntityNotFoundException(message, e);
+			return empty();
 		}
-		return group;
+
 	}
 }

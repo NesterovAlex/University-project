@@ -5,6 +5,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Stream.iterate;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,8 +21,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonDao;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
+import com.nesterov.university.dao.exceptions.HasLessonsWithSameGroupsException;
+import com.nesterov.university.dao.exceptions.HasNotEnoughtPlacesException;
+import com.nesterov.university.dao.exceptions.HasNotRightToTeachException;
+import com.nesterov.university.dao.exceptions.LessonsWithSameTeacherException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotEmptyAudienceException;
+import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
+import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.WeekendDayException;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
@@ -39,7 +50,7 @@ class LessonServiceTest {
 	private LessonService lessonService;
 
 	@Test
-	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() throws EntityNotFoundException {
+	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() throws NotFoundEntitiesException {
 		Lesson lesson = new Lesson(1, new Subject(8, "Statistics"), new Audience(1, 14, 30), LocalDate.of(2019, 11, 30),
 				new LessonTime(3, 3, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Nicholas", "Owen",
 						LocalDate.of(1995, 10, 19), "Owens", "Nicholas@Owen", "495873485", Gender.MALE));
@@ -53,11 +64,18 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLesson_whenGet_thenExpectedLessonReturned() throws EntityNotFoundException {
+	void givenEmptyListLessons_whenGetAll_thenNotFoundEntitiesExceptionThrown() throws NotFoundEntitiesException {
+		given(lessonDao.findAll()).willReturn(new ArrayList<>());
+
+		assertThrows(NotFoundEntitiesException.class, () -> lessonService.getAll());
+	}
+
+	@Test
+	void givenLesson_whenGet_thenExpectedLessonReturned() throws EntityNotFoundException, NotPresentEntityException {
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
-		given(lessonDao.get(lesson.getId())).willReturn(lesson);
+		given(lessonDao.get(lesson.getId())).willReturn(ofNullable(lesson));
 
 		Lesson actual = lessonService.get(lesson.getId());
 
@@ -65,7 +83,17 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonId_whenDelete_thenDeleted() throws NotExistException {
+	void givenEmptyOptional_whenGet_thenEntityNotFoundExceptionThrown() {
+		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
+				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
+						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
+		given(lessonDao.get(lesson.getId())).willReturn(empty());
+
+		assertThrows(NotPresentEntityException.class, () -> lessonService.get(lesson.getId()));
+	}
+
+	@Test
+	void givenLessonId_whenDelete_thenDeleted() throws NotDeleteException {
 		int lessonId = 1;
 
 		lessonService.delete(lessonId);
@@ -74,7 +102,9 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLesson_whenUpdate_thenUpdated() throws EntityNotFoundException, NotCreateException {
+	void givenLesson_whenUpdate_thenUpdated()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(9, "Technology");
@@ -90,7 +120,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(9, 40), LocalTime.of(10, 45)), new Teacher("Joseph", "Jackson",
 						LocalDate.of(2006, 11, 3), "Liam", "Joseph@Jackson", "2938465743", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(4, "Psychology");
+		Group group = new Group(4, "Q-14");
 		Student student = new Student("Christian", "Jonathan", LocalDate.of(2001, 4, 19), "Vasino",
 				"Christian@Jonathan", "2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -111,8 +141,9 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(8, "Engineering");
 		List<Subject> subjects = new ArrayList<>();
@@ -128,7 +159,7 @@ class LessonServiceTest {
 				new Teacher("Mason", "Jayden", LocalDate.of(1996, 9, 17), "Kenwood", "Mason@Jayden", "384756329",
 						Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(1, "Engineering");
+		Group group = new Group(1, "E-54");
 		Student student = new Student("Andrew", "James", LocalDate.of(2014, 07, 19), "Vasino", "Andrew@James",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -140,14 +171,15 @@ class LessonServiceTest {
 		lesson.setTeacher(teacher);
 		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
-		lessonService.update(lesson);
+		assertThrows(HasLessonsWithSameGroupsException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsException()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Philosophy");
 		List<Subject> subjects = new ArrayList<>();
@@ -162,7 +194,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Sophiya", "Samson",
 						LocalDate.of(1998, 3, 6), "Sophiya", "Sophiya@Samson", "2938476653", Gender.FEMALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(6, "Phisic");
+		Group group = new Group(6, "S-22");
 		Student student = new Student("Vasya", "Vasin", LocalDate.of(2014, 07, 19), "Vasino", "Vasya@vasyin",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -174,14 +206,14 @@ class LessonServiceTest {
 		lesson.setTeacher(teacher);
 		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
-		lessonService.create(lesson);
+		assertThrows(HasLessonsWithSameGroupsException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdatedAndNotEmptyAudienceExceptionThrown()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(3, "Geometry");
@@ -197,7 +229,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(7, 30), LocalTime.of(8, 45)), new Teacher("Dmitro", "Dmitrov",
 						LocalDate.of(1998, 6, 5), "Odessa", "Dmitro@Dmitrov", "4758345768", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(4, "Mathematic");
+		Group group = new Group(4, "A-11");
 		Student student = new Student("Maksim", "Maksimov", LocalDate.of(2011, 4, 13), "Maksimovka", "Maksim@Maksimov",
 				"748593293", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -212,14 +244,15 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
 				.thenReturn(lessons);
 
-		lessonService.update(lesson);
+		assertThrows(NotEmptyAudienceException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreatedAndNotEmptyAudienceExceptionThrown()
+			throws EntityNotFoundException, NotCreateException, WeekendDayException, HasNotEnoughtPlacesException,
+			NotEmptyAudienceException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Literature");
@@ -235,7 +268,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(10, 30), LocalTime.of(11, 45)), new Teacher("Ross", "Geller",
 						LocalDate.of(1999, 7, 7), "Lvov", "Ivan@Ivanov", "74653928746", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(1, "Geography");
+		Group group = new Group(1, "D-10");
 		Student student = new Student("Artem", "Artemiv", LocalDate.of(2016, 8, 9), "Artemivka", "Artem@Artemiv",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -250,13 +283,15 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
 				.thenReturn(lessons);
 
-		lessonService.create(lesson);
+		assertThrows(NotEmptyAudienceException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdated() throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdatedAndLessonsWithSameTeacherException()
+			throws EntityNotFoundException, NotCreateException, WeekendDayException, HasNotEnoughtPlacesException,
+			NotEmptyAudienceException, HasNotRightToTeachException, LessonsWithSameTeacherException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -271,7 +306,7 @@ class LessonServiceTest {
 				new LessonTime(3, 5, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Jordan", "	Brandon",
 						LocalDate.of(1998, 6, 6), "Brandson", "Jordan@Brandon", "123456789", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(1, "Phisic");
+		Group group = new Group(1, "M-51");
 		Student student = new Student("Angel", "Cameron", LocalDate.of(2011, 5, 15), "Los-Angeles", "Angel@Cameron",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -284,13 +319,15 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(lessons);
 
-		lessonService.update(lesson);
+		assertThrows(LessonsWithSameTeacherException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenExistingLesson_whenCreate_thenCreated() throws EntityNotFoundException, NotCreateException {
+	void givenExistingLesson_whenCreate_thenCreated()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, " Development");
@@ -303,11 +340,11 @@ class LessonServiceTest {
 		teacher.setId(9);
 		teacher.setSubjects(subjects);
 		Lesson lesson = new Lesson(1, new Subject(4, " Development"), new Audience(1, 14, 30),
-				LocalDate.of(2020, 12, 31), new LessonTime(1, 2, LocalTime.of(8, 30), LocalTime.of(9, 45)),
+				LocalDate.of(2020, 6, 30), new LessonTime(1, 2, LocalTime.of(8, 30), LocalTime.of(9, 45)),
 				new Teacher("Thomas", "Zachary", LocalDate.of(1992, 2, 17), "Thomsk", "Thomas@Zachary", "495867493",
 						Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(1, "Phisic");
+		Group group = new Group(1, "H-12");
 		Student student = new Student("Jose", "Levi", LocalDate.of(2015, 5, 15), "Lenn", "Jose@Levi", "2354657657",
 				Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -328,7 +365,9 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenCreate_thenNotCreated() throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithSameGroup_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsExceptionThrown()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Environment");
 		List<Subject> subjects = new ArrayList<>();
@@ -344,7 +383,7 @@ class LessonServiceTest {
 				new Teacher("Kevin", "Sebastian", LocalDate.of(1995, 3, 3), "Sendvin", "Kevin@Sebastian", "495867439",
 						Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(9, "Design");
+		Group group = new Group(9, "L-34");
 		Student student = new Student("Bentley", "Dominic", LocalDate.of(2014, 07, 19), "Benn", "Bentley@Dominic",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -355,13 +394,15 @@ class LessonServiceTest {
 		lesson.setTeacher(teacher);
 		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
-		lessonService.create(lesson);
+		assertThrows(HasLessonsWithSameGroupsException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenUpdate_thenNotUpdated() throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithSameGroup_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, "Building");
 		List<Subject> subjects = new ArrayList<>();
@@ -376,7 +417,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Adam", "Cooper",
 						LocalDate.of(1999, 7, 7), "	Carson", "Ivan@Ivanov", "123456789", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(6, "Arts");
+		Group group = new Group(6, "K-45");
 		Student student = new Student("Tristan", "Luis", LocalDate.of(2014, 07, 19), "Jaxon", "Vasya@vasyin",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -387,13 +428,15 @@ class LessonServiceTest {
 		lesson.setTeacher(teacher);
 		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(lessons);
 
-		lessonService.update(lesson);
+		assertThrows(HasLessonsWithSameGroupsException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenCreate_thenNotCreated() throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithBusyTeacher_whenCreate_thenNotCreatedAndLessonsWithSameTeacherException()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException, LessonsWithSameTeacherException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Humanities");
 		List<Subject> subjects = new ArrayList<>();
@@ -408,7 +451,7 @@ class LessonServiceTest {
 				new LessonTime(6, 6, LocalTime.of(13, 35), LocalTime.of(14, 45)), new Teacher("Brady", "Caden",
 						LocalDate.of(1993, 1, 17), "Maxwell", "Brady@Caden", "203948576", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(1, "Phisic");
+		Group group = new Group(1, "J-88");
 		Student student = new Student("Alejandro", "Joel", LocalDate.of(2016, 6, 16), "Ashton", "Alejandro@Joel",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -421,13 +464,14 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(lessons);
 
-		lessonService.create(lesson);
+		assertThrows(LessonsWithSameTeacherException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenCreate_thenNotCreated() throws NotCreateException, EntityNotFoundException {
+	void givenLessonWithWeekendDate_whenCreate_thenNotCreatedAndWeekendDayExceptionThrown() throws NotCreateException,
+			WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException, HasNotRightToTeachException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Arts");
 		List<Subject> subjects = new ArrayList<>();
@@ -442,7 +486,7 @@ class LessonServiceTest {
 				new LessonTime(6, 6, LocalTime.of(16, 20), LocalTime.of(17, 45)), new Teacher("Nicolas", "Maddox",
 						LocalDate.of(1995, 5, 3), "Kenneth", "Nicolas@Maddox", "4958372945", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(5, "Humanities");
+		Group group = new Group(5, "I-67");
 		Student student = new Student("Conner", "Andres", LocalDate.of(2011, 4, 15), "Lincoln", "Conner@Andres",
 				"2354657657", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -451,46 +495,56 @@ class LessonServiceTest {
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
+		lesson.setSubject(subject);
 
-		lessonService.create(lesson);
+		assertThrows(WeekendDayException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdated() throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdatedWeekendDayExceptionThrown()
+			throws NotCreateException, WeekendDayException {
+		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
-		Subject subject = new Subject(2, "Languages");
+		Subject subject = new Subject(4, " Development");
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(subject);
-		Audience audience = new Audience(22, 55);
+		Audience audience = new Audience(23, 47);
 		audience.setId(3);
-		Teacher teacher = new Teacher("Derek", "Tanner", LocalDate.of(2018, 8, 8), "Silas", "Derek@Tanner",
-				"2354657657", Gender.MALE);
-		teacher.setId(2);
+		Teacher teacher = new Teacher("Rober", "Charles", LocalDate.of(2012, 2, 19), "Charlstown", "Rober@Charles",
+				"947835467", Gender.MALE);
+		teacher.setId(9);
 		teacher.setSubjects(subjects);
-		Lesson lesson = new Lesson(1, new Subject(1, "Languages"), new Audience(3, 21, 21), LocalDate.of(2013, 6, 19),
-				new LessonTime(6, 2, LocalTime.of(13, 00), LocalTime.of(14, 00)), new Teacher("Eduardo", "Seth",
-						LocalDate.of(1994, 4, 3), "Jaiden", "Eduardo@Seth", "4859683745", Gender.MALE));
+		Lesson lesson = new Lesson(1, new Subject(4, " Development"), new Audience(1, 14, 30),
+				LocalDate.of(2013, 06, 22), new LessonTime(1, 2, LocalTime.of(8, 30), LocalTime.of(9, 45)),
+				new Teacher("Thomas", "Zachary", LocalDate.of(1992, 2, 17), "Thomsk", "Thomas@Zachary", "495867493",
+						Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(3, "Health");
-		Student student = new Student("Paul", "	Jorge", LocalDate.of(2014, 07, 19), "Travis", "Paul@Jorge",
-				"2354657657", Gender.MALE);
+		Group group = new Group(1, "P-65");
+		Student student = new Student("Jose", "Levi", LocalDate.of(2015, 5, 15), "Lenn", "Jose@Levi", "2354657657",
+				Gender.MALE);
 		List<Student> students = new ArrayList<>();
 		students.add(student);
 		group.setStudents(students);
 		lesson.setGroups(groups);
 		lessons.add(lesson);
 		lesson.setTeacher(teacher);
+		when(lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId())).thenReturn(empty);
+		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
+				.thenReturn(empty);
+		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
+				.thenReturn(empty);
 
-		lessonService.update(lesson);
+		assertThrows(WeekendDayException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreatedAndHasNotRightToTeachException()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Design");
 		List<Subject> subjects = new ArrayList<>();
@@ -505,7 +559,7 @@ class LessonServiceTest {
 				new LessonTime(1, 2, LocalTime.of(16, 35), LocalTime.of(17, 45)), new Teacher("Ezekiel", "Tucker",
 						LocalDate.of(1994, 2, 6), "Harrison", "Ezekiel@Tucker", "123456789", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(7, "Building");
+		Group group = new Group(7, "R-13");
 		Student student = new Student("Peter", "Damien", LocalDate.of(2015, 5, 15), "Greyson", "Peter@Damien",
 				"596847345", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -518,14 +572,15 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(new ArrayList<>());
 
-		lessonService.create(lesson);
+		assertThrows(HasNotRightToTeachException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdatedAndHasNotRightToTeachExceptionThrown()
+			throws WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
+			HasNotRightToTeachException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Planning");
@@ -541,7 +596,7 @@ class LessonServiceTest {
 				new LessonTime(3, 2, LocalTime.of(15, 30), LocalTime.of(16, 45)), new Teacher("Fernando", "Calvin",
 						LocalDate.of(1987, 5, 11), "Kiev", "Fernando@Calvin", "3948576382", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(4, "Humanities");
+		Group group = new Group(4, "W-99");
 		Student student = new Student("Ezra", "Xander", LocalDate.of(2011, 4, 14), "Jaylen", "Ezra@Xander", "394857693",
 				Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -554,14 +609,14 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId()))
 				.thenReturn(empty);
 
-		lessonService.update(lesson);
+		assertThrows(HasNotRightToTeachException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreatedAndHasNotEnoughtPlacesExceptionThrown()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Business");
@@ -577,7 +632,7 @@ class LessonServiceTest {
 				new LessonTime(7, 7, LocalTime.of(18, 30), LocalTime.of(19, 45)), new Teacher("Cesar", "Chance",
 						LocalDate.of(1994, 4, 5), "Zane", "Cesar@Chance", "9568594093", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(7, "Humanities");
+		Group group = new Group(7, "S-44");
 		Student student = new Student("Emmett", "Jayce", LocalDate.of(2014, 07, 19), "Mario", "Emmett@Jayce",
 				"596874386", Gender.MALE);
 		List<Student> students = new ArrayList<>();
@@ -595,14 +650,14 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
 				.thenReturn(empty);
 
-		lessonService.create(lesson);
+		assertThrows(HasNotEnoughtPlacesException.class, () -> lessonService.create(lesson));
 
 		verify(lessonDao, never()).create(lesson);
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, NotCreateException {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdatedAndHasNotEnoughtPlacesExceptionThrown()
+			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Technology");
@@ -618,11 +673,11 @@ class LessonServiceTest {
 				new LessonTime(8, 9, LocalTime.of(13, 30), LocalTime.of(14, 45)), new Teacher("Raymond", "Edwin",
 						LocalDate.of(1996, 6, 6), "Abel", "Raymond@Edwin", "123456789", Gender.MALE));
 		List<Group> groups = new ArrayList<>();
-		Group group = new Group(9, "Science");
+		Group group = new Group(9, "T-16");
 		Student student = new Student("Johnathan", "Alexis", LocalDate.of(2015, 5, 5), "Zion", "Johnathan@Alexis",
 				"48596745", Gender.MALE);
 		List<Student> students = new ArrayList<>();
-		Stream.iterate(0, n -> n + 1).limit(100).forEach(x -> students.add(new Student()));
+		iterate(0, n -> n + 1).limit(100).forEach(x -> students.add(new Student()));
 		students.add(student);
 		group.setStudents(students);
 		groups.add(group);
@@ -636,7 +691,7 @@ class LessonServiceTest {
 		when(lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId()))
 				.thenReturn(empty);
 
-		lessonService.update(lesson);
+		assertThrows(HasNotEnoughtPlacesException.class, () -> lessonService.update(lesson));
 
 		verify(lessonDao, never()).update(lesson);
 	}

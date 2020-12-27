@@ -13,7 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.LessonTime;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -39,17 +40,22 @@ class LessonTimeDaoTest {
 	@Test
 	void givenIdOfExistingLessonTime_whenGet_thenLessonTimeWithGivenIdReturned() throws EntityNotFoundException {
 		LessonTime expected = new LessonTime(1, 12, LocalTime.of(13, 30), LocalTime.of(14, 20));
-		assertEquals(expected, lessonTimeDao.get(expected.getId()));
+		assertEquals(expected, lessonTimeDao.get(expected.getId()).orElse(null));
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountInTableReturned() throws NotExistException {
+	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountInTableReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "lesson_times") - 1;
 
 		lessonTimeDao.delete(3);
 
 		int actual = countRowsInTable(jdbcTemplate, "lesson_times");
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenIdNotExistinLessonTime_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> lessonTimeDao.delete(399));
 	}
 
 	@Test
@@ -61,6 +67,13 @@ class LessonTimeDaoTest {
 
 		long actual = jdbcTemplate.queryForObject("SELECT order_number FROM lesson_times WHERE id=4", Long.class);
 		assertEquals(expected.getOrderNumber(), actual);
+	}
+
+	@Test
+	void givennotExistingLessonTime_whenUpdate_thenNotUpdateExceptionThrown() throws NotCreateException {
+		LessonTime expected = new LessonTime(99, 12, LocalTime.of(15, 25), LocalTime.of(17, 35));
+
+		assertThrows(NotUpdateException.class, () -> lessonTimeDao.update(expected));
 	}
 
 	@Test

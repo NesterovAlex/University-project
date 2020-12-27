@@ -16,7 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
@@ -90,8 +91,7 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowInTableLessons_Groups_whenUpdate_thenEqualCountRowsInTableReturnedReturned()
-			throws EntityNotFoundException, NotCreateException {
+	void givenExpectedCountRowInTableLessons_Groups_whenUpdate_thenEqualCountRowsInTableReturnedReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") + 1;
 
 		lessonDao.update(lesson);
@@ -101,8 +101,7 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableLessons_whenUpdate_thenEqualCountRowsInTableReturned()
-			throws EntityNotFoundException, NotCreateException {
+	void givenExpectedCountRowsInTableLessons_whenUpdate_thenEqualCountRowsInTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "lessons");
 
 		lessonDao.update(lesson);
@@ -112,10 +111,15 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExpectedTeacherNameOfExistingLesson_whenGet_thenRelevantNameOfTeacherReturned()
-			throws EntityNotFoundException {
+	void givenNotExistingLesson_whenUpdate_thenNotUpdateExceptionThrown() {
+		lesson.setId(8);
+		assertThrows(NotUpdateException.class, () -> lessonDao.update(lesson));
+	}
+
+	@Test
+	void givenExpectedTeacherNameOfExistingLesson_whenGet_thenRelevantNameOfTeacherReturned() {
 		String expected = "Vasin";
-		assertEquals(expected, lessonDao.get(4).getTeacher().getLastName());
+		assertEquals(expected, lessonDao.get(4).orElse(null).getTeacher().getLastName());
 	}
 
 	@Test
@@ -125,7 +129,7 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableLessons_whenDelete_thenEqualCountRowsInTableReturned() throws NotExistException {
+	void givenExpectedCountRowsInTableLessons_whenDelete_thenEqualCountRowsInTableReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "lessons") - 1;
 
 		lessonDao.delete(1);
@@ -135,8 +139,14 @@ class LessonDaoTest {
 	}
 
 	@Test
+	void givenExpectedCountRowsInTableLessons_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> lessonDao.delete(99));
+
+	}
+
+	@Test
 	void givenExpectedCountRowInTableLessons_Groups_whenDelete_thenEqualCountRowsInTableReturned()
-			throws NotExistException {
+			throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "lessons_groups") - 1;
 
 		lessonDao.delete(2);
@@ -146,8 +156,7 @@ class LessonDaoTest {
 	}
 
 	@Test
-	void givenExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned()
-			throws EntityNotFoundException {
+	void givenExistingLessonWIthExpectedDateAndAudience_whenFindByDateAndAudience_thenListLessonsWithExpectedSizeReturned() {
 		int expected = 1;
 
 		List<Lesson> actual = lessonDao.findByDateAndAudience(LocalDate.of(2020, 11, 24), 1, 3);

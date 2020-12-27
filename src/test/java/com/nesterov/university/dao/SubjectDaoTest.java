@@ -18,7 +18,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -78,7 +79,7 @@ class SubjectDaoTest {
 	void givenExpectedIdOfExistingSubject_whenGet_thenRelevantSubjectWithExpectedIdReturned()
 			throws EntityNotFoundException {
 		int expected = 8;
-		assertEquals(new Subject(expected, "Physic"), subjectDao.get(expected));
+		assertEquals(new Subject(expected, "Physic"), subjectDao.get(expected).orElse(null));
 	}
 
 	@Test
@@ -94,24 +95,34 @@ class SubjectDaoTest {
 		teachers.add(teacher);
 		teachers.add(otherTacher);
 
-		assertTrue(containsAll(teachers, subjectDao.get(subject.getId()).getTeachers()));
+		assertTrue(containsAll(teachers, subjectDao.get(subject.getId()).orElse(null).getTeachers()));
 	}
 
 	@Test
 	void givenExpectedIdOfExistingSubject_whenGet_thenEqualIdOfSubjectReturned() throws EntityNotFoundException {
 		Subject expected = new Subject(7, "Geometry");
 
-		assertEquals(expected, subjectDao.get(expected.getId()));
+		assertEquals(expected, subjectDao.get(expected.getId()).orElse(null));
 	}
 
 	@Test
-	void givenExpectedRowsInTable_whenDelete_thenEqualCountRowsReturned() throws NotExistException {
+	void givenIdOfNonExistingSubject_whenGet_thenOptionalEmptyReturned() throws EntityNotFoundException {
+		assertFalse(subjectDao.get(997).isPresent());
+	}
+
+	@Test
+	void givenExpectedRowsInTable_whenDelete_thenEqualCountRowsReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "subjects") - 1;
 
 		subjectDao.delete(2);
 
 		int actual = countRowsInTable(jdbcTemplate, "subjects");
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenIdOfNonExistingSubject_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> subjectDao.delete(555));
 	}
 
 	@Test
@@ -133,20 +144,26 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExistingSubject_whenFindByName_thenExpectedSubjectReturned() throws EntityNotFoundException {
+	void givenIdOfNonExistingSubject_whenUpdate_thenNotUpdateExceptionThrown() {
+		subject.setId(888);
+		assertThrows(NotUpdateException.class, () -> subjectDao.update(subject));
+	}
+
+	@Test
+	void givenExistingSubject_whenFindByName_thenExpectedSubjectReturned() {
 		Subject expected = new Subject(9, "Design");
 
-		Subject actual = subjectDao.findByName(expected.getName());
+		Subject actual = subjectDao.findByName(expected.getName()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenNonExistingSubject_whenFindByName_thenNullReturned() throws EntityNotFoundException {
+	void givenNonExistingSubject_whenFindByName_thenNullReturned() {
 		Subject expected = new Subject(10, "Health");
 		Subject actual = null;
 		try {
-			actual = subjectDao.findByName(expected.getName());
+			actual = subjectDao.findByName(expected.getName()).orElse(null);
 		} catch (EntityNotFoundException e) {
 			log.error("Not found subject by name={}", expected.getName(), e);
 		}

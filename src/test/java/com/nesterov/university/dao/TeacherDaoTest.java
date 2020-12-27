@@ -16,7 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -72,7 +73,7 @@ class TeacherDaoTest {
 
 	@Test
 	void givenExpectedCountRowsInTableTeachers_Subjects_whenDelete_thenEqualCountRowsReturned()
-			throws NotExistException {
+			throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") - 2;
 
 		teacherDao.delete(teacher.getId());
@@ -82,7 +83,12 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_whenDelete_thenEqualCountRowsReturned() throws NotExistException {
+	void givenIdOfNonExistingSubject_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> teacherDao.delete(888));
+	}
+
+	@Test
+	void givenExpectedCountRowsInTableTeachers_whenDelete_thenEqualCountRowsReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "teachers") - 1;
 
 		teacherDao.delete(4);
@@ -97,7 +103,7 @@ class TeacherDaoTest {
 				"55r2346254", Gender.MALE);
 		expected.setId(7);
 
-		assertEquals(expected, teacherDao.get(expected.getId()));
+		assertEquals(expected, teacherDao.get(expected.getId()).orElse(null));
 	}
 
 	@Test
@@ -106,7 +112,7 @@ class TeacherDaoTest {
 		subjects.add(new Subject(3, "Geometry"));
 		subjects.add(new Subject(2, "Geography"));
 
-		assertTrue(containsAll(subjects, teacherDao.get(1).getSubjects()));
+		assertTrue(containsAll(subjects, teacherDao.get(1).orElse(null).getSubjects()));
 	}
 
 	@Test
@@ -151,6 +157,21 @@ class TeacherDaoTest {
 	}
 
 	@Test
+	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenNotUpdateExceptionThrown()
+			throws NotCreateException, EntityNotFoundException {
+		Teacher updated = new Teacher("Nadine", "Kapun", LocalDate.of(1999, 10, 10), "Kiev", "Nadine@Kapun",
+				"546738948", Gender.valueOf("FEMALE"));
+		updated.setId(987);
+		List<Subject> subjects = new ArrayList<>();
+		subjects.add(new Subject(2, "Geography"));
+		subjects.add(new Subject(3, "Geometry"));
+		subjects.add(new Subject(1, "Mathematic"));
+		updated.setSubjects(subjects);
+
+		assertThrows(NotUpdateException.class, () -> teacherDao.update(updated));
+	}
+
+	@Test
 	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned()
 			throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.findAll().size());
@@ -165,34 +186,34 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenTeacherEmail_whenFindByEmail_thenExpectedTeacherReturned() throws EntityNotFoundException {
+	void givenTeacherEmail_whenFindByEmail_thenExpectedTeacherReturned() {
 		Teacher expected = new Teacher("Michael", "Fisher", LocalDate.of(2006, 02, 13), "Salem", "Michael@Fisher",
 				"3947852847", Gender.MALE);
 		expected.setId(11);
 
-		Teacher actual = teacherDao.findByEmail(expected.getEmail());
+		Teacher actual = teacherDao.findByEmail(expected.getEmail()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTeacherPhone_whenFindByPhone_thenExpectedTeacherReturned() throws EntityNotFoundException {
+	void givenTeacherPhone_whenFindByPhone_thenExpectedTeacherReturned() {
 		Teacher expected = new Teacher("John", "Conor", LocalDate.of(2000, 04, 13), "New York", "John@Connor",
 				"3847562903", Gender.MALE);
 		expected.setId(9);
 
-		Teacher actual = teacherDao.findByPhone(expected.getPhone());
+		Teacher actual = teacherDao.findByPhone(expected.getPhone()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenTeacherAddress_whenFindByAddress_thenExpectedTeacherReturned() throws EntityNotFoundException {
+	void givenTeacherAddress_whenFindByAddress_thenExpectedTeacherReturned() {
 		Teacher expected = new Teacher("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
 				"6439037583", Gender.MALE);
 		expected.setId(10);
 
-		Teacher actual = teacherDao.findByAddress(expected.getAddress());
+		Teacher actual = teacherDao.findByAddress(expected.getAddress()).orElse(null);
 
 		assertEquals(expected, actual);
 	}

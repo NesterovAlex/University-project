@@ -13,7 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotExistException;
+import com.nesterov.university.dao.exceptions.NotDeleteException;
+import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -57,17 +58,33 @@ class StudentDaoTest {
 		expected.setCourse("Biology");
 		expected.setGroupId(4);
 
-		assertEquals(expected, studentDao.get(expected.getId()));
+		assertEquals(expected, studentDao.get(expected.getId()).orElse(null));
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountRowsFromTableReturned() throws NotExistException {
+	void givenIdOfNonExistingStudent_whenGet_thenOptionalEmptyReturned() throws EntityNotFoundException {
+		assertFalse(studentDao.get(999).isPresent());
+	}
+
+	@Test
+	void givenIdOfNonExistingStudent_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
+		assertThrows(NotDeleteException.class, () -> studentDao.delete(888));
+	}
+
+	@Test
+	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountRowsFromTableReturned() throws NotDeleteException {
 		int expected = countRowsInTable(jdbcTemplate, "students") - 1;
 
 		studentDao.delete(1);
 
 		int actual = countRowsInTable(jdbcTemplate, "students");
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenNonExistingStudent_whenUpdate_thenNotUpdateExceptionThrown() throws NotCreateException {
+		student.setId(777);
+		assertThrows(NotUpdateException.class, () -> studentDao.update(student));
 	}
 
 	@Test
@@ -110,9 +127,14 @@ class StudentDaoTest {
 		expected.setId(5);
 		expected.setGroupId(5);
 
-		Student actual = studentDao.findByEmail(expected.getEmail());
+		Student actual = studentDao.findByEmail(expected.getEmail()).orElse(null);
 
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenUnknownEmail_whenFindByEmail_thenOptionalemptyReturned() throws EntityNotFoundException {
+		assertFalse(studentDao.findByPhone("Unknown email").isPresent());
 	}
 
 	@Test
@@ -124,13 +146,18 @@ class StudentDaoTest {
 		expected.setId(4);
 		expected.setGroupId(4);
 
-		Student actual = studentDao.findByPhone(expected.getPhone());
+		Student actual = studentDao.findByPhone(expected.getPhone()).orElse(null);
 
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	void givenStudentPhone_whenFindByAddress_thenExpectedStudentReturned() throws EntityNotFoundException {
+	void givenUnknownPhone_whenFindByPhone_thenOptionalEmptyReturned() throws EntityNotFoundException {
+		assertFalse(studentDao.findByPhone("Unknown phone").isPresent());
+	}
+
+	@Test
+	void givenStudentAddress_whenFindByAddress_thenExpectedStudentReturned() throws EntityNotFoundException {
 		Student expected = new Student("Hank", "Moody", LocalDate.of(2003, 06, 14), "Garlem", "Hank@Moody",
 				"6439037583", Gender.MALE);
 		expected.setCourse("History");
@@ -138,8 +165,13 @@ class StudentDaoTest {
 		expected.setId(6);
 		expected.setGroupId(6);
 
-		Student actual = studentDao.findByAddress(expected.getAddress());
+		Student actual = studentDao.findByAddress(expected.getAddress()).orElse(null);
 
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	void givenNotExistinAddressOfStudent_whenFindByAddress_thenOptionalEmptyReturned() throws EntityNotFoundException {
+		assertFalse(studentDao.findByAddress("Unknown address").isPresent());
 	}
 }
