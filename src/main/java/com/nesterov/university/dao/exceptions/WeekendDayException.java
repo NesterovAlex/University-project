@@ -1,6 +1,6 @@
 package com.nesterov.university.dao.exceptions;
 
-public class WeekendDayException extends Exception {
+public class WeekendDayException extends RuntimeException {
 
 	private static final long serialVersionUID = 902257046552622991L;
 

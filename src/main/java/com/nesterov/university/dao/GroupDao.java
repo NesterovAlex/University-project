@@ -1,7 +1,6 @@
 package com.nesterov.university.dao;
 
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 
 import java.sql.PreparedStatement;
@@ -16,9 +15,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.GroupRowMapper;
 import com.nesterov.university.model.Group;
 
@@ -44,50 +40,37 @@ public class GroupDao {
 	}
 
 	@Transactional
-	public void create(Group group) throws NotCreateException {
+	public void create(Group group) {
 		log.debug("Create {}", group);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		try {
-			jdbcTemplate.update(connection -> {
-				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-				statement.setString(1, group.getName());
-				return statement;
-			}, holder);
-			group.setId(holder.getKey().longValue());
-		} catch (Exception e) {
-			String message = format("Group '%s' not created ", group);
-			throw new NotCreateException(message);
-		}
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setString(1, group.getName());
+			return statement;
+		}, holder);
+		group.setId(holder.getKey().longValue());
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
 	public Optional<Group> get(long id) {
 		log.debug("Get group by id={}", id);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, groupRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
 	}
 
 	@Transactional
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
 		log.debug("Delete group by id={}", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			String message = format("Not deleted Group with id = '%s'", id);
-			throw new NotDeleteException(message);
-		}
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	@Transactional
 	public void update(Group group) {
 		log.debug("Update group by id={}", group);
-		int affectedrows = jdbcTemplate.update(UPDATE, group.getName(), group.getId());
-		if (affectedrows == 0) {
-			String message = format("Audience '%s' not updated", group);
-			throw new NotUpdateException(message);
-		}
+		jdbcTemplate.update(UPDATE, group.getName(), group.getId());
 	}
 
 	public List<Group> findAll() {
@@ -103,10 +86,9 @@ public class GroupDao {
 	public Optional<Group> findByName(String name) {
 		log.debug("Find group by name={}", name);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_NAME, new Object[] { name }, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
-
 	}
 }

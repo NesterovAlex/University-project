@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static java.util.Optional.ofNullable;
+import static org.mockito.Mockito.when;
+import static java.util.Optional.of;
+import static java.util.Optional.empty;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -15,10 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonTimeDao;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.NotRightTimeException;
 import com.nesterov.university.model.LessonTime;
 
@@ -32,8 +32,7 @@ class LessonTimeServiceTest {
 	private LessonTimeService lessonTimeService;
 
 	@Test
-	void givenListOfExistsLessonTimes_whenGetAll_thenExpectedListOfLessonTimesReturned()
-			throws NotFoundEntitiesException {
+	void givenListOfExistsLessonTimes_whenGetAll_thenExpectedListOfLessonTimesReturned() {
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(9, 15), LocalTime.of(10, 45));
 		List<LessonTime> expected = new ArrayList<>();
 		expected.add(lessonTime);
@@ -45,16 +44,16 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenEmptyListLessonTimes_whenGetAll_thenNotFoundEntitiesExceptionThrown() throws NotFoundEntitiesException {
+	void givenEmptyListLessonTimes_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(lessonTimeDao.findAll()).willReturn(new ArrayList<>());
 
 		assertThrows(NotFoundEntitiesException.class, () -> lessonTimeService.getAll());
 	}
 
 	@Test
-	void givenLessonTime_whenGet_thenExpectedLessonTimeReturned() throws NotPresentEntityException {
+	void givenLessonTime_whenGet_thenExpectedLessonTimeReturned() {
 		LessonTime expected = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
-		given(lessonTimeDao.get(expected.getId())).willReturn(ofNullable(expected));
+		given(lessonTimeDao.get(expected.getId())).willReturn(of(expected));
 
 		LessonTime actual = lessonTimeService.get(expected.getId());
 
@@ -62,16 +61,25 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenLessonTimeId_whenDelete_thenDeleted() throws NotDeleteException {
-		int lessonTimeId = 1;
+	void givenLessonTimeId_whenDelete_thenDeleted() {
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
+		when(lessonTimeDao.get(lessonTime.getId())).thenReturn(of(lessonTime));
 
-		lessonTimeService.delete(lessonTimeId);
+		lessonTimeService.delete(lessonTime.getId());
 
-		verify(lessonTimeDao).delete(lessonTimeId);
+		verify(lessonTimeDao).delete(lessonTime.getId());
 	}
 
 	@Test
-	void givenLessonTime_whenUpdate_thenUpdated() throws NotCreateException, NotRightTimeException {
+	void givenOptionalEmptyLesson_whenDelete_thenNotFoundExceptionThrown() {
+		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
+		when(lessonTimeDao.get(lessonTime.getId())).thenReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> lessonTimeService.delete(lessonTime.getId()));
+	}
+
+	@Test
+	void givenLessonTime_whenUpdate_thenUpdated() {
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(14, 15), LocalTime.of(15, 45));
 
 		lessonTimeService.update(lessonTime);
@@ -80,7 +88,7 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenLessonTime_whenCreate_thenCreated() throws Throwable {
+	void givenLessonTime_whenCreate_thenCreated() {
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(17, 45), LocalTime.of(18, 45));
 
 		lessonTimeService.create(lessonTime);
@@ -89,8 +97,7 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenLessonTimeWithWrongStartAndEndTime_whenCreate_thenNotCreatedAndNotRightTimeExceptionThrown()
-			throws Throwable {
+	void givenLessonTimeWithWrongStartAndEndTime_whenCreate_thenNotCreatedAndNotRightTimeExceptionThrown() {
 		LessonTime lessonTime = new LessonTime(1, 13, LocalTime.of(9, 15), LocalTime.of(8, 45));
 
 		assertThrows(NotRightTimeException.class, () -> lessonTimeService.create(lessonTime));
@@ -99,8 +106,7 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenLessonTimeWithWrongStartAndEndTime_whenUpdate_thenNotUpdatedAndNotRightTimeExceptionThrown()
-			throws NotCreateException, NotRightTimeException {
+	void givenLessonTimeWithWrongStartAndEndTime_whenUpdate_thenNotUpdatedAndNotRightTimeExceptionThrown() {
 		LessonTime lessonTime = new LessonTime(1, 14, LocalTime.of(10, 35), LocalTime.of(9, 15));
 
 		assertThrows(NotRightTimeException.class, () -> lessonTimeService.update(lessonTime));

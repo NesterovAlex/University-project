@@ -1,6 +1,6 @@
 package com.nesterov.university.dao.exceptions;
 
-public class NotUniqueEmailException extends Exception {
+public class NotUniqueEmailException extends RuntimeException {
 
 	private static final long serialVersionUID = 5535011598805225431L;
 

@@ -15,9 +15,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -44,8 +41,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	public void givenExpectedCountRowsInTableTeachers_whenCreate_thenEqualCountRowsReturned()
-			throws NotCreateException {
+	public void givenExpectedCountRowsInTableTeachers_whenCreate_thenEqualCountRowsReturned() {
 		List<Subject> subjects = new ArrayList<Subject>();
 		Teacher teacher = new Teacher("Alice", "Nesterova", LocalDate.of(2015, 2, 12), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
@@ -61,8 +57,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	public void givenExpectedCountRowsInTableTeachers_Subjects_whenCreate_thenEqualCountRowsReturned()
-			throws NotCreateException {
+	public void givenExpectedCountRowsInTableTeachers_Subjects_whenCreate_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") + 2;
 
 		teacherDao.create(teacher);
@@ -72,8 +67,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_Subjects_whenDelete_thenEqualCountRowsReturned()
-			throws NotDeleteException {
+	void givenExpectedCountRowsInTableTeachers_Subjects_whenDelete_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects") - 2;
 
 		teacherDao.delete(teacher.getId());
@@ -83,12 +77,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenIdOfNonExistingSubject_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
-		assertThrows(NotDeleteException.class, () -> teacherDao.delete(888));
-	}
-
-	@Test
-	void givenExpectedCountRowsInTableTeachers_whenDelete_thenEqualCountRowsReturned() throws NotDeleteException {
+	void givenExpectedCountRowsInTableTeachers_whenDelete_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "teachers") - 1;
 
 		teacherDao.delete(4);
@@ -98,7 +87,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantTeacherReturned() throws EntityNotFoundException {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantTeacherReturned() {
 		Teacher expected = new Teacher("Petr", "Petrov", LocalDate.of(2011, 5, 14), "Petrovka", "petr@petrov",
 				"55r2346254", Gender.MALE);
 		expected.setId(7);
@@ -107,7 +96,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned() throws EntityNotFoundException {
+	void givenExpectedIdOfExistingTeacher_whenGet_thenRelevantListOfSubjectsReturned() {
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(3, "Geometry"));
 		subjects.add(new Subject(2, "Geography"));
@@ -116,8 +105,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_Subjects_whenUpdate_thenEqualCountRowsReturned()
-			throws NotCreateException, EntityNotFoundException {
+	void givenExpectedCountRowsInTableTeachers_Subjects_whenUpdate_thenEqualCountRowsReturned() {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -138,8 +126,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenEqualCountRowsReturned()
-			throws NotCreateException, EntityNotFoundException {
+	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenEqualCountRowsReturned() {
 		Teacher updated = new Teacher("Alice", "Nesterova", LocalDate.of(1995, 9, 9), "Kiev", "alice@nesterova.com",
 				"123456789", Gender.valueOf("FEMALE"));
 		updated.setId(2);
@@ -157,28 +144,13 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_whenUpdate_thenNotUpdateExceptionThrown()
-			throws NotCreateException, EntityNotFoundException {
-		Teacher updated = new Teacher("Nadine", "Kapun", LocalDate.of(1999, 10, 10), "Kiev", "Nadine@Kapun",
-				"546738948", Gender.valueOf("FEMALE"));
-		updated.setId(987);
-		List<Subject> subjects = new ArrayList<>();
-		subjects.add(new Subject(2, "Geography"));
-		subjects.add(new Subject(3, "Geometry"));
-		subjects.add(new Subject(1, "Mathematic"));
-		updated.setSubjects(subjects);
-
-		assertThrows(NotUpdateException.class, () -> teacherDao.update(updated));
-	}
-
-	@Test
 	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned()
 			throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.findAll().size());
 	}
 
 	@Test
-	void givenSubjectId_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() throws EntityNotFoundException {
+	void givenSubjectId_whenGetAllBySubject_thenExpectedCountOfTeachersReturned() {
 		Subject actual = new Subject(2, "Geography");
 		int expected = 3;
 

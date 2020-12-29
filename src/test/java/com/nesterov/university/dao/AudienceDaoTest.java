@@ -13,7 +13,6 @@ import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -83,20 +82,5 @@ class AudienceDaoTest {
 	@Test
 	void givenIdNonExistingAudience_whenGet_thenOptionalEmptyReturned() {
 		assertFalse(audienceDao.get(100).isPresent());
-	}
-
-	@Test
-	void givenIdNonExistingAudience_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
-		assertThrows(NotDeleteException.class, () -> audienceDao.delete(100));
-	}
-
-	@Test
-	void givenNonExistingAudience_whenUpdate_thenNotUpdateExceptionThrown() throws NotDeleteException {
-		assertThrows(NotUpdateException.class, () -> audienceDao.update(new Audience(100, 100, 100)));
-	}
-
-	@Test
-	void givenNull_whenCreate_thenNotCreateExceptionThrown() throws NotCreateException {
-		assertThrows(NotCreateException.class, () -> audienceDao.create(null));
 	}
 }

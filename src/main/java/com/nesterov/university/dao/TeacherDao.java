@@ -1,7 +1,6 @@
 package com.nesterov.university.dao;
 
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 
 import java.sql.PreparedStatement;
@@ -10,7 +9,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,9 +16,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.TeacherRowMapper;
 import com.nesterov.university.dao.mapper.TeacherSimpleRowMapper;
 import com.nesterov.university.model.Subject;
@@ -57,71 +52,53 @@ public class TeacherDao {
 	}
 
 	@Transactional
-	public void create(Teacher teacher) throws NotCreateException {
+	public void create(Teacher teacher) {
 		log.debug("Create {}", teacher);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		try {
-			jdbcTemplate.update(connection -> {
-				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-				statement.setString(1, teacher.getFirstName());
-				statement.setString(2, teacher.getLastName());
-				statement.setObject(3, teacher.getBithDate());
-				statement.setString(4, teacher.getAddress());
-				statement.setString(5, teacher.getEmail());
-				statement.setString(6, teacher.getPhone());
-				statement.setString(7, teacher.getGender().name());
-				return statement;
-			}, holder);
-			long id = holder.getKey().longValue();
-			teacher.setId(id);
-			teacher.getSubjects()
-					.forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, id, s.getId(), id, s.getId()));
-		} catch (Exception e) {
-			String message = format("Teacher '%s' not created ", teacher);
-			throw new NotCreateException(message);
-		}
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setString(1, teacher.getFirstName());
+			statement.setString(2, teacher.getLastName());
+			statement.setObject(3, teacher.getBithDate());
+			statement.setString(4, teacher.getAddress());
+			statement.setString(5, teacher.getEmail());
+			statement.setString(6, teacher.getPhone());
+			statement.setString(7, teacher.getGender().name());
+			return statement;
+		}, holder);
+		long id = holder.getKey().longValue();
+		teacher.setId(id);
+		teacher.getSubjects()
+				.forEach(s -> jdbcTemplate.update(INSERT_INTO_TEACHERS_SUBJECTS, id, s.getId(), id, s.getId()));
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
 	public Optional<Teacher> get(long id) {
 		log.debug("Get teacher by id={}", id);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, teacherRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, teacherRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
 	}
 
 	@Transactional
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
 		log.debug("Delete teacher by id={}", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			String message = format("Teacher with id = '%s' not exist ", id);
-			throw new NotDeleteException(message);
-		}
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	@Transactional
 	public void update(Teacher teacher) {
-		try {
-			log.debug("Update teacher {}", teacher);
-			int affectedrows = jdbcTemplate.update(UPDATE, teacher.getFirstName(), teacher.getLastName(),
-					teacher.getBithDate(), teacher.getAddress(), teacher.getEmail(), teacher.getPhone(),
-					teacher.getGender().name(), teacher.getId());
-			List<Subject> subjects = subjectDao.findByTeacherId(teacher.getId());
-			subjects.stream().filter(s -> !teacher.getSubjects().contains(s))
-					.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));
-			teacher.getSubjects().stream().filter(s -> !subjects.contains(s)).forEach(s -> jdbcTemplate
-					.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(), teacher.getId(), s.getId()));
-			if (affectedrows == 0) {
-				String message = format("Teacher '%s' not updated", teacher);
-				throw new NotUpdateException(message);
-			}
-		} catch (DataIntegrityViolationException e) {
-			String message = format("Teacher '%s' not updated", teacher);
-			throw new NotUpdateException(message, e);
-		}
+		log.debug("Update teacher {}", teacher);
+		jdbcTemplate.update(UPDATE, teacher.getFirstName(), teacher.getLastName(), teacher.getBithDate(),
+				teacher.getAddress(), teacher.getEmail(), teacher.getPhone(), teacher.getGender().name(),
+				teacher.getId());
+		List<Subject> subjects = subjectDao.findByTeacherId(teacher.getId());
+		subjects.stream().filter(s -> !teacher.getSubjects().contains(s))
+				.forEach(s -> jdbcTemplate.update(DELETE_FROM_TEACHERS_SUBJECTS, s.getId(), teacher.getId()));
+		teacher.getSubjects().stream().filter(s -> !subjects.contains(s)).forEach(s -> jdbcTemplate
+				.update(INSERT_INTO_TEACHERS_SUBJECTS, teacher.getId(), s.getId(), teacher.getId(), s.getId()));
 	}
 
 	public List<Teacher> findAll() {
@@ -137,7 +114,7 @@ public class TeacherDao {
 	public Optional<Teacher> findByEmail(String email) {
 		log.debug("Find teacher by email={}", email);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, teacherRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, teacherRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
@@ -146,7 +123,7 @@ public class TeacherDao {
 	public Optional<Teacher> findByPhone(String phone) {
 		log.debug("Find teacher by phone={}", phone);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, teacherRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, teacherRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
@@ -155,8 +132,7 @@ public class TeacherDao {
 	public Optional<Teacher> findByAddress(String address) {
 		log.debug("Find teacher by address={}", address);
 		try {
-			return ofNullable(
-					jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, teacherRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, teacherRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}

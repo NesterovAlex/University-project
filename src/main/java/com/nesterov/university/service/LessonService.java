@@ -10,11 +10,8 @@ import com.nesterov.university.dao.exceptions.HasLessonsWithSameGroupsException;
 import com.nesterov.university.dao.exceptions.HasNotEnoughtPlacesException;
 import com.nesterov.university.dao.exceptions.HasNotRightToTeachException;
 import com.nesterov.university.dao.exceptions.LessonsWithSameTeacherException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotEmptyAudienceException;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.WeekendDayException;
 import com.nesterov.university.model.Lesson;
 
@@ -27,42 +24,43 @@ public class LessonService {
 		this.lessonDao = lessonDao;
 	}
 
-	public void create(Lesson lesson)
-			throws WeekendDayException, NotCreateException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	public void create(Lesson lesson) {
 		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
 				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
 			lessonDao.create(lesson);
 		}
 	}
 
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
+		if (!lessonDao.get(id).isPresent()) {
+			String message = format("Lesson with id = '%s' not found", id);
+			throw new NotFoundException(message);
+		}
+
 		lessonDao.delete(id);
 	}
 
-	public Lesson get(long id) throws NotPresentEntityException {
+	public Lesson get(long id) {
 		String message = format("Lesson with id = '%s' not found", id);
-		return lessonDao.get(id).orElseThrow(() -> new NotPresentEntityException(message));
+		return lessonDao.get(id).orElseThrow(() -> new NotFoundException(message));
 	}
 
-	public void update(Lesson lesson)
-			throws WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	public void update(Lesson lesson) {
 		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
 				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
 			lessonDao.update(lesson);
 		}
 	}
 
-	public List<Lesson> getAll() throws NotFoundEntitiesException {
+	public List<Lesson> getAll() {
 		List<Lesson> lessons = lessonDao.findAll();
 		if (lessons.isEmpty()) {
-			throw new NotFoundEntitiesException("Not found lessons");
+			throw new NotFoundException("Not found lessons");
 		}
 		return lessons;
 	}
 
-	private boolean hasLessonsWithSameGroups(Lesson lesson) throws HasLessonsWithSameGroupsException {
+	private boolean hasLessonsWithSameGroups(Lesson lesson) {
 		List<Lesson> lessons = lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId());
 		if (!lessons.isEmpty()) {
 			throw new HasLessonsWithSameGroupsException(
@@ -71,7 +69,7 @@ public class LessonService {
 		return !lessons.isEmpty();
 	}
 
-	private boolean hasLessonsWithSameTeacher(Lesson lesson) throws LessonsWithSameTeacherException {
+	private boolean hasLessonsWithSameTeacher(Lesson lesson) {
 		List<Lesson> lessons = lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(),
 				lesson.getTeacher().getId());
 		if (!lessons.isEmpty()) {
@@ -82,7 +80,7 @@ public class LessonService {
 		return !lessons.isEmpty();
 	}
 
-	private boolean hasRightToTeach(Lesson lesson) throws HasNotRightToTeachException {
+	private boolean hasRightToTeach(Lesson lesson) {
 		if (lesson.getTeacher().getSubjects().stream().noneMatch(s -> s.equals(lesson.getSubject()))) {
 			String message = String.format("Teacher with id = '%s' has not right to teach this lesson",
 					lesson.getTeacher().getId());
@@ -91,7 +89,7 @@ public class LessonService {
 		return lesson.getTeacher().getSubjects().stream().anyMatch(s -> s.equals(lesson.getSubject()));
 	}
 
-	private boolean isEmptyAudience(Lesson lesson) throws NotEmptyAudienceException {
+	private boolean isEmptyAudience(Lesson lesson) {
 		List<Lesson> lessons = lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(),
 				lesson.getAudience().getId());
 		if (!lessons.isEmpty()) {
@@ -101,7 +99,7 @@ public class LessonService {
 		return lessons.isEmpty();
 	}
 
-	private boolean hasEnoughPlaces(Lesson lesson) throws HasNotEnoughtPlacesException {
+	private boolean hasEnoughPlaces(Lesson lesson) {
 		long countStudentsOfLesson = countStudentsOfLesson(lesson);
 		if (countStudentsOfLesson > lesson.getAudience().getCapacity()) {
 			String message = String.format("Has not enought places in audience with roomNumber = '%s'",
@@ -115,7 +113,7 @@ public class LessonService {
 		return lesson.getGroups().stream().mapToLong(g -> g.getStudents().size()).sum();
 	}
 
-	private boolean isWeekend(Lesson lesson) throws WeekendDayException {
+	private boolean isWeekend(Lesson lesson) {
 		boolean isWeekend = lesson.getDate().getDayOfWeek() == DayOfWeek.SATURDAY
 				|| lesson.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
 		if (isWeekend) {

@@ -17,7 +17,6 @@ import com.nesterov.university.dao.TestConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
 import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
@@ -62,11 +61,6 @@ class GroupDaoTest {
 	}
 
 	@Test
-	void givenNonExistingGroup_whenUpdate_thenNotUpdateExceptionThrown() throws NotCreateException {
-		assertThrows(NotUpdateException.class, () -> groupDao.update(new Group(199, "V-22")));
-	}
-
-	@Test
 	void givenExpectedCountRowsInTable_whenFindAll_thenEqualCountOfRowsReturned() throws EntityNotFoundException {
 		assertEquals(countRowsInTable(jdbcTemplate, "groups"), groupDao.findAll().size());
 	}
@@ -86,11 +80,6 @@ class GroupDaoTest {
 
 		int actual = countRowsInTable(jdbcTemplate, "groups");
 		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenNotExistingGroupId_whenDelete_thenNotDeleteException() throws NotDeleteException {
-		assertThrows(NotDeleteException.class, () -> groupDao.delete(100));
 	}
 
 	@Test

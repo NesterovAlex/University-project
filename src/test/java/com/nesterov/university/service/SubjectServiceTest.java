@@ -5,7 +5,7 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 
 import java.util.ArrayList;
@@ -17,13 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
 import com.nesterov.university.dao.SubjectDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.NotUniqueNameException;
 import com.nesterov.university.model.Subject;
 
@@ -38,7 +33,7 @@ class SubjectServiceTest {
 	private SubjectService subjectService;
 
 	@Test
-	void givenListOfExistsSubjects_whenGetAll_thenExpectedListOfSubjectsReturned() throws NotFoundEntitiesException {
+	void givenListOfExistsSubjects_whenGetAll_thenExpectedListOfSubjectsReturned() {
 		List<Subject> expected = new ArrayList<>();
 		expected.add(new Subject(1, "Literature"));
 		expected.add(new Subject(2, "Geography"));
@@ -51,17 +46,16 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenEmptyListSubjects_whenGetAll_thenNotFoundEntitiesExceptionThrown() throws NotFoundEntitiesException {
+	void givenEmptyListSubjects_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(subjectDao.findAll()).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> subjectService.getAll());
+		assertThrows(NotFoundException.class, () -> subjectService.getAll());
 	}
 
 	@Test
-	void givenExpectedSubject_whenGet_thenEqualSubjectReturned()
-			throws EntityNotFoundException, NotPresentEntityException {
+	void givenExpectedSubject_whenGet_thenEqualSubjectReturned() {
 		Subject expected = new Subject(1, "Technology");
-		given(subjectDao.get(expected.getId())).willReturn(ofNullable(expected));
+		given(subjectDao.get(expected.getId())).willReturn(of(expected));
 
 		Subject actual = subjectService.get(expected.getId());
 
@@ -69,27 +63,35 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenOptionalEmptySubject_whenGet_thenNotPresentEntityExceptionThrown()
-			throws EntityNotFoundException, NotPresentEntityException {
+	void givenOptionalEmptySubject_whenGet_thenNotPresentEntityExceptionThrown() {
 		Subject expected = new Subject(5, "Machine Learning");
 		given(subjectDao.get(expected.getId())).willReturn(empty());
 
-		assertThrows(NotPresentEntityException.class, () -> subjectService.get(expected.getId()));
+		assertThrows(NotFoundException.class, () -> subjectService.get(expected.getId()));
 	}
 
 	@Test
-	void givenSubjectId_whenDelete_thenDeleted() throws NotDeleteException {
-		int subjectId = 1;
+	void givenSubjectId_whenDelete_thenDeleted() {
+		Subject subject = new Subject(7, "Dinamic");
+		when(subjectDao.get(subject.getId())).thenReturn(of(subject));
 
-		subjectService.delete(subjectId);
+		subjectService.delete(subject.getId());
 
-		verify(subjectDao).delete(subjectId);
+		verify(subjectDao).delete(subject.getId());
 	}
 
 	@Test
-	void givenSubject_whenUpdate_thenUpdated() throws NotUniqueNameException {
+	void givenOptionEmptySubject_whenDelete_thenNotFoundExceptionThrown() {
+		Subject subject = new Subject(3, "Anatomy");
+		when(subjectDao.get(subject.getId())).thenReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> subjectService.delete(subject.getId()));
+	}
+
+	@Test
+	void givenSubject_whenUpdate_thenUpdated() {
 		Subject subject = new Subject(8, "Psychology");
-		when(subjectDao.findByName(subject.getName())).thenReturn(ofNullable(subject));
+		when(subjectDao.findByName(subject.getName())).thenReturn(of(subject));
 
 		subjectService.update(subject);
 
@@ -97,9 +99,9 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenExistingSubject_whenUpdate_thenUpdated() throws NotUniqueNameException {
+	void givenExistingSubject_whenUpdate_thenUpdated() {
 		Subject subject = new Subject(7, "Nursing");
-		when(subjectDao.findByName(subject.getName())).thenReturn(empty());
+		when(subjectDao.findByName(subject.getName())).thenReturn(of(subject));
 
 		subjectService.update(subject);
 
@@ -107,19 +109,18 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenUpdate_thenNotUpdatedNotUniqueNameExceptionThrown() throws NotUniqueNameException {
+	void givenNonExistingSubject_whenUpdate_thenNotUpdated() {
 		Subject existingSubject = new Subject(7, "Nursing");
 		Subject newSubject = new Subject(6, "Nursing");
-		when(subjectDao.findByName(newSubject.getName())).thenReturn(ofNullable(existingSubject));
+		when(subjectDao.findByName(newSubject.getName())).thenReturn(of(existingSubject));
 
-		assertThrows(NotUniqueNameException.class, () -> subjectService.update(newSubject));
+		subjectService.update(newSubject);
 
 		verify(subjectDao, never()).update(newSubject);
 	}
 
 	@Test
-	void givenListOfExistsSubjects_whenFindByTeacherId_thenExpectedListOfSubjectsReturned()
-			throws NotFoundEntitiesException {
+	void givenListOfExistsSubjects_whenFindByTeacherId_thenExpectedListOfSubjectsReturned() {
 		int expected = 1;
 		List<Subject> subjects = new ArrayList<>();
 		subjects.add(new Subject(1, "Literature"));
@@ -133,17 +134,16 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenEmptyListSubjects_whenFindByTeacherId_thenNotFoundEntitiesExceptionThrown()
-			throws NotFoundEntitiesException {
+	void givenEmptyListSubjects_whenFindByTeacherId_thenNotFoundEntitiesExceptionThrown() {
 		given(subjectDao.findByTeacherId(777)).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> subjectService.findByTeacherId(777));
+		assertThrows(NotFoundException.class, () -> subjectService.findByTeacherId(777));
 	}
 
 	@Test
-	void givenSubject_whenCreate_thenCreated() throws NotCreateException, NotUniqueNameException {
+	void givenSubject_whenCreate_thenCreated() {
 		Subject subject = new Subject(1, "Languages");
-		when(subjectDao.findByName(subject.getName())).thenReturn(empty());
+		when(subjectDao.findByName(subject.getName())).thenReturn(of(subject));
 
 		subjectService.create(subject);
 
@@ -151,10 +151,10 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenCreate_thenCreated() throws NotCreateException, NotUniqueNameException {
-		Subject existingSubject = new Subject(1, "Statistics");
+	void givenNonExistingSubject_whenCreate_thenCreated() {
+		Subject existingSubject = new Subject(1, "Phisic");
 		Subject newSubject = new Subject(1, "Statistics");
-		when(subjectDao.findByName(newSubject.getName())).thenReturn(ofNullable(existingSubject));
+		when(subjectDao.findByName(newSubject.getName())).thenReturn(of(existingSubject));
 
 		subjectService.create(newSubject);
 
@@ -162,11 +162,10 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenDuplicateNames_whenCreate_thenNotCreatedAndNotUniqueNameExceptionThrown()
-			throws NotCreateException, NotUniqueNameException {
+	void givenDuplicateNames_whenCreate_thenNotCreatedAndNotUniqueNameExceptionThrown() {
 		Subject expected = new Subject(2, "Statistics");
 		Subject actual = new Subject(1, "Statistics");
-		when(subjectDao.findByName(actual.getName())).thenReturn(ofNullable(actual));
+		when(subjectDao.findByName(actual.getName())).thenReturn(empty());
 
 		assertThrows(NotUniqueNameException.class, () -> subjectService.create(expected));
 

@@ -1,6 +1,6 @@
 package com.nesterov.university.dao.exceptions;
 
-public class NotPresentEntityException extends Exception {
+public class NotPresentEntityException extends RuntimeException {
 
 	private static final long serialVersionUID = 3497723982125213274L;
 

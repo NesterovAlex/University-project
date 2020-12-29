@@ -1,6 +1,5 @@
 package com.nesterov.university.dao;
 
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.Optional.empty;
 
@@ -14,9 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.LessonTimeRowMapper;
 import com.nesterov.university.model.LessonTime;
 
@@ -39,22 +35,17 @@ public class LessonTimeDao {
 		this.lessonTimeRowMapper = lessonTimeRowMapper;
 	}
 
-	public void create(LessonTime lessonTime) throws NotCreateException {
+	public void create(LessonTime lessonTime) {
 		log.debug("Create {}", lessonTime);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		try {
-			jdbcTemplate.update(connection -> {
-				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-				statement.setInt(1, lessonTime.getOrderNumber());
-				statement.setObject(2, lessonTime.getStart());
-				statement.setObject(3, lessonTime.getEnd());
-				return statement;
-			}, holder);
-			lessonTime.setId(holder.getKey().longValue());
-		} catch (Exception e) {
-			String message = format("LessonTime '%s' not created ", lessonTime);
-			throw new NotCreateException(message);
-		}
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setInt(1, lessonTime.getOrderNumber());
+			statement.setObject(2, lessonTime.getStart());
+			statement.setObject(3, lessonTime.getEnd());
+			return statement;
+		}, holder);
+		lessonTime.setId(holder.getKey().longValue());
 	}
 
 	public Optional<LessonTime> get(long id) {
@@ -66,23 +57,15 @@ public class LessonTimeDao {
 		}
 	}
 
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
 		log.debug("Delete LessonTime by id={}", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			String message = format("LessonTime with id = '%s' not deleted", id);
-			throw new NotDeleteException(message);
-		}
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	public void update(LessonTime lessonTime) {
 		log.debug("Update LessonTime {}", lessonTime);
-		int affectedRows = jdbcTemplate.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(),
-				lessonTime.getEnd(), lessonTime.getId());
-		if (affectedRows == 0) {
-			String message = format("LessonTime '%s' not updated", lessonTime);
-			throw new NotUpdateException(message);
-		}
+		jdbcTemplate.update(UPDATE, lessonTime.getOrderNumber(), lessonTime.getStart(), lessonTime.getEnd(),
+				lessonTime.getId());
 	}
 
 	public List<LessonTime> findAll() {

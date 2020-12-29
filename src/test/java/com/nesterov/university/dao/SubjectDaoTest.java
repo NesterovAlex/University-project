@@ -17,9 +17,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -49,8 +46,7 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsReturned()
-			throws EntityNotFoundException, NotCreateException {
+	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "teachers_subjects");
 
 		subjectDao.update(subject);
@@ -60,13 +56,12 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenFindAll_thenExpectedCountOfSubjectsReturned()
-			throws EntityNotFoundException {
+	void givenExpectedCountRowsInTable_whenFindAll_thenExpectedCountOfSubjectsReturned() {
 		assertEquals(countRowsInTable(jdbcTemplate, "subjects"), subjectDao.findAll().size());
 	}
 
 	@Test
-	public void givenExpectedCountRowsInTable_whenCreate_thenEqualCountRowsReturned() throws NotCreateException {
+	public void givenExpectedCountRowsInTable_whenCreate_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "subjects") + 1;
 
 		subjectDao.create(subject);
@@ -76,15 +71,13 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingSubject_whenGet_thenRelevantSubjectWithExpectedIdReturned()
-			throws EntityNotFoundException {
+	void givenExpectedIdOfExistingSubject_whenGet_thenRelevantSubjectWithExpectedIdReturned() {
 		int expected = 8;
 		assertEquals(new Subject(expected, "Physic"), subjectDao.get(expected).orElse(null));
 	}
 
 	@Test
-	void givenExpectedTeachersOfExistingSubject_whenGet_thenRelevantTeachersOfSubjectReturned()
-			throws EntityNotFoundException {
+	void givenExpectedTeachersOfExistingSubject_whenGet_thenRelevantTeachersOfSubjectReturned() {
 		Teacher teacher = new Teacher("Vasya", "Vasin", LocalDate.of(2014, 7, 19), "Vasino", "Vasya@vasyin",
 				"2354657657", Gender.MALE);
 		teacher.setId(2);
@@ -99,19 +92,19 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingSubject_whenGet_thenEqualIdOfSubjectReturned() throws EntityNotFoundException {
+	void givenExpectedIdOfExistingSubject_whenGet_thenEqualIdOfSubjectReturned() {
 		Subject expected = new Subject(7, "Geometry");
 
 		assertEquals(expected, subjectDao.get(expected.getId()).orElse(null));
 	}
 
 	@Test
-	void givenIdOfNonExistingSubject_whenGet_thenOptionalEmptyReturned() throws EntityNotFoundException {
+	void givenIdOfNonExistingSubject_whenGet_thenOptionalEmptyReturned() {
 		assertFalse(subjectDao.get(997).isPresent());
 	}
 
 	@Test
-	void givenExpectedRowsInTable_whenDelete_thenEqualCountRowsReturned() throws NotDeleteException {
+	void givenExpectedRowsInTable_whenDelete_thenEqualCountRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "subjects") - 1;
 
 		subjectDao.delete(2);
@@ -121,32 +114,19 @@ class SubjectDaoTest {
 	}
 
 	@Test
-	void givenIdOfNonExistingSubject_whenDelete_thenNotDeleteExceptionThrown() throws NotDeleteException {
-		assertThrows(NotDeleteException.class, () -> subjectDao.delete(555));
-	}
-
-	@Test
-	void givenExpectedCountSubjectsOfTeacher_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured()
-			throws EntityNotFoundException {
+	void givenExpectedCountSubjectsOfTeacher_whenGetAllByTeacher_thenExpectedCountOfSubjectsRetured() {
 		int expected = 3;
 		assertEquals(expected, subjectDao.findByTeacherId(teacher.getId()).size());
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsInTableReturned()
-			throws EntityNotFoundException, NotCreateException {
+	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsInTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "subjects");
 
 		subjectDao.update(subject);
 
 		int actual = countRowsInTable(jdbcTemplate, "subjects");
 		assertEquals(expected, actual);
-	}
-
-	@Test
-	void givenIdOfNonExistingSubject_whenUpdate_thenNotUpdateExceptionThrown() {
-		subject.setId(888);
-		assertThrows(NotUpdateException.class, () -> subjectDao.update(subject));
 	}
 
 	@Test

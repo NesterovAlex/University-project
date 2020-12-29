@@ -1,8 +1,7 @@
 package com.nesterov.university.dao;
 
-import static java.lang.String.format;
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
@@ -11,17 +10,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.LessonRowMapper;
 import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Lesson;
@@ -53,67 +47,48 @@ public class LessonDao {
 	}
 
 	@Transactional
-	public void create(Lesson lesson) throws NotCreateException {
+	public void create(Lesson lesson) {
 		log.debug("Create {}", lesson);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		try {
-			jdbcTemplate.update(connection -> {
-				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-				statement.setLong(1, lesson.getAudience().getId());
-				statement.setLong(2, lesson.getSubject().getId());
-				statement.setLong(3, lesson.getTeacher().getId());
-				statement.setLong(4, lesson.getTime().getId());
-				statement.setObject(5, lesson.getDate());
-				return statement;
-			}, holder);
-			long id = holder.getKey().longValue();
-			lesson.setId(id);
-			lesson.getGroups()
-					.forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, id, g.getId(), id, g.getId()));
-		} catch (Exception e) {
-			String message = format("Lesson '%s' not created ", lesson);
-			throw new NotCreateException(message);
-		}
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setLong(1, lesson.getAudience().getId());
+			statement.setLong(2, lesson.getSubject().getId());
+			statement.setLong(3, lesson.getTeacher().getId());
+			statement.setLong(4, lesson.getTime().getId());
+			statement.setObject(5, lesson.getDate());
+			return statement;
+		}, holder);
+		long id = holder.getKey().longValue();
+		lesson.setId(id);
+		lesson.getGroups().forEach(g -> jdbcTemplate.update(INSERT_INTO_LESSONS_GROUPS, id, g.getId(), id, g.getId()));
 	}
 
 	public Optional<Lesson> get(long id) {
 		log.debug("Get lesson by id={}", id);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, lessonRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
 	}
 
 	@Transactional
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
 		log.debug("Delete lesson by id={}", id);
-		int affectedrows = jdbcTemplate.update(DELETE, id);
-		if (affectedrows == 0) {
-			String message = format("Not deleted audience with id = '%s'", id);
-			throw new NotDeleteException(message);
-		}
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	@Transactional
 	public void update(Lesson lesson) {
-		try {
-			log.debug("Update lesson by id={}", lesson);
-			int affectedRows = jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
-					lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
-			List<Group> groups = groupDao.findByLessonId(lesson.getId());
-			groups.stream().filter(g -> !lesson.getGroups().contains(g))
-					.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
-			lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate
-					.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(), lesson.getId(), g.getId()));
-			if (affectedRows == 0) {
-				String message = format("Lesson '%s' not updated", lesson);
-				throw new NotUpdateException(message);
-			}
-		} catch (DataIntegrityViolationException e) {
-			String message = format("Lesson '%s' not updated", lesson);
-			throw new NotUpdateException(message, e);
-		}
+		log.debug("Update lesson by id={}", lesson);
+		jdbcTemplate.update(UPDATE, lesson.getAudience().getId(), lesson.getSubject().getId(),
+				lesson.getTeacher().getId(), lesson.getTime().getId(), lesson.getDate(), lesson.getId());
+		List<Group> groups = groupDao.findByLessonId(lesson.getId());
+		groups.stream().filter(g -> !lesson.getGroups().contains(g))
+				.forEach(g -> jdbcTemplate.update(DELETE_FROM_LESSONS_GROUPS, lesson.getId(), g.getId()));
+		lesson.getGroups().stream().filter(g -> !groups.contains(g)).forEach(g -> jdbcTemplate
+				.update(INSERT_INTO_LESSONS_GROUPS, lesson.getId(), g.getId(), lesson.getId(), g.getId()));
 	}
 
 	@Transactional
@@ -135,15 +110,7 @@ public class LessonDao {
 
 	public List<Lesson> findByDateAndTeacher(LocalDate date, long lessonTimeId, long teacherId) {
 		log.debug("Find lessons by date={}, lessonTimeId={}, teacherId={}", date, lessonTimeId, teacherId);
-		List<Lesson> lessons = null;
-		try {
-			lessons = jdbcTemplate.query(SELECT_BY_DATE_TEACHER, new Object[] { date, lessonTimeId, teacherId },
-					lessonRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			String message = format("Lessons with date = '%s', lessonTimeId = '%s', teacherId = '%s' not found", date,
-					lessonTimeId, teacherId);
-			throw new EntityNotFoundException(message, e);
-		}
-		return lessons;
+		return jdbcTemplate.query(SELECT_BY_DATE_TEACHER, new Object[] { date, lessonTimeId, teacherId },
+				lessonRowMapper);
 	}
 }

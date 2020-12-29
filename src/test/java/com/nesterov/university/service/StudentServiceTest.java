@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static java.util.stream.Stream.iterate;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -20,10 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.StudentDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.NotPresentEntityException;
 import com.nesterov.university.dao.exceptions.NotUniqueAddressException;
 import com.nesterov.university.dao.exceptions.NotUniqueEmailException;
@@ -41,7 +39,7 @@ class StudentServiceTest {
 	private StudentService studentService;
 
 	@Test
-	void giveListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned() throws NotFoundEntitiesException {
+	void giveListOfExistsStudents_whenGetAll_thenRelevantListOfStudentsReturned() {
 		Student student = new Student("Jeffrey", "Hector", LocalDate.of(1995, 3, 13), "Shawn", "Jeffrey@Hector",
 				"293847563", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -54,17 +52,17 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenEmptyListStudents_whenGetAll_thenNotFoundEntitiesExceptionThrown() throws NotFoundEntitiesException {
+	void givenEmptyListStudents_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(studentDao.findAll()).willReturn(new ArrayList<>());
 
 		assertThrows(NotFoundEntitiesException.class, () -> studentService.getAll());
 	}
 
 	@Test
-	void givenStudent_whenGet_thenExpectedStudentReturned() throws EntityNotFoundException, NotPresentEntityException {
+	void givenStudent_whenGet_thenExpectedStudentReturned() {
 		Student expected = new Student("Lukas", "Amir", LocalDate.of(1994, 4, 11), "Keegan", "Lukas@Amir", "348576983",
 				Gender.MALE);
-		given(studentDao.get(expected.getId())).willReturn(ofNullable(expected));
+		given(studentDao.get(expected.getId())).willReturn(of(expected));
 
 		Student actual = studentService.get(expected.getId());
 
@@ -72,7 +70,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenOptionalEmpty_whenGet_thenNotPresentEntityExceptionThrown() throws NotPresentEntityException {
+	void givenOptionalEmpty_whenGet_thenNotPresentEntityExceptionThrown() {
 		Student student = new Student("Lukas", "Amir", LocalDate.of(1994, 4, 11), "Keegan", "Lukas@Amir", "348576983",
 				Gender.MALE);
 		given(studentDao.get(student.getId())).willReturn(empty());
@@ -81,17 +79,27 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentId_whenDelete_thenDeleted() throws NotDeleteException {
-		int studentId = 1;
+	void givenStudentId_whenDelete_thenDeleted() {
+		Student student = new Student("Andy", "Mcdowell", LocalDate.of(2000, 1, 1), "Drink", "Andy@Mcdowell",
+				"584736251", Gender.MALE);
+		when(studentDao.get(student.getId())).thenReturn(of(student));
 
-		studentService.delete(studentId);
+		studentService.delete(student.getId());
 
-		verify(studentDao).delete(studentId);
+		verify(studentDao).delete(student.getId());
 	}
 
 	@Test
-	void givenExistingStudent_whenUpdate_thenUpdated() throws NotFoundEntitiesException, NotUniqueAddressException,
-			NotUniqueEmailException, NotUniquePhoneException {
+	void givenOptionalEmptyStudent_whenDelete_thenNotFoundExceptionThrown() {
+		Student student = new Student("John", "Krenck", LocalDate.of(1993, 9, 22), "Doom", "John@Krenck", "594832945",
+				Gender.MALE);
+		when(studentDao.get(student.getId())).thenReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> studentService.delete(student.getId()));
+	}
+
+	@Test
+	void givenExistingStudent_whenUpdate_thenUpdated() {
 		Student student = new Student("Kyler", "Donovan", LocalDate.of(1995, 5, 15), "Kiev", "Kyler@Donova",
 				"483746578", Gender.MALE);
 		student.setGroupId(6);
@@ -99,6 +107,9 @@ class StudentServiceTest {
 		students.add(student);
 		setField(studentService, "maxGroupSize", 30);
 		when(studentDao.findByGroupId(student.getGroupId())).thenReturn(students);
+		when(studentDao.findByEmail(student.getEmail())).thenReturn(of(student));
+		when(studentDao.findByPhone(student.getPhone())).thenReturn(of(student));
+		when(studentDao.findByAddress(student.getAddress())).thenReturn(of(student));
 
 		studentService.update(student);
 
@@ -106,8 +117,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenNonExistingStudent_whenUpdate_thenNotUpdated() throws NotFoundEntitiesException,
-			NotUniqueAddressException, NotUniqueEmailException, NotUniquePhoneException {
+	void givenNonExistingStudent_whenUpdate_thenNotUpdated() {
 		Student existingStudent = new Student("Graham", "Simon", LocalDate.of(1997, 7, 17), "Everett", "Graham@Simon",
 				"293847563", Gender.MALE);
 		existingStudent.setId(9);
@@ -116,8 +126,10 @@ class StudentServiceTest {
 		existingStudent.setId(10);
 		List<Student> students = new ArrayList<>();
 		students.add(newStudent);
-		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(empty());
+		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(of(newStudent));
 		when(studentDao.findByGroupId(newStudent.getGroupId())).thenReturn(students);
+		when(studentDao.findByPhone(newStudent.getPhone())).thenReturn(of(newStudent));
+		when(studentDao.findByAddress(newStudent.getAddress())).thenReturn(of(newStudent));
 
 		studentService.update(newStudent);
 
@@ -125,8 +137,7 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenListOfExistsStudents_whenFindByGroupId_thenExpectedListOfStudentsReturned()
-			throws NotFoundEntitiesException {
+	void givenListOfExistsStudents_whenFindByGroupId_thenExpectedListOfStudentsReturned() {
 		Student student = new Student("Clayton", "Braden", LocalDate.of(1999, 6, 14), "Brendan", "Clayton@Braden",
 				"3948576238", Gender.MALE);
 		List<Student> expected = new ArrayList<>();
@@ -139,17 +150,16 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudent_whenCreate_thenCreated() throws NotFoundEntitiesException, NotCreateException,
-			NotUniqueAddressException, NotUniqueEmailException, NotUniquePhoneException {
+	void givenStudent_whenCreate_thenCreated() {
 		Student student = new Student("Zander", "Jared", LocalDate.of(2019, 02, 15), "Ivanovo", "Zander@Jared",
 				"358769341", Gender.FEMALE);
 		student.setGroupId(4);
 		List<Student> students = new ArrayList<>();
 		students.add(student);
 		setField(studentService, "maxGroupSize", 30);
-		when(studentDao.findByEmail(student.getEmail())).thenReturn(empty());
-		when(studentDao.findByPhone(student.getPhone())).thenReturn(empty());
-		when(studentDao.findByAddress(student.getAddress())).thenReturn(empty());
+		when(studentDao.findByEmail(student.getEmail())).thenReturn(of(student));
+		when(studentDao.findByPhone(student.getPhone())).thenReturn(of(student));
+		when(studentDao.findByAddress(student.getAddress())).thenReturn(of(student));
 		when(studentDao.findByGroupId(student.getGroupId())).thenReturn(students);
 
 		studentService.create(student);
@@ -158,30 +168,30 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenEmptyListStudents_whenCreate_thenNotFoundEntitiesExceptionThrown()
-			throws NotFoundEntitiesException, NotCreateException {
+	void givenEmptyListStudents_whenCreate_thenNotFoundEntitiesExceptionThrown() {
 		Student student = new Student("Zander", "Jared", LocalDate.of(2019, 02, 15), "Ivanovo", "Zander@Jared",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();
 		when(studentDao.findByGroupId(student.getGroupId())).thenReturn(students);
+		when(studentDao.findByEmail(student.getEmail())).thenReturn(of(student));
+		when(studentDao.findByPhone(student.getPhone())).thenReturn(of(student));
+		when(studentDao.findByAddress(student.getAddress())).thenReturn(of(student));
 
-		assertThrows(NotFoundEntitiesException.class, () -> studentService.create(student));
+		assertThrows(NotFoundException.class, () -> studentService.create(student));
 
 		verify(studentDao, never()).create(student);
 	}
 
 	@Test
-	void givenStudentWithNotUniquePhone_whenCreate_thenNotCreateAndNotUniquePhoneExceptionThrown()
-			throws NotCreateException, NotFoundEntitiesException, NotUniqueAddressException, NotUniqueEmailException,
-			NotUniquePhoneException {
+	void givenStudentWithNotUniquePhone_whenCreate_thenNotCreateAndNotUniquePhoneExceptionThrown() {
 		Student existingStudent = new Student("Losy", "Dunk", LocalDate.of(2011, 3, 13), "Losevile", "Losy@Dunk",
 				"839472834", Gender.FEMALE);
-		existingStudent.setId(5);
+		existingStudent.setId(6);
 		Student newStudent = new Student("Losy", "Dunk", LocalDate.of(2011, 3, 13), "Losevile", "Losy@Dunk",
 				"839472834", Gender.FEMALE);
 		existingStudent.setId(6);
-		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(empty());
-		when(studentDao.findByPhone(newStudent.getPhone())).thenReturn(ofNullable(existingStudent));
+		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(of(newStudent));
+		when(studentDao.findByPhone(newStudent.getPhone())).thenReturn(empty());
 
 		assertThrows(NotUniquePhoneException.class, () -> studentService.create(newStudent));
 
@@ -189,18 +199,17 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithNotUniqueAddress_whenCreate_thenNotCreateAndNotUniqueAddressExceptionThrown()
-			throws NotCreateException, NotFoundEntitiesException, NotUniqueAddressException, NotUniqueEmailException,
-			NotUniquePhoneException {
+	void givenStudentWithNotUniqueAddress_whenCreate_thenNotCreateAndNotUniqueAddressExceptionThrown() {
 		Student existingStudent = new Student("Shane", "Groov", LocalDate.of(2010, 7, 19), "kenwood", "Shane@Groov",
 				"784392856", Gender.FEMALE);
 		existingStudent.setId(4);
 		Student newStudent = new Student("Roody", "Moor", LocalDate.of(2014, 4, 14), "kenwood", "Roody@Moor",
 				"948573624", Gender.FEMALE);
 		newStudent.setId(5);
-		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(empty());
-		when(studentDao.findByPhone(newStudent.getPhone())).thenReturn(empty());
-		when(studentDao.findByAddress(existingStudent.getAddress())).thenReturn(ofNullable(existingStudent));
+
+		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(of(newStudent));
+		when(studentDao.findByPhone(newStudent.getPhone())).thenReturn(of(newStudent));
+		when(studentDao.findByAddress(existingStudent.getAddress())).thenReturn(empty());
 
 		assertThrows(NotUniqueAddressException.class, () -> studentService.create(newStudent));
 
@@ -208,15 +217,14 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithNotUniqueEmail_whenCreate_thenNotCreateAndNotUniqueEmailException()
-			throws NotCreateException, NotFoundEntitiesException, NotUniqueAddressException, NotUniqueEmailException {
+	void givenStudentWithNotUniqueEmail_whenCreate_thenNotCreateAndNotUniqueEmailException() {
 		Student existingStudent = new Student("Ryker", "Dante", LocalDate.of(2019, 02, 15), "Lane", "Ryker@Dante",
 				"358769341", Gender.FEMALE);
 		existingStudent.setId(6);
 		Student newStudent = new Student("Recul", "Enty", LocalDate.of(2009, 1, 11), "Lane", "Recul@Enty", "358769341",
 				Gender.FEMALE);
 		existingStudent.setId(7);
-		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(ofNullable(existingStudent));
+		when(studentDao.findByEmail(newStudent.getEmail())).thenReturn(empty());
 
 		assertThrows(NotUniqueEmailException.class, () -> studentService.create(newStudent));
 
@@ -224,15 +232,14 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithGroupMoreThenThirtyStudentIn_whenCreate_thenNotCreate() throws NotCreateException,
-			NotFoundEntitiesException, NotUniqueAddressException, NotUniqueEmailException, NotUniquePhoneException {
+	void givenStudentWithGroupMoreThenThirtyStudentIn_whenCreate_thenNotCreate() {
 		Student student = new Student("Kameron", "Elliot", LocalDate.of(2013, 3, 13), "Paxton", "Kameron@Elliot",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();
 		Stream.iterate(0, n -> n + 1).limit(50).forEach(x -> students.add(new Student()));
-		when(studentDao.findByEmail(student.getEmail())).thenReturn(empty());
-		when(studentDao.findByPhone(student.getPhone())).thenReturn(empty());
-		when(studentDao.findByAddress(student.getAddress())).thenReturn(empty());
+		when(studentDao.findByEmail(student.getEmail())).thenReturn(of(student));
+		when(studentDao.findByPhone(student.getPhone())).thenReturn(of(student));
+		when(studentDao.findByAddress(student.getAddress())).thenReturn(of(student));
 		when(studentDao.findByGroupId(student.getGroupId())).thenReturn(students);
 
 		studentService.create(student);
@@ -241,15 +248,14 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenStudentWithGroupMoreThenThirtyStudentIn_whenUpdate_thenNotUpdate() throws NotCreateException,
-			NotFoundEntitiesException, NotUniqueAddressException, NotUniqueEmailException, NotUniquePhoneException {
+	void givenStudentWithGroupMoreThenThirtyStudentIn_whenUpdate_thenNotUpdate() {
 		Student student = new Student("Rafael", "Dalton", LocalDate.of(2014, 4, 11), "Caiden", "Rafael@Dalton",
 				"358769341", Gender.FEMALE);
 		List<Student> students = new ArrayList<>();
 		iterate(0, n -> n + 1).limit(50).forEach(x -> students.add(new Student()));
-		when(studentDao.findByEmail(student.getEmail())).thenReturn(empty());
-		when(studentDao.findByPhone(student.getPhone())).thenReturn(empty());
-		when(studentDao.findByAddress(student.getAddress())).thenReturn(empty());
+		when(studentDao.findByEmail(student.getEmail())).thenReturn(of(student));
+		when(studentDao.findByPhone(student.getPhone())).thenReturn(of(student));
+		when(studentDao.findByAddress(student.getAddress())).thenReturn(of(student));
 		when(studentDao.findByGroupId(student.getGroupId())).thenReturn(students);
 
 		studentService.update(student);

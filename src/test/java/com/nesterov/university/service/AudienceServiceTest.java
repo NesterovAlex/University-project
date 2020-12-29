@@ -5,23 +5,20 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.AudienceDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
@@ -35,7 +32,7 @@ class AudienceServiceTest {
 	private AudienceService audienceService;
 
 	@Test
-	void givenListOfExistsAudiences_whenGetAll_thenExpectedListOfAudiencesReturned() throws NotFoundEntitiesException {
+	void givenListOfExistsAudiences_whenGetAll_thenExpectedListOfAudiencesReturned() {
 		List<Audience> expected = new ArrayList<>();
 		expected.add(new Audience(1, 12, 20));
 		expected.add(new Audience(2, 10, 23));
@@ -48,9 +45,9 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenAudience_whenGet_thenExpectedAudienceReturned() throws NotPresentEntityException {
+	void givenAudience_whenGet_thenExpectedAudienceReturned() {
 		Audience expected = new Audience(1, 2, 40);
-		given(audienceDao.get(expected.getId())).willReturn(ofNullable(expected));
+		given(audienceDao.get(expected.getId())).willReturn(of(expected));
 
 		Audience actual = audienceService.get(expected.getId());
 
@@ -58,18 +55,35 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenAudienceId_whenDelete_thenDeleted() throws NotDeleteException {
-		int audienceId = 1;
+	void givenOptionalEmpty_whenDelete_thenNotFoundExceptionThrown() {
+		Audience audience = new Audience(4, 7, 30);
+		given(audienceDao.get(audience.getId())).willReturn(empty());
 
-		audienceService.delete(audienceId);
-
-		verify(audienceDao).delete(audienceId);
+		assertThrows(NotFoundException.class, () -> audienceService.delete(audience.getId()));
 	}
 
 	@Test
-	void givenRoomNumberAudience_whenUpdate_thenUpdated() throws NotUniqueRoomNumberException {
+	void givenAudienceId_whenDelete_thenDeleted() {
+		Audience audience = new Audience(7, 5, 40);
+		given(audienceDao.get(audience.getId())).willReturn(of(audience));
+
+		audienceService.delete(audience.getId());
+
+		verify(audienceDao).delete(audience.getId());
+	}
+
+	@Test
+	void givenEmptyOptional_whenDelete_thenNotFoundExceptionThrown() {
+		Audience audience = new Audience(7, 5, 40);
+		given(audienceDao.get(audience.getId())).willReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> audienceService.delete(audience.getId()));
+	}
+
+	@Test
+	void givenRoomNumberAudience_whenUpdate_thenUpdated() {
 		Audience audience = new Audience(3, 7, 24);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(ofNullable(audience));
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
 		audienceService.update(audience);
 
@@ -77,9 +91,9 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenUpdate_thenUpdated() throws NotUniqueRoomNumberException {
+	void givenExistingAudience_whenUpdate_thenUpdated() {
 		Audience audience = new Audience(5, 14, 23);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(ofNullable(audience));
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
 		audienceService.update(audience);
 
@@ -87,12 +101,9 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenNonExistingAudience_whenUpdate_thenNotUpdated()
-			throws EntityNotFoundException, NotCreateException, NotUniqueRoomNumberException {
-		Audience existingAudience = new Audience(4, 14, 23);
+	void givenNonExistingAudience_whenUpdate_thenNotUpdated() {
 		Audience newAudience = new Audience(5, 14, 23);
-		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber()))
-				.thenReturn(Optional.ofNullable(existingAudience));
+		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(empty());
 
 		assertThrows(NotUniqueRoomNumberException.class, () -> audienceService.update(newAudience));
 
@@ -102,7 +113,7 @@ class AudienceServiceTest {
 	@Test
 	void givenExistingAudience_whenCreate_thenCreated() throws NotUniqueRoomNumberException, NotCreateException {
 		Audience audience = new Audience(1, 4, 33);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(ofNullable(audience));
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
 		audienceService.create(audience);
 
@@ -112,8 +123,7 @@ class AudienceServiceTest {
 	@Test
 	void givenNonExistingAudience_whenCreate_thenNotCreated() throws NotUniqueRoomNumberException, NotCreateException {
 		Audience newAudience = new Audience(1, 4, 33);
-		Audience existingAudience = new Audience(2, 4, 33);
-		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(ofNullable(existingAudience));
+		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(empty());
 
 		assertThrows(NotUniqueRoomNumberException.class, () -> audienceService.create(newAudience));
 		verify(audienceDao, never()).create(newAudience);
@@ -122,7 +132,7 @@ class AudienceServiceTest {
 	@Test
 	void givenRoomNumberAudience_whenCreate_thenCreated() throws NotUniqueRoomNumberException, NotCreateException {
 		Audience audience = new Audience(6, 1, 36);
-		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(empty());
+		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
 		audienceService.create(audience);
 
@@ -132,8 +142,7 @@ class AudienceServiceTest {
 	@Test
 	void givenNotUniqueRoomNumberAudience_whenCreate_thenNotUniqueRoomNumberExceptionThrown() {
 		Audience newAudience = new Audience(6, 1, 36);
-		Audience existingAudience = new Audience(7, 1, 36);
-		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(ofNullable(existingAudience));
+		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(empty());
 
 		assertThrows(NotUniqueRoomNumberException.class, () -> audienceService.create(newAudience));
 	}
@@ -146,10 +155,10 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenIdNonExistingAudience_whenGet_thenNotPresentEntityExceptionThrown() {
+	void givenIdNonExistingAudience_whenGet_thenNotFoundExceptionThrown() {
 		int expectedId = 99;
 		when(audienceDao.get(expectedId)).thenReturn(empty());
 
-		assertThrows(NotPresentEntityException.class, () -> audienceService.get(expectedId));
+		assertThrows(NotFoundException.class, () -> audienceService.get(expectedId));
 	}
 }

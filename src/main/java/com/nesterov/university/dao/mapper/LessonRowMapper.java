@@ -11,11 +11,11 @@ import com.nesterov.university.dao.LessonTimeDao;
 import com.nesterov.university.dao.SubjectDao;
 import com.nesterov.university.dao.TeacherDao;
 import com.nesterov.university.model.Lesson;
-import com.nesterov.university.model.Subject;
 
 @Component
 public class LessonRowMapper implements RowMapper<Lesson> {
 
+	private GroupDao groupDao;
 	private AudienceDao audienceDao;
 	private SubjectDao subjectDao;
 	private TeacherDao teacherDao;
@@ -30,18 +30,16 @@ public class LessonRowMapper implements RowMapper<Lesson> {
 		this.groupDao = groupDao;
 	}
 
-	private GroupDao groupDao;
-
 	@Override
 	public Lesson mapRow(ResultSet rs, int rowNum) throws SQLException {
 		Lesson lesson = new Lesson();
 		lesson.setId(rs.getLong("id"));
-		lesson.setAudience(audienceDao.get(rs.getLong("audience_id")).orElse(null));
 		lesson.setGroups(groupDao.findByLessonId(rs.getLong("id")));
-		lesson.setTime(lessonTimeDao.get(rs.getLong("lesson_time_id")).orElse(null));
-		lesson.setTeacher(teacherDao.get(rs.getLong("teacher_id")).orElse(null));
-		lesson.setSubject(subjectDao.get(rs.getLong("subject_id")).orElse(new Subject()));
 		lesson.setDate(rs.getObject("lesson_date", LocalDate.class));
+		audienceDao.get(rs.getLong("audience_id")).ifPresent(lesson::setAudience);
+		lessonTimeDao.get(rs.getLong("lesson_time_id")).ifPresent(lesson::setTime);
+		teacherDao.get(rs.getLong("teacher_id")).ifPresent(lesson::setTeacher);
+		subjectDao.get(rs.getLong("subject_id")).ifPresent(lesson::setSubject);
 		return lesson;
 	}
 }

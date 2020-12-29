@@ -1,6 +1,6 @@
 package com.nesterov.university.dao.exceptions;
 
-public class NotUniqueAddressException extends Exception {
+public class NotUniqueAddressException extends RuntimeException {
 
 	private static final long serialVersionUID = -5118175056763288175L;
 

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.stream.Stream.iterate;
 
 import java.time.LocalDate;
@@ -20,16 +20,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonDao;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.dao.exceptions.HasLessonsWithSameGroupsException;
 import com.nesterov.university.dao.exceptions.HasNotEnoughtPlacesException;
 import com.nesterov.university.dao.exceptions.HasNotRightToTeachException;
 import com.nesterov.university.dao.exceptions.LessonsWithSameTeacherException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
 import com.nesterov.university.dao.exceptions.NotEmptyAudienceException;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
+import com.nesterov.university.dao.exceptions.NotFoundException;
 import com.nesterov.university.dao.exceptions.WeekendDayException;
 import com.nesterov.university.model.Audience;
 import com.nesterov.university.model.Gender;
@@ -50,7 +46,7 @@ class LessonServiceTest {
 	private LessonService lessonService;
 
 	@Test
-	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() throws NotFoundEntitiesException {
+	void givenListOfExistsLessons_whenGetAll_thenExpectedListOfLessonsReturned() {
 		Lesson lesson = new Lesson(1, new Subject(8, "Statistics"), new Audience(1, 14, 30), LocalDate.of(2019, 11, 30),
 				new LessonTime(3, 3, LocalTime.of(8, 30), LocalTime.of(9, 45)), new Teacher("Nicholas", "Owen",
 						LocalDate.of(1995, 10, 19), "Owens", "Nicholas@Owen", "495873485", Gender.MALE));
@@ -64,22 +60,32 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenEmptyListLessons_whenGetAll_thenNotFoundEntitiesExceptionThrown() throws NotFoundEntitiesException {
+	void givenEmptyListLessons_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(lessonDao.findAll()).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> lessonService.getAll());
+		assertThrows(NotFoundException.class, () -> lessonService.getAll());
 	}
 
 	@Test
-	void givenLesson_whenGet_thenExpectedLessonReturned() throws EntityNotFoundException, NotPresentEntityException {
+	void givenLesson_whenGet_thenExpectedLessonReturned() {
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
-		given(lessonDao.get(lesson.getId())).willReturn(ofNullable(lesson));
+		given(lessonDao.get(lesson.getId())).willReturn(of(lesson));
 
 		Lesson actual = lessonService.get(lesson.getId());
 
 		assertEquals(lesson, actual);
+	}
+
+	@Test
+	void givenOptionalEmptyLesson_whenGet_thenNotFoundExceptionThrown() {
+		Lesson lesson = new Lesson(1, new Subject(5, "Agriculture"), new Audience(5, 12, 40), LocalDate.of(2016, 7, 29),
+				new LessonTime(3, 2, LocalTime.of(13, 45), LocalTime.of(14, 50)),
+				new Teacher("Enty", "Gin", LocalDate.of(1997, 7, 12), "Tenn", "Enty@Gin", "849483726", Gender.MALE));
+		given(lessonDao.get(lesson.getId())).willReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> lessonService.get(lesson.getId()));
 	}
 
 	@Test
@@ -89,22 +95,32 @@ class LessonServiceTest {
 						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
 		given(lessonDao.get(lesson.getId())).willReturn(empty());
 
-		assertThrows(NotPresentEntityException.class, () -> lessonService.get(lesson.getId()));
+		assertThrows(NotFoundException.class, () -> lessonService.get(lesson.getId()));
 	}
 
 	@Test
-	void givenLessonId_whenDelete_thenDeleted() throws NotDeleteException {
-		int lessonId = 1;
+	void givenLessonId_whenDelete_thenDeleted() {
+		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
+				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",
+						LocalDate.of(1996, 5, 5), "Tyler", "Gavin@Brayden", "849483726", Gender.MALE));
+		when(lessonDao.get(lesson.getId())).thenReturn(of(lesson));
+		lessonService.delete(lesson.getId());
 
-		lessonService.delete(lessonId);
-
-		verify(lessonDao).delete(lessonId);
+		verify(lessonDao).delete(lesson.getId());
 	}
 
 	@Test
-	void givenLesson_whenUpdate_thenUpdated()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenOptionalEmptyLesson_whenDelete_thenNotFoundExceptionThrown() {
+		Lesson lesson = new Lesson(1, new Subject(1, "natural science"), new Audience(4, 14, 29),
+				LocalDate.of(2008, 11, 29), new LessonTime(3, 2, LocalTime.of(13, 40), LocalTime.of(14, 45)),
+				new Teacher("Gune", "Green", LocalDate.of(1993, 11, 23), "Tinny", "Toon", "849483726", Gender.MALE));
+		when(lessonDao.get(lesson.getId())).thenReturn(empty());
+
+		assertThrows(NotFoundException.class, () -> lessonService.delete(lesson.getId()));
+	}
+
+	@Test
+	void givenLesson_whenUpdate_thenUpdated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(9, "Technology");
@@ -141,9 +157,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenLessonWithSameGroupsInExpectedTime_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(8, "Engineering");
 		List<Subject> subjects = new ArrayList<>();
@@ -177,9 +191,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsException()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenLessonWithSameGroupsInExpectedTime_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Philosophy");
 		List<Subject> subjects = new ArrayList<>();
@@ -212,8 +224,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdatedAndNotEmptyAudienceExceptionThrown()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException {
+	void givenLessonWithNotEmptyAudience_whenUpdate_thenNotUpdatedAndNotEmptyAudienceExceptionThrown() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(3, "Geometry");
@@ -250,9 +261,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreatedAndNotEmptyAudienceExceptionThrown()
-			throws EntityNotFoundException, NotCreateException, WeekendDayException, HasNotEnoughtPlacesException,
-			NotEmptyAudienceException {
+	void givenLessonWithNotEmptyAudience_whenCreate_thenNotCreatedAndNotEmptyAudienceExceptionThrown() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Literature");
@@ -289,9 +298,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdatedAndLessonsWithSameTeacherException()
-			throws EntityNotFoundException, NotCreateException, WeekendDayException, HasNotEnoughtPlacesException,
-			NotEmptyAudienceException, HasNotRightToTeachException, LessonsWithSameTeacherException {
+	void givenLessonWithBusyTeacher_whenUpdate_thenNotUpdatedAndLessonsWithSameTeacherException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(7, "Languages");
 		List<Subject> subjects = new ArrayList<>();
@@ -325,9 +332,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenExistingLesson_whenCreate_thenCreated()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenExistingLesson_whenCreate_thenCreated() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, " Development");
@@ -365,9 +370,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsExceptionThrown()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenLessonWithSameGroup_whenCreate_thenNotCreatedAndHasLessonsWithSameGroupsExceptionThrown() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Environment");
 		List<Subject> subjects = new ArrayList<>();
@@ -400,9 +403,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithSameGroup_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException, HasLessonsWithSameGroupsException {
+	void givenLessonWithSameGroup_whenUpdate_thenNotUpdatedAndHasLessonsWithSameGroupsException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, "Building");
 		List<Subject> subjects = new ArrayList<>();
@@ -434,9 +435,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithBusyTeacher_whenCreate_thenNotCreatedAndLessonsWithSameTeacherException()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException, LessonsWithSameTeacherException {
+	void givenLessonWithBusyTeacher_whenCreate_thenNotCreatedAndLessonsWithSameTeacherException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Humanities");
 		List<Subject> subjects = new ArrayList<>();
@@ -470,8 +469,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenCreate_thenNotCreatedAndWeekendDayExceptionThrown() throws NotCreateException,
-			WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException, HasNotRightToTeachException {
+	void givenLessonWithWeekendDate_whenCreate_thenNotCreatedAndWeekendDayExceptionThrown() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(2, "Arts");
 		List<Subject> subjects = new ArrayList<>();
@@ -503,8 +501,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdatedWeekendDayExceptionThrown()
-			throws NotCreateException, WeekendDayException {
+	void givenLessonWithWeekendDate_whenUpdate_thenNotUpdatedWeekendDayExceptionThrown() {
 		List<Lesson> empty = new ArrayList<Lesson>();
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(4, " Development");
@@ -542,9 +539,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreatedAndHasNotRightToTeachException()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenCreate_thenNotCreatedAndHasNotRightToTeachException() {
 		List<Lesson> lessons = new ArrayList<>();
 		Subject subject = new Subject(1, "Design");
 		List<Subject> subjects = new ArrayList<>();
@@ -578,9 +573,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdatedAndHasNotRightToTeachExceptionThrown()
-			throws WeekendDayException, HasNotEnoughtPlacesException, NotEmptyAudienceException,
-			HasNotRightToTeachException {
+	void givenLessonWithTeacherWhichDontHasRightToTeach_whenUpdate_thenNotUpdatedAndHasNotRightToTeachExceptionThrown() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Planning");
@@ -615,8 +608,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreatedAndHasNotEnoughtPlacesExceptionThrown()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenCreate_thenNotCreatedAndHasNotEnoughtPlacesExceptionThrown() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Business");
@@ -656,8 +648,7 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdatedAndHasNotEnoughtPlacesExceptionThrown()
-			throws NotCreateException, WeekendDayException, HasNotEnoughtPlacesException {
+	void givenLessonWithCountOfStudentsWhichMoreThenAudienceCapacity_whenUpdate_thenNotUpdatedAndHasNotEnoughtPlacesExceptionThrown() {
 		List<Lesson> lessons = new ArrayList<>();
 		List<Lesson> empty = new ArrayList<Lesson>();
 		Subject subject = new Subject(1, "Technology");

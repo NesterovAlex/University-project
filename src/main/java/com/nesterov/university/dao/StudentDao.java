@@ -1,7 +1,6 @@
 package com.nesterov.university.dao;
 
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static java.util.Optional.empty;
 
 import java.sql.PreparedStatement;
@@ -14,9 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.dao.mapper.StudentRowMapper;
 import com.nesterov.university.model.Student;
 
@@ -43,58 +39,45 @@ public class StudentDao {
 		this.studentRowMapper = studentRowMapper;
 	}
 
-	public void create(Student student) throws NotCreateException {
+	public void create(Student student) {
 		log.debug("Create {}", student);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		try {
-			jdbcTemplate.update(connection -> {
-				PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
-				statement.setLong(1, student.getGroupId());
-				statement.setString(2, student.getFirstName());
-				statement.setString(3, student.getLastName());
-				statement.setObject(4, student.getBithDate());
-				statement.setString(5, student.getAddress());
-				statement.setString(6, student.getEmail());
-				statement.setString(7, student.getPhone());
-				statement.setString(8, student.getGender().name());
-				statement.setString(9, student.getFaculty());
-				statement.setString(10, student.getCourse());
-				return statement;
-			}, holder);
-			student.setId(holder.getKey().longValue());
-		} catch (Exception e) {
-			String message = format("Student '%s' not created ", student);
-			throw new NotCreateException(message);
-		}
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(INSERT, new String[] { "id" });
+			statement.setLong(1, student.getGroupId());
+			statement.setString(2, student.getFirstName());
+			statement.setString(3, student.getLastName());
+			statement.setObject(4, student.getBithDate());
+			statement.setString(5, student.getAddress());
+			statement.setString(6, student.getEmail());
+			statement.setString(7, student.getPhone());
+			statement.setString(8, student.getGender().name());
+			statement.setString(9, student.getFaculty());
+			statement.setString(10, student.getCourse());
+			return statement;
+		}, holder);
+		student.setId(holder.getKey().longValue());
 	}
 
 	public Optional<Student> get(long id) {
 		log.debug("Get student by id={}", id);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, studentRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ID, new Object[] { id }, studentRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
 	}
 
-	public void delete(long id) throws NotDeleteException {
+	public void delete(long id) {
 		log.debug("Delete student by id = {}", id);
-		int affectedRows = jdbcTemplate.update(DELETE, id);
-		if (affectedRows == 0) {
-			String message = format("Not deleted student with id = '%s'", id);
-			throw new NotDeleteException(message);
-		}
+		jdbcTemplate.update(DELETE, id);
 	}
 
 	public void update(Student student) {
 		log.debug("Update student {}", student);
-		int affectedRows = jdbcTemplate.update(UPDATE, student.getFirstName(), student.getLastName(),
-				student.getBithDate(), student.getAddress(), student.getEmail(), student.getPhone(),
-				student.getGender().name(), student.getId());
-		if (affectedRows == 0) {
-			String message = format("Student '%s' not updated", student);
-			throw new NotUpdateException(message);
-		}
+		jdbcTemplate.update(UPDATE, student.getFirstName(), student.getLastName(), student.getBithDate(),
+				student.getAddress(), student.getEmail(), student.getPhone(), student.getGender().name(),
+				student.getId());
 	}
 
 	public List<Student> findAll() {
@@ -110,7 +93,7 @@ public class StudentDao {
 	public Optional<Student> findByEmail(String email) {
 		log.debug("Find student by email={}", email);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_EMAIL, new Object[] { email }, studentRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
@@ -119,7 +102,7 @@ public class StudentDao {
 	public Optional<Student> findByPhone(String phone) {
 		log.debug("Find student by phone={}", phone);
 		try {
-			return ofNullable(jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_PHONE, new Object[] { phone }, studentRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
@@ -128,8 +111,7 @@ public class StudentDao {
 	public Optional<Student> findByAddress(String address) {
 		log.debug("Find student by address={}", address);
 		try {
-			return ofNullable(
-					jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper));
+			return of(jdbcTemplate.queryForObject(SELECT_BY_ADDRESS, new Object[] { address }, studentRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return empty();
 		}
