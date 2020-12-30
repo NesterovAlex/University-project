@@ -16,10 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.AudienceDao;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
 @ExtendWith(MockitoExtension.class)
@@ -111,7 +109,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenExistingAudience_whenCreate_thenCreated() throws NotUniqueRoomNumberException, NotCreateException {
+	void givenExistingAudience_whenCreate_thenCreated() {
 		Audience audience = new Audience(1, 4, 33);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
@@ -121,7 +119,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenNonExistingAudience_whenCreate_thenNotCreated() throws NotUniqueRoomNumberException, NotCreateException {
+	void givenNonExistingAudience_whenCreate_thenNotCreated() {
 		Audience newAudience = new Audience(1, 4, 33);
 		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(empty());
 
@@ -130,7 +128,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenRoomNumberAudience_whenCreate_thenCreated() throws NotUniqueRoomNumberException, NotCreateException {
+	void givenRoomNumberAudience_whenCreate_thenCreated() {
 		Audience audience = new Audience(6, 1, 36);
 		when(audienceDao.findByRoomNumber(audience.getRoomNumber())).thenReturn(of(audience));
 
@@ -151,7 +149,7 @@ class AudienceServiceTest {
 	void givenEmptyList_whenFindAll_thenNotFoundEntitiesExceptionThrown() {
 		when(audienceDao.findAll()).thenReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> audienceService.getAll());
+		assertThrows(NotFoundException.class, () -> audienceService.getAll());
 	}
 
 	@Test

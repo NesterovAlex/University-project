@@ -16,10 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.GroupDao;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
-import com.nesterov.university.dao.exceptions.NotUniqueNameException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueNameException;
 import com.nesterov.university.model.Group;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +46,7 @@ class GroupServiceTest {
 	void givenEmptyListGroups_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(groupDao.findAll()).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> groupService.getAll());
+		assertThrows(NotFoundException.class, () -> groupService.getAll());
 	}
 
 	@Test
@@ -66,7 +64,7 @@ class GroupServiceTest {
 		Group group = new Group(3, "K-12");
 		given(groupDao.get(group.getId())).willReturn(empty());
 
-		assertThrows(NotPresentEntityException.class, () -> groupService.get(group.getId()));
+		assertThrows(NotFoundException.class, () -> groupService.get(group.getId()));
 	}
 
 	@Test

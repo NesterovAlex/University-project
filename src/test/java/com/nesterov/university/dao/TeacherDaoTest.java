@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -144,8 +143,7 @@ class TeacherDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned()
-			throws EntityNotFoundException {
+	void givenExpectedCountRowsInTableTeachers_whenFindAll_thenExpectedRowsTeachersReturned() {
 		assertEquals(countRowsInTable(jdbcTemplate, "teachers"), teacherDao.findAll().size());
 	}
 

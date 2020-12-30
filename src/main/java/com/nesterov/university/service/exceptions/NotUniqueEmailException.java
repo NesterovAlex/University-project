@@ -1,4 +1,4 @@
-package com.nesterov.university.dao.exceptions;
+package com.nesterov.university.service.exceptions;
 
 public class NotUniqueEmailException extends RuntimeException {
 

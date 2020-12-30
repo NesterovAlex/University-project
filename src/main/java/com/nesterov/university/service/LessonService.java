@@ -6,13 +6,13 @@ import java.time.DayOfWeek;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.LessonDao;
-import com.nesterov.university.dao.exceptions.HasLessonsWithSameGroupsException;
-import com.nesterov.university.dao.exceptions.HasNotEnoughtPlacesException;
-import com.nesterov.university.dao.exceptions.HasNotRightToTeachException;
-import com.nesterov.university.dao.exceptions.LessonsWithSameTeacherException;
-import com.nesterov.university.dao.exceptions.NotEmptyAudienceException;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.WeekendDayException;
+import com.nesterov.university.service.exceptions.HasLessonsWithSameGroupsException;
+import com.nesterov.university.service.exceptions.HasNotEnoughtPlacesException;
+import com.nesterov.university.service.exceptions.HasNotRightToTeachException;
+import com.nesterov.university.service.exceptions.LessonsWithSameTeacherException;
+import com.nesterov.university.service.exceptions.NotEmptyAudienceException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.WeekendDayException;
 import com.nesterov.university.model.Lesson;
 
 @Component

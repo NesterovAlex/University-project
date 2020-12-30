@@ -17,9 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.LessonTimeDao;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotRightTimeException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotRightTimeException;
 import com.nesterov.university.model.LessonTime;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +46,7 @@ class LessonTimeServiceTest {
 	void givenEmptyListLessonTimes_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(lessonTimeDao.findAll()).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> lessonTimeService.getAll());
+		assertThrows(NotFoundException.class, () -> lessonTimeService.getAll());
 	}
 
 	@Test

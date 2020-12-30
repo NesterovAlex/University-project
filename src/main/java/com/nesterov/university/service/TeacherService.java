@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.TeacherDao;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotUniqueAddressException;
-import com.nesterov.university.dao.exceptions.NotUniqueEmailException;
-import com.nesterov.university.dao.exceptions.NotUniquePhoneException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueAddressException;
+import com.nesterov.university.service.exceptions.NotUniqueEmailException;
+import com.nesterov.university.service.exceptions.NotUniquePhoneException;
 import com.nesterov.university.model.Teacher;
 
 @Component
@@ -22,11 +22,10 @@ public class TeacherService {
 	}
 
 	public void create(Teacher teacher) {
-		long id = teacher.getId();
-		if (isUniqueEmail(teacher).getId() == id && isUniquePhone(teacher).getId() == id
-				&& isUniqueAddress(teacher).getId() == id) {
-			teacherDao.create(teacher);
-		}
+		checkUniqueEmail(teacher);
+		checkUniquePhone(teacher);
+		checkUniqueAddress(teacher);
+		teacherDao.create(teacher);
 	}
 
 	public void delete(long id) {
@@ -47,11 +46,10 @@ public class TeacherService {
 	}
 
 	public void update(Teacher teacher) {
-		long id = teacher.getId();
-		if (isUniqueEmail(teacher).getId() == id && isUniquePhone(teacher).getId() == id
-				&& isUniqueAddress(teacher).getId() == id) {
-			teacherDao.update(teacher);
-		}
+		checkUniqueEmail(teacher);
+		checkUniquePhone(teacher);
+		checkUniqueAddress(teacher);
+		teacherDao.update(teacher);
 	}
 
 	public List<Teacher> getAll() {
@@ -71,30 +69,24 @@ public class TeacherService {
 		return teachers;
 	}
 
-	private Teacher isUniqueEmail(Teacher teacher) {
-		Optional<Teacher> founded = teacherDao.findByEmail(teacher.getEmail());
-		if (!founded.isPresent()) {
+	private void checkUniqueEmail(Teacher teacher) {
+		if (!teacherDao.findByEmail(teacher.getEmail()).isPresent()) {
 			String message = format("Teacher email = '%s' not unique", teacher.getEmail());
 			throw new NotUniqueEmailException(message);
 		}
-		return founded.get();
 	}
 
-	private Teacher isUniquePhone(Teacher teacher) {
-		Optional<Teacher> founded = teacherDao.findByPhone(teacher.getPhone());
-		if (!founded.isPresent()) {
+	private void checkUniquePhone(Teacher teacher) {
+		if (!teacherDao.findByPhone(teacher.getPhone()).isPresent()) {
 			String message = format("Teacher phone = '%s' not unique", teacher.getPhone());
 			throw new NotUniquePhoneException(message);
 		}
-		return founded.get();
 	}
 
-	private Teacher isUniqueAddress(Teacher teacher) {
-		Optional<Teacher> founded = teacherDao.findByAddress(teacher.getAddress());
-		if (!founded.isPresent()) {
+	private void checkUniqueAddress(Teacher teacher) {
+		if (!teacherDao.findByAddress(teacher.getAddress()).isPresent()) {
 			String message = format("Teacher address = '%s' not unoque", teacher.getAddress());
 			throw new NotUniqueAddressException(message);
 		}
-		return founded.get();
 	}
 }

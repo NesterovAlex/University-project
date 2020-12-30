@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotUpdateException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -74,12 +72,6 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenNonExistingStudent_whenUpdate_thenNotUpdateExceptionThrown() {
-		student.setId(777);
-		assertThrows(NotUpdateException.class, () -> studentDao.update(student));
-	}
-
-	@Test
 	void givenExpectedCountRowsInTable_whenUpdate_thenEqualCountRowsFromTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "students");
 
@@ -103,8 +95,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenExpectedIdOfExistingGroup_whenFindByGroupId_thenExpectedCountOfStudentReturned()
-			throws EntityNotFoundException {
+	void givenExpectedIdOfExistingGroup_whenFindByGroupId_thenExpectedCountOfStudentReturned() {
 		int expected = 4;
 
 		assertEquals(1, studentDao.findByGroupId(expected).size());

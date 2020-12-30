@@ -9,10 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
-import com.nesterov.university.dao.exceptions.NotCreateException;
-import com.nesterov.university.dao.exceptions.NotDeleteException;
-import com.nesterov.university.dao.exceptions.NotUniqueRoomNumberException;
 import com.nesterov.university.model.Audience;
 
 @SpringJUnitConfig(TestConfig.class)
@@ -25,7 +21,7 @@ class AudienceDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountOfRowsReturned() throws NotDeleteException {
+	void givenExpectedCountOfRowsInTable_whenDelete_thenEqualCountOfRowsReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "audiences") - 1;
 
 		audienceDao.delete(3);
@@ -35,8 +31,7 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	public void givenExpectedCountOfRowsInTable_whenCreate_thenDifferentCountOfRowsAfterAndBeforeCreatingReturned()
-			throws NotCreateException {
+	public void givenExpectedCountOfRowsInTable_whenCreate_thenDifferentCountOfRowsAfterAndBeforeCreatingReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "audiences") + 1;
 
 		audienceDao.create(new Audience(14, 87));
@@ -46,12 +41,12 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenIdOfExistingAudience_whenGet_thenAudinceWithGivenIdReturned() throws EntityNotFoundException {
+	void givenIdOfExistingAudience_whenGet_thenAudinceWithGivenIdReturned() {
 		assertEquals(new Audience(2, 343, 187), audienceDao.get(2).orElse(null));
 	}
 
 	@Test
-	void givenCapacityOfExistingAudience_whenUpdate_thenRelevantCapacityOfAudenceReturned() throws NotCreateException {
+	void givenCapacityOfExistingAudience_whenUpdate_thenRelevantCapacityOfAudenceReturned() {
 		audienceDao.update(new Audience(3, 999, 1000));
 
 		long actual = jdbcTemplate.queryForObject("SELECT capacity FROM audiences WHERE id=3", Long.class);
@@ -59,13 +54,12 @@ class AudienceDaoTest {
 	}
 
 	@Test
-	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned() throws EntityNotFoundException {
+	void givenExpectedRowsFromTable_whenFindAll_thenEqualCountOfAudiencesReturned() {
 		assertEquals(countRowsInTable(jdbcTemplate, "audiences"), audienceDao.findAll().size());
 	}
 
 	@Test
-	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned()
-			throws EntityNotFoundException, NotUniqueRoomNumberException {
+	void givenExistingAudience_whenfindByRoomNumber_thenExpectedAudienceReturned() {
 		Audience expected = new Audience(2, 343, 187);
 
 		Audience actual = audienceDao.findByRoomNumber(expected.getRoomNumber()).orElse(null);

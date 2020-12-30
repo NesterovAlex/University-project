@@ -10,13 +10,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.nesterov.university.dao.exceptions.EntityNotFoundException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
@@ -24,8 +21,6 @@ import com.nesterov.university.model.Teacher;
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class SubjectDaoTest {
-
-	private static final Logger log = LoggerFactory.getLogger(SubjectDaoTest.class);
 
 	@Autowired
 	private SubjectDao subjectDao;
@@ -141,12 +136,10 @@ class SubjectDaoTest {
 	@Test
 	void givenNonExistingSubject_whenFindByName_thenNullReturned() {
 		Subject expected = new Subject(10, "Health");
-		Subject actual = null;
-		try {
-			actual = subjectDao.findByName(expected.getName()).orElse(null);
-		} catch (EntityNotFoundException e) {
-			log.error("Not found subject by name={}", expected.getName(), e);
-		}
+
+		Subject actual = subjectDao.findByName(expected.getName()).orElse(null);
+
 		assertNull(actual);
 	}
+
 }

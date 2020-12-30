@@ -19,10 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import com.nesterov.university.dao.TeacherDao;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotUniqueAddressException;
-import com.nesterov.university.dao.exceptions.NotUniqueEmailException;
-import com.nesterov.university.dao.exceptions.NotUniquePhoneException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueAddressException;
+import com.nesterov.university.service.exceptions.NotUniqueEmailException;
+import com.nesterov.university.service.exceptions.NotUniquePhoneException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Teacher;
 

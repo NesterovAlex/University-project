@@ -18,8 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import com.nesterov.university.dao.SubjectDao;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotUniqueNameException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueNameException;
 import com.nesterov.university.model.Subject;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,14 +109,13 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenNonExistingSubject_whenUpdate_thenNotUpdated() {
-		Subject existingSubject = new Subject(7, "Nursing");
-		Subject newSubject = new Subject(6, "Nursing");
-		when(subjectDao.findByName(newSubject.getName())).thenReturn(of(existingSubject));
+	void givenNonExistingSubject_whenUpdate_thenNotUpdatedAndNotUniqueNameExceptionThrown() {
+		Subject subject = new Subject(7, "Nursing");
+		when(subjectDao.findByName(subject.getName())).thenReturn(empty());
 
-		subjectService.update(newSubject);
+		assertThrows(NotUniqueNameException.class, () -> subjectService.update(subject));
 
-		verify(subjectDao, never()).update(newSubject);
+		verify(subjectDao, never()).update(subject);
 	}
 
 	@Test

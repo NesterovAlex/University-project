@@ -3,11 +3,10 @@ package com.nesterov.university.service;
 import static java.lang.String.format;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.SubjectDao;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotUniqueNameException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueNameException;
 import com.nesterov.university.model.Subject;
 
 @Component
@@ -20,9 +19,8 @@ public class SubjectService {
 	}
 
 	public void create(Subject subject) {
-		if (isUniqueName(subject).getId() == subject.getId()) {
-			subjectDao.create(subject);
-		}
+		checkUniqueName(subject);
+		subjectDao.create(subject);
 	}
 
 	public void delete(long id) {
@@ -37,9 +35,9 @@ public class SubjectService {
 	}
 
 	public void update(Subject subject) {
-		if (isUniqueName(subject).getId() == subject.getId()) {
-			subjectDao.update(subject);
-		}
+		checkUniqueName(subject);
+		subjectDao.update(subject);
+
 	}
 
 	public List<Subject> getAll() {
@@ -59,12 +57,10 @@ public class SubjectService {
 		return subjects;
 	}
 
-	private Subject isUniqueName(Subject subject) {
-		Optional<Subject> founded = subjectDao.findByName(subject.getName());
-		if (!founded.isPresent()) {
+	private void checkUniqueName(Subject subject) {
+		if (!subjectDao.findByName(subject.getName()).isPresent()) {
 			String message = format("groupName '%s' is not unique", subject.getName());
 			throw new NotUniqueNameException(message);
 		}
-		return founded.get();
 	}
 }

@@ -5,8 +5,8 @@ import static java.lang.String.format;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import com.nesterov.university.dao.LessonTimeDao;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotRightTimeException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotRightTimeException;
 import com.nesterov.university.model.LessonTime;
 
 @Component

@@ -20,12 +20,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.nesterov.university.dao.StudentDao;
-import com.nesterov.university.dao.exceptions.NotFoundEntitiesException;
-import com.nesterov.university.dao.exceptions.NotFoundException;
-import com.nesterov.university.dao.exceptions.NotPresentEntityException;
-import com.nesterov.university.dao.exceptions.NotUniqueAddressException;
-import com.nesterov.university.dao.exceptions.NotUniqueEmailException;
-import com.nesterov.university.dao.exceptions.NotUniquePhoneException;
+import com.nesterov.university.service.exceptions.NotFoundException;
+import com.nesterov.university.service.exceptions.NotUniqueAddressException;
+import com.nesterov.university.service.exceptions.NotUniqueEmailException;
+import com.nesterov.university.service.exceptions.NotUniquePhoneException;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
 
@@ -55,7 +53,7 @@ class StudentServiceTest {
 	void givenEmptyListStudents_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
 		given(studentDao.findAll()).willReturn(new ArrayList<>());
 
-		assertThrows(NotFoundEntitiesException.class, () -> studentService.getAll());
+		assertThrows(NotFoundException.class, () -> studentService.getAll());
 	}
 
 	@Test
@@ -75,7 +73,7 @@ class StudentServiceTest {
 				Gender.MALE);
 		given(studentDao.get(student.getId())).willReturn(empty());
 
-		assertThrows(NotPresentEntityException.class, () -> studentService.get(student.getId()));
+		assertThrows(NotFoundException.class, () -> studentService.get(student.getId()));
 	}
 
 	@Test
