@@ -19,7 +19,7 @@ public class AudienceService {
 	}
 
 	public void create(Audience audience) {
-		checkUniqueRoomNumber(audience);
+		verifyRoomNumberIsUnique(audience);
 		audienceDao.create(audience);
 	}
 
@@ -37,7 +37,7 @@ public class AudienceService {
 	}
 
 	public void update(Audience audience) {
-		checkUniqueRoomNumber(audience);
+		verifyRoomNumberIsUnique(audience);
 		audienceDao.update(audience);
 
 	}
@@ -50,7 +50,7 @@ public class AudienceService {
 		return audiences;
 	}
 
-	private void checkUniqueRoomNumber(Audience audience) {
+	private void verifyRoomNumberIsUnique(Audience audience) {
 		if (!audienceDao.findByRoomNumber(audience.getRoomNumber()).isPresent()) {
 			String message = format("Not unique roomNumber = '%s'", audience.getRoomNumber());
 			throw new NotUniqueRoomNumberException(message);

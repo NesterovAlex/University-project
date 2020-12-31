@@ -19,7 +19,7 @@ public class SubjectService {
 	}
 
 	public void create(Subject subject) {
-		checkUniqueName(subject);
+		verifyNameIsUnique(subject);
 		subjectDao.create(subject);
 	}
 
@@ -35,7 +35,7 @@ public class SubjectService {
 	}
 
 	public void update(Subject subject) {
-		checkUniqueName(subject);
+		verifyNameIsUnique(subject);
 		subjectDao.update(subject);
 
 	}
@@ -57,7 +57,7 @@ public class SubjectService {
 		return subjects;
 	}
 
-	private void checkUniqueName(Subject subject) {
+	private void verifyNameIsUnique(Subject subject) {
 		if (!subjectDao.findByName(subject.getName()).isPresent()) {
 			String message = format("groupName '%s' is not unique", subject.getName());
 			throw new NotUniqueNameException(message);

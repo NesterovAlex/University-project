@@ -19,7 +19,7 @@ public class GroupService {
 	}
 
 	public void create(Group group) {
-		checkUniqueName(group);
+		verifyGroupNameIsUnique(group);
 		groupDao.create(group);
 
 	}
@@ -38,7 +38,7 @@ public class GroupService {
 	}
 
 	public void update(Group group) {
-		checkUniqueName(group);
+		verifyGroupNameIsUnique(group);
 		groupDao.update(group);
 
 	}
@@ -51,7 +51,7 @@ public class GroupService {
 		return groups;
 	}
 
-	private void checkUniqueName(Group group) {
+	private void verifyGroupNameIsUnique(Group group) {
 		if (!groupDao.findByName(group.getName()).isPresent()) {
 			String message = String.format("Not unique groupName = '%s'", group.getName());
 			throw new NotUniqueNameException(message);

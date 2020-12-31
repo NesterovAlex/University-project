@@ -138,7 +138,7 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenNotUniqueRoomNumberAudience_whenCreate_thenNotUniqueRoomNumberExceptionThrown() {
+	void givenAudienceWithNotUniqueRoomNumber_whenCreate_thenNotUniqueRoomNumberExceptionThrown() {
 		Audience newAudience = new Audience(6, 1, 36);
 		when(audienceDao.findByRoomNumber(newAudience.getRoomNumber())).thenReturn(empty());
 

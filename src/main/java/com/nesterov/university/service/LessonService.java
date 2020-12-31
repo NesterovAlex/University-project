@@ -25,10 +25,13 @@ public class LessonService {
 	}
 
 	public void create(Lesson lesson) {
-		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
-				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
-			lessonDao.create(lesson);
-		}
+		verifyHasNotLessonsWithSameGroups(lesson);
+		verifyHasNotLessonsWithSameTeacher(lesson);
+		verifyHasTeacherRightToTeach(lesson);
+		verifyAudienceIsEmpty(lesson);
+		verifyAudienceHasEnoughPlacesIn(lesson);
+		verifyIsNotWeekend(lesson);
+		lessonDao.create(lesson);
 	}
 
 	public void delete(long id) {
@@ -46,10 +49,13 @@ public class LessonService {
 	}
 
 	public void update(Lesson lesson) {
-		if (!hasLessonsWithSameGroups(lesson) && !hasLessonsWithSameTeacher(lesson) && hasRightToTeach(lesson)
-				&& isEmptyAudience(lesson) && hasEnoughPlaces(lesson) && !isWeekend(lesson)) {
-			lessonDao.update(lesson);
-		}
+		verifyHasNotLessonsWithSameGroups(lesson);
+		verifyHasNotLessonsWithSameTeacher(lesson);
+		verifyHasTeacherRightToTeach(lesson);
+		verifyAudienceIsEmpty(lesson);
+		verifyAudienceHasEnoughPlacesIn(lesson);
+		verifyIsNotWeekend(lesson);
+		lessonDao.update(lesson);
 	}
 
 	public List<Lesson> getAll() {
@@ -60,65 +66,54 @@ public class LessonService {
 		return lessons;
 	}
 
-	private boolean hasLessonsWithSameGroups(Lesson lesson) {
-		List<Lesson> lessons = lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId());
-		if (!lessons.isEmpty()) {
+	private void verifyHasNotLessonsWithSameGroups(Lesson lesson) {
+		if (!lessonDao.findByDateAndGroups(lesson.getDate(), lesson.getTime().getId()).isEmpty()) {
 			throw new HasLessonsWithSameGroupsException(
 					"The groups in this lesson have other lessons at this time and date");
 		}
-		return !lessons.isEmpty();
 	}
 
-	private boolean hasLessonsWithSameTeacher(Lesson lesson) {
-		List<Lesson> lessons = lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(),
-				lesson.getTeacher().getId());
-		if (!lessons.isEmpty()) {
+	private void verifyHasNotLessonsWithSameTeacher(Lesson lesson) {
+		if (!lessonDao.findByDateAndTeacher(lesson.getDate(), lesson.getTime().getId(), lesson.getTeacher().getId())
+				.isEmpty()) {
 			String message = format("Teacher with id = '%s' has other lessons in this time and date",
 					lesson.getTeacher().getId());
 			throw new LessonsWithSameTeacherException(message);
 		}
-		return !lessons.isEmpty();
 	}
 
-	private boolean hasRightToTeach(Lesson lesson) {
+	private void verifyHasTeacherRightToTeach(Lesson lesson) {
 		if (lesson.getTeacher().getSubjects().stream().noneMatch(s -> s.equals(lesson.getSubject()))) {
 			String message = String.format("Teacher with id = '%s' has not right to teach this lesson",
 					lesson.getTeacher().getId());
 			throw new HasNotRightToTeachException(message);
 		}
-		return lesson.getTeacher().getSubjects().stream().anyMatch(s -> s.equals(lesson.getSubject()));
 	}
 
-	private boolean isEmptyAudience(Lesson lesson) {
-		List<Lesson> lessons = lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(),
-				lesson.getAudience().getId());
-		if (!lessons.isEmpty()) {
+	private void verifyAudienceIsEmpty(Lesson lesson) {
+		if (!lessonDao.findByDateAndAudience(lesson.getDate(), lesson.getTime().getId(), lesson.getAudience().getId())
+				.isEmpty()) {
 			String message = format("Audience with id='%s' not empty", lesson.getAudience().getId());
 			throw new NotEmptyAudienceException(message);
 		}
-		return lessons.isEmpty();
 	}
 
-	private boolean hasEnoughPlaces(Lesson lesson) {
-		long countStudentsOfLesson = countStudentsOfLesson(lesson);
-		if (countStudentsOfLesson > lesson.getAudience().getCapacity()) {
+	private void verifyAudienceHasEnoughPlacesIn(Lesson lesson) {
+		if (countStudentsOfLesson(lesson) > lesson.getAudience().getCapacity()) {
 			String message = String.format("Has not enought places in audience with roomNumber = '%s'",
 					lesson.getAudience().getRoomNumber());
 			throw new HasNotEnoughtPlacesException(message);
 		}
-		return countStudentsOfLesson(lesson) <= lesson.getAudience().getCapacity();
 	}
 
 	private long countStudentsOfLesson(Lesson lesson) {
 		return lesson.getGroups().stream().mapToLong(g -> g.getStudents().size()).sum();
 	}
 
-	private boolean isWeekend(Lesson lesson) {
-		boolean isWeekend = lesson.getDate().getDayOfWeek() == DayOfWeek.SATURDAY
-				|| lesson.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
-		if (isWeekend) {
+	private void verifyIsNotWeekend(Lesson lesson) {
+		if (lesson.getDate().getDayOfWeek() == DayOfWeek.SATURDAY
+				|| lesson.getDate().getDayOfWeek() == DayOfWeek.SUNDAY) {
 			throw new WeekendDayException("This is weekend");
 		}
-		return isWeekend;
 	}
 }

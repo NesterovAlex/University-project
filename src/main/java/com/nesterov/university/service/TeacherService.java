@@ -22,9 +22,9 @@ public class TeacherService {
 	}
 
 	public void create(Teacher teacher) {
-		checkUniqueEmail(teacher);
-		checkUniquePhone(teacher);
-		checkUniqueAddress(teacher);
+		verifyEmailIsUnique(teacher);
+		verifyPhoneIsUnique(teacher);
+		verifyAddressIsUnique(teacher);
 		teacherDao.create(teacher);
 	}
 
@@ -46,9 +46,9 @@ public class TeacherService {
 	}
 
 	public void update(Teacher teacher) {
-		checkUniqueEmail(teacher);
-		checkUniquePhone(teacher);
-		checkUniqueAddress(teacher);
+		verifyEmailIsUnique(teacher);
+		verifyPhoneIsUnique(teacher);
+		verifyAddressIsUnique(teacher);
 		teacherDao.update(teacher);
 	}
 
@@ -69,21 +69,21 @@ public class TeacherService {
 		return teachers;
 	}
 
-	private void checkUniqueEmail(Teacher teacher) {
+	private void verifyEmailIsUnique(Teacher teacher) {
 		if (!teacherDao.findByEmail(teacher.getEmail()).isPresent()) {
 			String message = format("Teacher email = '%s' not unique", teacher.getEmail());
 			throw new NotUniqueEmailException(message);
 		}
 	}
 
-	private void checkUniquePhone(Teacher teacher) {
+	private void verifyPhoneIsUnique(Teacher teacher) {
 		if (!teacherDao.findByPhone(teacher.getPhone()).isPresent()) {
 			String message = format("Teacher phone = '%s' not unique", teacher.getPhone());
 			throw new NotUniquePhoneException(message);
 		}
 	}
 
-	private void checkUniqueAddress(Teacher teacher) {
+	private void verifyAddressIsUnique(Teacher teacher) {
 		if (!teacherDao.findByAddress(teacher.getAddress()).isPresent()) {
 			String message = format("Teacher address = '%s' not unoque", teacher.getAddress());
 			throw new NotUniqueAddressException(message);

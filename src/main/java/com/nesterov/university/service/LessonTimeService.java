@@ -19,9 +19,8 @@ public class LessonTimeService {
 	}
 
 	public void create(LessonTime lessonTime) {
-		if (isRightTime(lessonTime)) {
-			lessonTimeDao.create(lessonTime);
-		}
+		verifyTimeIsRight(lessonTime);
+		lessonTimeDao.create(lessonTime);
 	}
 
 	public void delete(long id) {
@@ -38,9 +37,8 @@ public class LessonTimeService {
 	}
 
 	public void update(LessonTime lessonTime) {
-		if (isRightTime(lessonTime)) {
-			lessonTimeDao.update(lessonTime);
-		}
+		verifyTimeIsRight(lessonTime);
+		lessonTimeDao.update(lessonTime);
 	}
 
 	public List<LessonTime> getAll() {
@@ -51,10 +49,9 @@ public class LessonTimeService {
 		return lessonTimes;
 	}
 
-	private boolean isRightTime(LessonTime lessonTime) {
+	private void verifyTimeIsRight(LessonTime lessonTime) {
 		if (lessonTime.getStart().isAfter(lessonTime.getEnd())) {
 			throw new NotRightTimeException("This is not right time of lesson");
 		}
-		return lessonTime.getStart().isBefore(lessonTime.getEnd());
 	}
 }
