@@ -59,11 +59,7 @@ public class LessonService {
 	}
 
 	public List<Lesson> getAll() {
-		List<Lesson> lessons = lessonDao.findAll();
-		if (lessons.isEmpty()) {
-			throw new NotFoundException("Not found lessons");
-		}
-		return lessons;
+		return lessonDao.findAll();
 	}
 
 	private void verifyHasNotLessonsWithSameGroups(Lesson lesson) {

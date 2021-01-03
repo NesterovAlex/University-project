@@ -42,11 +42,7 @@ public class LessonTimeService {
 	}
 
 	public List<LessonTime> getAll() {
-		List<LessonTime> lessonTimes = lessonTimeDao.findAll();
-		if (lessonTimes.isEmpty()) {
-			throw new NotFoundException("Lessontimes not found");
-		}
-		return lessonTimes;
+		return lessonTimeDao.findAll();
 	}
 
 	private void verifyTimeIsRight(LessonTime lessonTime) {

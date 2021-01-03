@@ -146,13 +146,6 @@ class AudienceServiceTest {
 	}
 
 	@Test
-	void givenEmptyList_whenFindAll_thenNotFoundEntitiesExceptionThrown() {
-		when(audienceDao.findAll()).thenReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> audienceService.getAll());
-	}
-
-	@Test
 	void givenIdNonExistingAudience_whenGet_thenNotFoundExceptionThrown() {
 		int expectedId = 99;
 		when(audienceDao.get(expectedId)).thenReturn(empty());

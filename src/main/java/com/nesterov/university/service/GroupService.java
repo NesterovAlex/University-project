@@ -44,11 +44,7 @@ public class GroupService {
 	}
 
 	public List<Group> getAll() {
-		List<Group> groups = groupDao.findAll();
-		if (groups.isEmpty()) {
-			throw new NotFoundException("Not Found groups");
-		}
-		return groups;
+		return groupDao.findAll();
 	}
 
 	private void verifyGroupNameIsUnique(Group group) {

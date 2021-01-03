@@ -43,13 +43,6 @@ class GroupServiceTest {
 	}
 
 	@Test
-	void givenEmptyListGroups_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
-		given(groupDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> groupService.getAll());
-	}
-
-	@Test
 	void givenGroup_whenGet_thenEqualGroupReturned() {
 		Group group = new Group(5, "G-12");
 		given(groupDao.get(group.getId())).willReturn(of(group));

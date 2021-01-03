@@ -41,11 +41,7 @@ public class SubjectService {
 	}
 
 	public List<Subject> getAll() {
-		List<Subject> subjects = subjectDao.findAll();
-		if (subjects.isEmpty()) {
-			throw new NotFoundException("Not found subjects");
-		}
-		return subjects;
+		return subjectDao.findAll();
 	}
 
 	public List<Subject> findByTeacherId(long id) {

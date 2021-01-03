@@ -60,13 +60,6 @@ class LessonServiceTest {
 	}
 
 	@Test
-	void givenEmptyListLessons_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
-		given(lessonDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> lessonService.getAll());
-	}
-
-	@Test
 	void givenLesson_whenGet_thenExpectedLessonReturned() {
 		Lesson lesson = new Lesson(1, new Subject(1, "Literature"), new Audience(1, 14, 30), LocalDate.of(2018, 10, 29),
 				new LessonTime(3, 2, LocalTime.of(12, 40), LocalTime.of(13, 45)), new Teacher("Gavin", "Brayden",

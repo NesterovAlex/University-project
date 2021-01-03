@@ -50,13 +50,6 @@ class TeacherServiceTest {
 	}
 
 	@Test
-	void givenEmptyListTeachers_whenGetAll_thenNotFoundExceptionThrown() {
-		given(teacherDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> teacherService.getAll());
-	}
-
-	@Test
 	void givenExpectedTeacher_whenGet_thenEqualTeacherReturned() {
 		Teacher expected = new Teacher("Anderson", "Roberto", LocalDate.of(1991, 11, 10), "Reid", "Anderson@Roberto",
 				"938472634", Gender.MALE);

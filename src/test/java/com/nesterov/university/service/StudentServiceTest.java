@@ -50,13 +50,6 @@ class StudentServiceTest {
 	}
 
 	@Test
-	void givenEmptyListStudents_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
-		given(studentDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> studentService.getAll());
-	}
-
-	@Test
 	void givenStudent_whenGet_thenExpectedStudentReturned() {
 		Student expected = new Student("Lukas", "Amir", LocalDate.of(1994, 4, 11), "Keegan", "Lukas@Amir", "348576983",
 				Gender.MALE);

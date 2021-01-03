@@ -55,11 +55,7 @@ public class StudentService {
 	}
 
 	public List<Student> getAll() {
-		List<Student> students = studentDao.findAll();
-		if (students.isEmpty()) {
-			throw new NotFoundException("Not found students");
-		}
-		return students;
+		return studentDao.findAll();
 	}
 
 	public List<Student> findByGroupId(long id) {

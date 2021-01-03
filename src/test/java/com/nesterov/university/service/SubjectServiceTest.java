@@ -46,13 +46,6 @@ class SubjectServiceTest {
 	}
 
 	@Test
-	void givenEmptyListSubjects_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
-		given(subjectDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> subjectService.getAll());
-	}
-
-	@Test
 	void givenExpectedSubject_whenGet_thenEqualSubjectReturned() {
 		Subject expected = new Subject(1, "Technology");
 		given(subjectDao.get(expected.getId())).willReturn(of(expected));

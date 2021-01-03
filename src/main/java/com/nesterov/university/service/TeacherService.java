@@ -53,11 +53,7 @@ public class TeacherService {
 	}
 
 	public List<Teacher> getAll() {
-		List<Teacher> teachers = teacherDao.findAll();
-		if (teachers.isEmpty()) {
-			throw new NotFoundException("Teachers not found");
-		}
-		return teachers;
+		return teacherDao.findAll();
 	}
 
 	public List<Teacher> findBySubjectId(long id) {

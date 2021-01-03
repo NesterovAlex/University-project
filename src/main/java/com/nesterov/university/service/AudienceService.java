@@ -43,11 +43,8 @@ public class AudienceService {
 	}
 
 	public List<Audience> getAll() {
-		List<Audience> audiences = audienceDao.findAll();
-		if (audiences.isEmpty()) {
-			throw new NotFoundException("Not found audiences");
-		}
-		return audiences;
+		return audienceDao.findAll();
+
 	}
 
 	private void verifyRoomNumberIsUnique(Audience audience) {

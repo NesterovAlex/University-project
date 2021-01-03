@@ -43,13 +43,6 @@ class LessonTimeServiceTest {
 	}
 
 	@Test
-	void givenEmptyListLessonTimes_whenGetAll_thenNotFoundEntitiesExceptionThrown() {
-		given(lessonTimeDao.findAll()).willReturn(new ArrayList<>());
-
-		assertThrows(NotFoundException.class, () -> lessonTimeService.getAll());
-	}
-
-	@Test
 	void givenLessonTime_whenGet_thenExpectedLessonTimeReturned() {
 		LessonTime expected = new LessonTime(1, 14, LocalTime.of(7, 15), LocalTime.of(8, 45));
 		given(lessonTimeDao.get(expected.getId())).willReturn(of(expected));
