@@ -27,9 +27,9 @@ public class StudentService {
 		verifyEmailIsUnique(student);
 		verifyPhoneIsUnique(student);
 		verifyAddressIsUnique(student);
-		if (findByGroupId(student.getGroupId()).size() <= maxGroupSize) {
+//		if (findByGroupId(student.getGroupId()).size() <= maxGroupSize) {
 			studentDao.create(student);
-		}
+//		}
 	}
 
 	public void delete(long id) {
@@ -68,21 +68,21 @@ public class StudentService {
 	}
 
 	private void verifyEmailIsUnique(Student student) {
-		if (!studentDao.findByEmail(student.getEmail()).isPresent()) {
+		if (studentDao.findByEmail(student.getEmail()).isPresent()) {
 			String message = format("Email '%s' is not unique", student.getEmail());
 			throw new NotUniqueEmailException(message);
 		}
 	}
 
 	private void verifyPhoneIsUnique(Student student) {
-		if (!studentDao.findByPhone(student.getPhone()).isPresent()) {
+		if (studentDao.findByPhone(student.getPhone()).isPresent()) {
 			String message = format("Phone '%s' is not unique", student.getPhone());
 			throw new NotUniquePhoneException(message);
 		}
 	}
 
 	private void verifyAddressIsUnique(Student student) {
-		if (!studentDao.findByAddress(student.getAddress()).isPresent()) {
+		if (studentDao.findByAddress(student.getAddress()).isPresent()) {
 			String message = format("Address '%s' is not unique", student.getAddress());
 			throw new NotUniqueAddressException(message);
 		}

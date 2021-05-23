@@ -17,13 +17,13 @@ CREATE TABLE audiences
 CREATE TABLE groups
 (
     id SERIAL NOT NULL,
-    name VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE subjects
 (
     id SERIAL NOT NULL,
-    name VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE lesson_times
@@ -41,7 +41,7 @@ CREATE TABLE teachers
     last_name VARCHAR(20) NOT NULL,
     birth_date DATE NOT NULL,
     address VARCHAR(20) NOT NULL,
-    email VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     gender VARCHAR(20) NOT NULL,
     faculty VARCHAR(20),
@@ -52,15 +52,15 @@ CREATE TABLE students
 (
     id SERIAL  NOT NULL,
     group_id INT NOT NULL,
-    first_name VARCHAR(20) NOT NULL,
-    last_name VARCHAR(20) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
     birth_date DATE NOT NULL,
-    address VARCHAR(20) NOT NULL,
-    email VARCHAR(20) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    gender VARCHAR(20) NOT NULL,
-    faculty VARCHAR(20) NOT NULL,
-    course VARCHAR(20) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(100) NOT NULL,
+    gender VARCHAR(100) NOT NULL,
+    faculty VARCHAR(100) NOT NULL,
+    course VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE lessons 

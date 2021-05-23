@@ -1,5 +1,7 @@
 package com.nesterov.university.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 
 public abstract class Person {
@@ -7,6 +9,7 @@ public abstract class Person {
 	private long id;
 	private String  firstName;
 	private String  lastName;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate birthDate;
 	private String  address;
 	private String  email;
