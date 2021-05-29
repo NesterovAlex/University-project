@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="/webjars/bootstrap/4.5.3/css/bootstrap.min.css"/>
     <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
     <script src="/webjars/bootstrap/4.5.3/js/bootstrap.min.js"></script>
-    <script type="text/javascript" th:src="@{js/main.js}" src="/static/js/main.js"></script>
-
+    <script type="text/javascript" th:src="@{static/js/main.js}" src="../../static/js/main.js"></script>
 
     <title>Students</title>
 </head>
@@ -48,7 +47,7 @@
             <td th:text="${student.gender}">Gender</td>
             <td th:text="${student.faculty}">Faculty</td>
             <td th:text="${student.course}">Course</td>
-            <td><a th:href="@{/students/edit/{id}(id = ${student.id})}" data-target="#editStudent" class="btn btn-warning editButton">Edit</a> </td>
+            <td><a th:href="@{students/edit/{id}(id = ${student.id})}" data-target="#editModal" class="btn btn-warning editButton">Edit</a> </td>
             <td><a th:href="@{/students/delete/{id}(id = ${student.id})}" class="btn btn-danger deleteButton">Delete</a> </td>
         </tr>
         </tbody>
@@ -134,7 +133,7 @@
     </div>
 </div>
 
-
+<div class="editForm">
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
     <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
     <form id="editStudent" th:action="@{/students/edit}" th:object="${student}" method="put" >
@@ -149,8 +148,8 @@
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label for="groupIdEdit" class="col-form-label">Group id:</label>
-                        <input type="text" class="form-control" id="groupIdEdit" name="groupId">
+                        <label for="groupId" class="col-form-label">Group id:</label>
+                        <input type="text" class="form-control" id="groupId" name="groupId">
                     </div>
 
                     <div class="form-group">
@@ -210,6 +209,7 @@
             </div>
         </div>
     </form>
+</div>
 </div>
 </div>
 

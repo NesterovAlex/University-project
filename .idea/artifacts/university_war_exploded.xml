@@ -14,6 +14,9 @@
           <element id="module-output" name="university" />
         </element>
         <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.12.3" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.12.3" />
           <element id="library" level="project" name="Maven: ch.qos.logback:logback-classic:1.3.0-alpha5" />
           <element id="library" level="project" name="Maven: ch.qos.logback:logback-core:1.3.0-alpha5" />
           <element id="library" level="project" name="Maven: com.sun.mail:javax.mail:1.6.2" />
@@ -45,8 +48,6 @@
           <element id="library" level="project" name="Maven: org.apache.commons:commons-compress:1.9" />
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.4" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.12.1" />
-          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.12.1" />
-          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.12.1" />
           <element id="library" level="project" name="Maven: org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE" />
         </element>
       </element>

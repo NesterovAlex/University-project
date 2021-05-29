@@ -16,8 +16,8 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 @Configuration
-@ComponentScan(basePackages = "com.nesterov.university")
 @EnableWebMvc
+@ComponentScan(basePackages = "com.nesterov.university")
 public class SpringConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
@@ -60,6 +60,5 @@ public class SpringConfig implements WebMvcConfigurer {
         registry
                 .addResourceHandler("/static/**")
                 .addResourceLocations("/static/");
-
     }
 }

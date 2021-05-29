@@ -6,9 +6,10 @@ $('document').ready(function () {
 
 
         var href = $(this).attr('href');
-
+        var modal = $('editModal')
+        console.log(modal.find('.editForm #groupId').val(groupId))
         $.get(href, function (student, status) {
-            $('#groupIdEdit').val(student.groupId)
+            $('.editForm #groupId').val(student.groupId)
             $('#firstNameEdit').val(student.firstName)
             $('#lastNameEdit').val(student.lastName)
             $('#birthDateEdit').val(student.birthDate)
@@ -17,7 +18,7 @@ $('document').ready(function () {
             $('#courseEdit').val(student.course)
             console.log(student.groupId)
             console.log(student.firstName)
-        })
+        });
 
         $('#editModal').modal();
     });

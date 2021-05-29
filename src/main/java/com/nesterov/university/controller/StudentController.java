@@ -27,7 +27,8 @@ public class StudentController {
     }
 
     @RequestMapping(value = "/students/edit/{id}", method = RequestMethod.GET)
-    public Student edit(@PathVariable("id") long id, Model model) {
+    @ResponseBody
+    public Student findById(@PathVariable("id") long id, Model model) {
         Student student = studentService.get(id);
         model.addAttribute("student", student);
         System.out.println("ID" + student.getId());
