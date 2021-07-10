@@ -21,7 +21,9 @@ import com.nesterov.university.model.Lesson;
 import com.nesterov.university.model.LessonTime;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@WebAppConfiguration
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class LessonDaoTest {

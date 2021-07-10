@@ -13,7 +13,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Student;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@WebAppConfiguration
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class StudentDaoTest {
@@ -62,7 +64,7 @@ class StudentDaoTest {
 	}
 
 	@Test
-	void givenExpectedCountRowsInTable_whenDelete_thenEqualCountRowsFromTableReturned() {
+	void  givenExpectedCountRowsInTable_whenDelete_thenEqualCountRowsFromTableReturned() {
 		int expected = countRowsInTable(jdbcTemplate, "students") - 1;
 
 		studentDao.delete(1);

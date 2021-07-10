@@ -10,7 +10,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Audience;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@WebAppConfiguration
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class AudienceDaoTest {

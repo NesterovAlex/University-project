@@ -1,23 +1,32 @@
 $('document').ready(function () {
     console.log("it works")
     $('.table .editButton').on('click', function (event) {
-        console.log("it works")
         event.preventDefault();
+        const href = $(this).attr('href');
+        const modal = $('editModal');
 
-
-        var href = $(this).attr('href');
-        var modal = $('editModal')
         console.log(modal.find('.editForm #groupId').val(groupId))
         $.get(href, function (student, status) {
+            let birthDateArr = student.birthDate
+            const stringYear = birthDateArr[0].toString();
+            const stringDay = birthDateArr[1].toString();
+            const stringMonth = birthDateArr[2].toString();
+            const date = new Date(stringYear + "-" + stringDay + "-" + stringMonth);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const birthDate = (date.getFullYear() + '-' + month + '-' + day);
+
+            $('.editForm #id').val(student.id)
             $('.editForm #groupId').val(student.groupId)
             $('#firstNameEdit').val(student.firstName)
             $('#lastNameEdit').val(student.lastName)
-            $('#birthDateEdit').val(student.birthDate)
+            $('#birthDate').val(birthDate)
             $('#addressEdit').val(student.address)
+            $('#emailEdit').val(student.email)
+            $('#phoneEdit').val(student.phone)
+            $('#genderEdit').val(student.gender)
             $('#facultyEdit').val(student.faculty)
             $('#courseEdit').val(student.course)
-            console.log(student.groupId)
-            console.log(student.firstName)
         });
 
         $('#editModal').modal();

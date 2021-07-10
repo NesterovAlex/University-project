@@ -40,15 +40,17 @@
             <td th:text="${student.groupId}">Group id</td>
             <td th:text="${student.firstName}">First Name</td>
             <td th:text="${student.lastName}">Last name</td>
-            <td th:text="${#temporals.format(student.getBithDate(),'dd-MM-yyyy')}">Birth date</td>
+            <td th:text="${#temporals.format(student.getBithDate(),'yyyy-MM-dd')}">Birth date</td>
             <td th:text="${student.address}">Address</td>
             <td th:text="${student.email}">Email</td>
             <td th:text="${student.phone}">Phone</td>
             <td th:text="${student.gender}">Gender</td>
             <td th:text="${student.faculty}">Faculty</td>
             <td th:text="${student.course}">Course</td>
-            <td><a th:href="@{students/edit/{id}(id = ${student.id})}" data-target="#editModal" class="btn btn-warning editButton">Edit</a> </td>
-            <td><a th:href="@{/students/delete/{id}(id = ${student.id})}" class="btn btn-danger deleteButton">Delete</a> </td>
+            <td><a th:href="@{students/edit/{id}(id = ${student.id})}" data-target="#editModal"
+                   class="btn btn-warning editButton">Edit</a></td>
+            <td><a th:href="@{/students/delete/{id}(id = ${student.id})}" class="btn btn-danger deleteButton">Delete</a>
+            </td>
         </tr>
         </tbody>
     </table>
@@ -57,7 +59,7 @@
     <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel"
          aria-hidden="true">
         <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
-        <form id="addStudent" action="#"  th:action="@{/create}" th:object="${student}" method="post" >
+        <form id="addStudent" action="#" th:action="@{/create}" th:object="${student}" method="post">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -105,11 +107,11 @@
 
                         <div class="form-group">
                             <label for="gender" class="col-form-label">Gender:</label>
-<!--                            <input type="text" class="form-control" id="gender" name="gender">-->
-                                <select class="form-control" id="gender" name="gender">
-                                    <option>MALE</option>
-                                    <option>FEMALE</option>
-                                </select>
+                            <!--                            <input type="text" class="form-control" id="gender" name="gender">-->
+                            <select class="form-control" id="gender" name="gender">
+                                <option>MALE</option>
+                                <option>FEMALE</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -134,82 +136,87 @@
 </div>
 
 <div class="editForm">
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
-    <form id="editStudent" th:action="@{/students/edit}" th:object="${student}" method="put" >
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Student</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <label for="groupId" class="col-form-label">Group id:</label>
-                        <input type="text" class="form-control" id="groupId" name="groupId">
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
+        <form id="editStudent" th:action="@{/update}" th:object="${student}" method="put">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Student</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    <div class="modal-body">
 
-                    <div class="form-group">
-                        <label for="firstNameEdit" class="col-form-label">First name:</label>
-                        <input type="text" class="form-control" id="firstNameEdit" name="firstName">
+                        <div class="form-group">
+                            <label for="id" class="col-form-label">id:</label>
+                            <input type="text" readonly class="form-control" id="id" name="id">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="groupId" class="col-form-label">Group id:</label>
+                            <input type="text" class="form-control" id="groupId" name="groupId">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="firstNameEdit" class="col-form-label">First name:</label>
+                            <input type="text" class="form-control" id="firstNameEdit" name="firstName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastNameEdit" class="col-form-label">Last name:</label>
+                            <input type="text" class="form-control" id="lastNameEdit" name="lastName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate" class="col-form-label">Birth date:</label>
+                            <input type="date" class="form-control" id="birthDate" name="birthDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="addressEdit" class="col-form-label">Address</label>
+                            <input type="text" class="form-control" id="addressEdit" name="address">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailEdit" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="emailEdit" name="email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneEdit" class="col-form-label">Phone:</label>
+                            <input type="text" class="form-control" id="phoneEdit" name="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="genderEdit" class="col-form-label">Gender:</label>
+                            <!--                            <input type="text" class="form-control" id="gender" name="gender">-->
+                            <select class="form-control" id="genderEdit" name="gender">
+                                <option>MALE</option>
+                                <option>FEMALE</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="facultyEdit" class="col-form-label">Faculty:</label>
+                            <input type="text" class="form-control" id="facultyEdit" name="faculty">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="courseEdit" class="col-form-label">Course:</label>
+                            <input type="text" class="form-control" id="courseEdit" name="course">
+                        </div>
+
                     </div>
-
-                    <div class="form-group">
-                        <label for="lastNameEdit" class="col-form-label">Last name:</label>
-                        <input type="text" class="form-control" id="lastNameEdit" name="lastName">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
-
-                    <div class="form-group">
-                        <label for="birthDateEdit" class="col-form-label">Birth date:</label>
-                        <input type="date" class="form-control" id="birthDateEdit" name="birthDate">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="addressEdit" class="col-form-label">Address</label>
-                        <input type="text" class="form-control" id="addressEdit" name="address">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="emailEdit" class="col-form-label">Email:</label>
-                        <input type="text" class="form-control" id="emailEdit" name="email">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phoneEdit" class="col-form-label">Phone:</label>
-                        <input type="text" class="form-control" id="phoneEdit" name="phone">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="genderEdit" class="col-form-label">Gender:</label>
-                        <!--                            <input type="text" class="form-control" id="gender" name="gender">-->
-                        <select class="form-control" id="genderEdit" name="gender">
-                            <option>MALE</option>
-                            <option>FEMALE</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="facultyEdit" class="col-form-label">Faculty:</label>
-                        <input type="text" class="form-control" id="facultyEdit" name="faculty">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="courseEdit" class="col-form-label">Course:</label>
-                        <input type="text" class="form-control" id="courseEdit" name="course">
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
 </div>
 </div>
 

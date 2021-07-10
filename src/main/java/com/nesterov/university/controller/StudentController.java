@@ -31,6 +31,13 @@ public class StudentController {
     public Student findById(@PathVariable("id") long id, Model model) {
         Student student = studentService.get(id);
         model.addAttribute("student", student);
+
+        return student;
+    }
+
+    @RequestMapping(value = "/update", method = {RequestMethod.PUT, RequestMethod.GET})
+    public String update(@ModelAttribute("student") Student student, Model model) {
+        model.addAttribute("student", student);
         System.out.println("ID" + student.getId());
         System.out.println("GROUPOID" + student.getGroupId());
         System.out.println("FIRSTNAME" + student.getFirstName());
@@ -42,7 +49,8 @@ public class StudentController {
         System.out.println("Faculty" + student.getFaculty());
         System.out.println("Gender" + student.getGender());
         System.out.println("Birth date" + student.getBithDate());
-        return student;
+        studentService.update(student);
+        return "redirect:/students";
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)

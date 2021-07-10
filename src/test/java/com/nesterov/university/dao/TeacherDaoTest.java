@@ -17,7 +17,9 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Subject;
 import com.nesterov.university.model.Teacher;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@WebAppConfiguration
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class TeacherDaoTest {

@@ -14,7 +14,9 @@ import com.nesterov.university.model.Gender;
 import com.nesterov.university.model.Group;
 import com.nesterov.university.model.Student;
 import com.nesterov.university.dao.TestConfig;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@WebAppConfiguration
 @SpringJUnitConfig(TestConfig.class)
 @ExtendWith(SpringExtension.class)
 class GroupDaoTest {
