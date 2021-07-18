@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap Table with Search Column Feature</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:src="@{static/js/main.js}" src="../../static/js/main.js"></script>
+    <style>
+        body {
+            color: #566787;
+            background: #f7f5f2;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .table-responsive {
+            margin: 30px 0;
+        }
+
+        .table-wrapper {
+            min-width: 1000px;
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 3px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        }
+
+        .table-title {
+            color: #fff;
+            background: #40b2cd;
+            padding: 16px 25px;
+            margin: -20px -25px 10px;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .table-title h2 {
+            margin: 5px 0 0;
+            font-size: 24px;
+        }
+
+        .table-title .add-new {
+            background: #88ff00;
+            height: 30px;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: none;
+            min-width: 100px;
+            border-radius: 50px;
+            line-height: 13px;
+        }
+
+        .search-box {
+            position: relative;
+            float: right;
+        }
+
+        .search-box .input-group {
+            min-width: 300px;
+            position: absolute;
+            right: 0;
+        }
+
+        .search-box .input-group-addon, .search-box input {
+            border-color: #ddd;
+            border-radius: 0;
+        }
+
+        .search-box input {
+            height: 34px;
+            padding-right: 35px;
+            background: #f4fcfd;
+            border: none;
+            border-radius: 2px !important;
+        }
+
+        .search-box input:focus {
+            background: #fff;
+        }
+
+        .search-box input::placeholder {
+            font-style: italic;
+        }
+
+        .search-box .input-group-addon {
+            min-width: 35px;
+            border: none;
+            background: transparent;
+            position: absolute;
+            right: 0;
+            z-index: 9;
+            padding: 6px 0;
+        }
+
+        .search-box i {
+            color: #a0a5b1;
+            font-size: 19px;
+            position: relative;
+            top: 2px;
+        }
+
+        table.table {
+            table-layout: fixed;
+            margin-top: 15px;
+        }
+
+        table.table tr th, table.table tr td {
+            border-color: #e9e9e9;
+        }
+
+        table.table th i {
+            font-size: 13px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        table.table th:first-child {
+            width: 60px;
+        }
+
+        table.table th:last-child {
+            width: 120px;
+        }
+
+        table.table td a {
+            color: #a0a5b1;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        table.table td a.view {
+            color: #03A9F4;
+        }
+
+        table.table td a.edit {
+            color: #FFC107;
+        }
+
+        table.table td a.delete {
+            color: #E34724;
+        }
+
+        table.table td a.details {
+            color: #57e324;
+        }
+
+        table.table td i {
+            font-size: 19px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            // Activate tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Filter table rows based on searched term
+            $("#search").on("keyup", function () {
+                var term = $(this).val().toLowerCase();
+                $("table tbody tr").each(function () {
+                    $row = $(this);
+                    var name = $row.find("td:nth-child(2)").text().toLowerCase();
+                    console.log(name);
+                    if (name.search(term) < 0) {
+                        $row.hide();
+                    } else {
+                        $row.show();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h2>Students <b>List</b></h2>
+                    </div>
+                    <div class="col-xs-6">
+                        <span><button type="button" data-toggle="modal" data-target="#addModal"
+                                      class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button></span>
+                        <div class="search-box">
+                            <div class="input-group">
+                                <input type="text" id="search" class="form-control" placeholder="Search by Name">
+                                <span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th style="width: 22%;">Full Name</th>
+                    <th style="width: 22%;">Address</th>
+                    <th>Group</th>
+                    <th>Faculty</th>
+                    <th>Course</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student:${students}">
+                    <td th:text="${student.id}"/>
+                    <td>
+                        <span th:text="${student.firstName}"/>
+                        <span th:text="${student.lastName}"/>
+                    </td>
+                    <td th:text="${student.address}"/>
+                    <td th:text="${student.groupId}"/>
+                    <td th:text="${student.faculty}"/>
+                    <td th:text="${student.course}"/>
+                    <td>
+                        <a th:href="@{students/edit/{id}(id = ${student.id})}" class="edit" data-target="#editModal"
+                           data-toggle="tooltip" title="Edit"><i class="material-icons">&#xE254;</i></a>
+                        <a th:href="@{/students/delete/{id}(id = ${student.id})}" class="delete" data-toggle="tooltip"
+                           title="Delete"><i class="material-icons">&#xE872;</i></a>
+                        <a th:href="@{students/edit/{id}(id = ${student.id})}" class="details" data-toggle="tooltip"
+                           title="Details" data-target="#details"><i class="material-icons">&#xE87c;</i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Maria Anders</td>
+                    <td>Obere Str. 57</td>
+                    <td>Berlin</td>
+                    <td>12209</td>
+                    <td>Germany</td>
+                    <td>
+                        <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i
+                                class="material-icons">&#xE254;</i></a>
+                        <a href="#" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Fran Wilson</td>
+                    <td>C/ Araquil, 67</td>
+                    <td>Madrid</td>
+                    <td>28023</td>
+                    <td>Spain</td>
+                    <td>
+                        <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i
+                                class="material-icons">&#xE254;</i></a>
+                        <a href="#" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Dominique Perrier</td>
+                    <td>25, rue Lauriston</td>
+                    <td>Paris</td>
+                    <td>75016</td>
+                    <td>France</td>
+                    <td>
+                        <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i
+                                class="material-icons">&#xE254;</i></a>
+                        <a href="#" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Martin Blank</td>
+                    <td>Via Monte Bianco 34</td>
+                    <td>Turin</td>
+                    <td>10100</td>
+                    <td>Italy</td>
+                    <td>
+                        <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i
+                                class="material-icons">&#xE254;</i></a>
+                        <a href="#" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="editForm">
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
+        <form id="editStudent" th:action="@{/update}" th:object="${student}" method="put">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Student</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="id" class="col-form-label">id:</label>
+                            <input type="text" readonly class="form-control" id="id" name="id">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="groupId" class="col-form-label">Group id:</label>
+                            <input type="text" class="form-control" id="groupId" name="groupId">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="firstNameEdit" class="col-form-label">First name:</label>
+                            <input type="text" class="form-control" id="firstNameEdit" name="firstName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastNameEdit" class="col-form-label">Last name:</label>
+                            <input type="text" class="form-control" id="lastNameEdit" name="lastName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate" class="col-form-label">Birth date:</label>
+                            <input type="date" class="form-control" id="birthDate" name="birthDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="addressEdit" class="col-form-label">Address</label>
+                            <input type="text" class="form-control" id="addressEdit" name="address">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailEdit" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="emailEdit" name="email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneEdit" class="col-form-label">Phone:</label>
+                            <input type="text" class="form-control" id="phoneEdit" name="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="genderEdit" class="col-form-label">Gender:</label>
+                            <!--                            <input type="text" class="form-control" id="gender" name="gender">-->
+                            <select class="form-control" id="genderEdit" name="gender">
+                                <option>MALE</option>
+                                <option>FEMALE</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="facultyEdit" class="col-form-label">Faculty:</label>
+                            <input type="text" class="form-control" id="facultyEdit" name="faculty">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="courseEdit" class="col-form-label">Course:</label>
+                            <input type="text" class="form-control" id="courseEdit" name="course">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel"
+     aria-hidden="true">
+    <!--/*@thymesVar id="student" type="com.nesterov.university.model"*/-->
+    <form id="addStudent" action="#" th:action="@{/create}" th:object="${student}" method="post">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">New Student</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="group_id" class="col-form-label">Group id:</label>
+                        <input type="text" class="form-control" id="group_id" name="groupId">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="firstName" class="col-form-label">First name:</label>
+                        <input type="text" class="form-control" id="firstName" name="firstName">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="col-form-label">Last name:</label>
+                        <input type="text" class="form-control" id="lastName" name="lastName">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birth_date" class="col-form-label">Birth date:</label>
+                        <input type="date" class="form-control" id="birth_date" name="birthDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" class="col-form-label">Address</label>
+                        <input type="text" class="form-control" id="address" name="address">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="col-form-label">Email:</label>
+                        <input type="text" class="form-control" id="email" name="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="col-form-label">Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender" class="col-form-label">Gender:</label>
+                        <!--                            <input type="text" class="form-control" id="gender" name="gender">-->
+                        <select class="form-control" id="gender" name="gender">
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="faculty" class="col-form-label">Faculty:</label>
+                        <input type="text" class="form-control" id="faculty" name="faculty">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course" class="col-form-label">Course:</label>
+                        <input type="text" class="form-control" id="course" name="course">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal" id="details" tabindex="-1" role="dialog" th:object="${student}">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Moxldal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container bootstrap snippets bootdey">
+                    <div class="panel-body inf-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img alt="" style="width:600px;" title="" class="img-circle img-thumbnail isTooltip"
+                                     src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                     data-original-title="Usuario">
+                                <ul title="Ratings" class="list-inline ratings text-center">
+                                    <li><a href="#"><span class="glyphicon glyphicon-star"></span></a></li>
+                                    <li><a href="#"><span class="glyphicon glyphicon-star"></span></a></li>
+                                    <li><a href="#"><span class="glyphicon glyphicon-star"></span></a></li>
+                                    <li><a href="#"><span class="glyphicon glyphicon-star"></span></a></li>
+                                    <li><a href="#"><span class="glyphicon glyphicon-star"></span></a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Information</strong><br>
+                                <div class="table-responsive">
+                                    <table class="table table-user-information">
+                                        <tbody>
+                                        <tr th:object="${student}">
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-asterisk text-primary"></span>
+                                                    Identificacion
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                123456789
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-user  text-primary"></span>
+                                                    First Name
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                <p class="firstName"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-cloud text-primary"></span>
+                                                    Last Name
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                <p class="lastName"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-bookmark text-primary"></span>
+                                                    Username
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                bootnipets
+                                            </td>
+                                        </tr>
+
+
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-eye-open text-primary"></span>
+                                                    Role
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                Admin
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-envelope text-primary"></span>
+                                                    Email
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                <p class="email"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-calendar text-primary"></span>
+                                                    created
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                20 jul 20014
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <span class="glyphicon glyphicon-calendar text-primary"></span>
+                                                    Modified
+                                                </strong>
+                                            </td>
+                                            <td class="text-primary">
+                                                20 jul 20014 20:00:00
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
