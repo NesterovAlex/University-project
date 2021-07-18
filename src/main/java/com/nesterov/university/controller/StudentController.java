@@ -23,7 +23,7 @@ public class StudentController {
     public String getAll(Model model) {
         List<Student> students = studentService.getAll();
         model.addAttribute("students", students);
-        return "students";
+        return "users";
     }
 
     @RequestMapping(value = "/students/edit/{id}", method = RequestMethod.GET)
@@ -33,6 +33,14 @@ public class StudentController {
         model.addAttribute("student", student);
 
         return student;
+    }
+
+    @RequestMapping(value = "/students/details/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public String studentDatailsById(@PathVariable("id") long id, Model model) {
+        Student student = studentService.get(id);
+        model.addAttribute("student", student);
+        return "details";
     }
 
     @RequestMapping(value = "/update", method = {RequestMethod.PUT, RequestMethod.GET})
